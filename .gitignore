@@ -80,3 +80,7 @@ build
 .history
 
 # End of https://www.gitignore.io/api/c++,linux,cmake,visualstudiocode
+
+# Game Boy
+
+*.gb
