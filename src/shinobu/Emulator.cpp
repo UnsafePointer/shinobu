@@ -22,4 +22,9 @@ void Emulator::powerUp() {
 }
 
 void Emulator::start() {
+    while (true) {
+        uint8_t instruction = processor->fetchInstruction();
+        Core::CPU::Instructions::InstructionHandler handler = processor->decodeInstruction(instruction);
+        handler(processor, instruction);
+    }
 }

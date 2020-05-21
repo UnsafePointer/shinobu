@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include "Memory.hpp"
 
 namespace Core {
@@ -58,6 +59,18 @@ namespace Core {
             Registers() : _value() {} ;
         };
 
+        class Processor;
+
+        namespace Instructions {
+            typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, uint8_t code);
+
+            uint8_t NOP(std::unique_ptr<Processor> &processor, uint8_t code);
+
+            const std::vector<InstructionHandler> table = {
+                NOP,
+            };
+        };
+
         class Processor {
             Registers registers;
             uint16_t stackPointer;
@@ -68,6 +81,8 @@ namespace Core {
             ~Processor();
 
             void initialize();
+            uint8_t fetchInstruction() const;
+            Instructions::InstructionHandler decodeInstruction(uint8_t code) const;
         };
     };
 };

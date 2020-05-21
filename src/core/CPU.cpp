@@ -49,3 +49,17 @@ void CPU::Processor::initialize() {
     // TODO: Interrupt Enable Register
     // memory->store(0xFFFF, 0x00);
 }
+
+uint8_t CPU::Processor::fetchInstruction() const {
+    return memory->load(programCounter);
+}
+
+CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t code) const {
+    return CPU::Instructions::table[code];
+}
+
+uint8_t CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code) {
+    (void)processor;
+    (void)code;
+    return 4;
+}
