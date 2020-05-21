@@ -45,3 +45,7 @@ void Runner::configure(int argc, char* argv[]) {
         std::cout << "Incorrect arguments passed. See README.md for usage." << std::endl;
     }
 }
+
+void Runner::configureEmulator(Emulator &emulator) {
+    emulator.setROMFilePath(ROMFilePath);
+}

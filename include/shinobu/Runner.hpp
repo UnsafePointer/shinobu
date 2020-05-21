@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <filesystem>
+#include <shinobu/Emulator.hpp>
 
 namespace Shinobu {
     class Runner {
@@ -13,5 +14,6 @@ namespace Shinobu {
         ~Runner();
 
         void configure(int argc, char* argv[]);
+        void configureEmulator(Emulator &emulator);
     };
 };

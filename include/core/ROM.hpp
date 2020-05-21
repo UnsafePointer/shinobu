@@ -1,9 +1,13 @@
 #pragma once
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 
 namespace Core {
+    const uint16_t HEADER_START_ADDRESS = 0x100;
+
     namespace ROM {
-        enum Type {
+        enum Type : uint8_t {
             ROM = 0x0,
             MBC1 = 0x1,
             MBC1_RAM = 0x2,
@@ -66,8 +70,9 @@ namespace Core {
         union Title {
             uint8_t _value[0x10];
             struct {
-                uint8_t padding[0xD];
+                uint8_t padding[0xC];
                 uint8_t manufacturerCode[0x3];
+                uint8_t cgbFlag;
             };
 
             Title() : _value() {}
@@ -79,10 +84,9 @@ namespace Core {
         };
 
         struct Header {
-            uint8_t entryPoint[0x5];
+            uint8_t entryPoint[0x4];
             uint8_t nintendoLogo[0x30];
             Title title;
-            uint8_t cgbFlag;
             uint8_t newLicenseeCode[0x2];
             uint8_t sgbFlag;
             Type cartridgeType;
@@ -96,11 +100,14 @@ namespace Core {
         };
 
         class Cartridge {
-
+            std::ifstream file;
         public:
             Header header;
             Cartridge();
             ~Cartridge();
+
+            void open(std::filesystem::path &filePath);
+            void readHeader();
         };
     }
 }
