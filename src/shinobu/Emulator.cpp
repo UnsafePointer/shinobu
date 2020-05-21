@@ -12,7 +12,6 @@ Emulator::~Emulator() {
 
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
-    cartridge->readHeader();
 }
 
 void Emulator::powerUp() {

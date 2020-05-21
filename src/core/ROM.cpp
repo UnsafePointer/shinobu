@@ -4,43 +4,42 @@
 
 using namespace Core;
 
-ROM::Cartridge::Cartridge() : file(), header() {
+ROM::Cartridge::Cartridge() : file(), memory(), header() {
 
 }
 
-ROM::Cartridge::~Cartridge() {
-    if (file.is_open()) {
-        file.close();
-    }
-}
+ROM::Cartridge::~Cartridge() { }
 
 void ROM::Cartridge::open(std::filesystem::path &filePath) {
     if (!std::filesystem::exists(filePath)) {
         std::cout << "No ROM file set." << std::endl;
         return;
     }
+
     file.open(filePath, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         std::cout << "Unable to load ROM file at path: " << filePath.string() << std::endl;
         exit(1);
     }
-    std::streampos size = file.tellg();
-    std::cout << "Opened file path of size: " << std::dec << size << std::endl;
-}
 
-bool ROM::Cartridge::isOpen() const {
-    return file.is_open();
-}
+    std::streampos fileSize = file.tellg();
+    std::cout << "Opened file path of size: 0x" << std::hex << fileSize << std::endl;
 
-void ROM::Cartridge::readHeader() {
-    if (!file.is_open()) {
-        std::cout << "ROM file not open, unable to read the header." << std::endl;
-        return;
-    }
     file.seekg(HEADER_START_ADDRESS, file.beg);
     file.read(reinterpret_cast<char *>(&header), sizeof(Header));
+
+    memory.resize(fileSize);
+    file.seekg(0, file.beg);
+    file.read(reinterpret_cast<char *>(&memory[0]), fileSize);
+
     std::cout << "ROM header information: " << std::endl;
     std::cout << "Cartridge type: 0x" << std::hex << header.cartridgeType << std::endl;
     std::cout << "ROM Size: 0x" << std::hex << header._ROMSize << std::endl;
     std::cout << "RAM Size: 0x" << std::hex << header._RAMSize << std::endl;
+
+    file.close();
+}
+
+bool ROM::Cartridge::isOpen() const {
+    return !memory.empty();
 }

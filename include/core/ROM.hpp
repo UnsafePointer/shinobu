@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <vector>
 
 namespace Core {
     const uint16_t HEADER_START_ADDRESS = 0x100;
@@ -101,6 +102,7 @@ namespace Core {
 
         class Cartridge {
             std::ifstream file;
+            std::vector<uint8_t> memory;
         public:
             Header header;
             Cartridge();
@@ -108,7 +110,6 @@ namespace Core {
 
             void open(std::filesystem::path &filePath);
             bool isOpen() const;
-            void readHeader();
         };
     }
 }
