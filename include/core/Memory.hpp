@@ -16,6 +16,19 @@ namespace Core {
 
             std::optional<uint32_t> contains(uint32_t address) const;
         };
+        // https://gbdev.io/pandocs/#memory-map
+        const Range ROMBank00 = Range(0x0, 0x4000);
+        const Range ROMBank01_N = Range(0x4000, 0x4000);
+        const Range VideoRAM = Range(0x8000, 0x2000);
+        const Range ExternalRAM = Range(0xA000, 0x2000);
+        const Range WorkRAMBank00 = Range(0xC000, 0x1000);
+        const Range WorkRAMBank01_N = Range(0xD000, 0x1000);
+        const Range EchoRAM = Range(0xE000, 0x1E00);
+        const Range SpriteAttributeTable = Range(0xFE00, 0xA0);
+        const Range NotUsable = Range(0xFEA0, 0x60);
+        const Range I_ORegisters = Range(0xFF00, 0x80);
+        const Range HighRAM = Range(0xFF80, 0x7F);
+        const Range InterruptsEnableRegister = Range(0xFFFF, 0x1);
 
         class BankController {
         protected:
