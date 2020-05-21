@@ -3,6 +3,23 @@
 
 using namespace Core;
 
+Core::Memory::Range::Range(uint32_t start, uint32_t length) : start(start), length(length) {
+
+}
+
+Core::Memory::Range::~Range() {
+
+}
+
+std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
+    if (address >= start && address < (start + length)) {
+        uint32_t offset = address - start;
+        return { offset };
+    } else {
+        return std::nullopt;
+    }
+ }
+
 Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {
 
 }
