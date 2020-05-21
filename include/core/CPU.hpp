@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <memory>
+#include "Memory.hpp"
 
 namespace Core {
     namespace CPU {
@@ -60,8 +62,9 @@ namespace Core {
             Registers registers;
             uint16_t stackPointer;
             uint16_t programCounter;
+            std::unique_ptr<Memory::Controller> &memory;
         public:
-            Processor();
+            Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
 
             void initialize();

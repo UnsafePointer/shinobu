@@ -2,8 +2,9 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : processor(std::make_unique<Core::CPU::Processor>()), cartridge(std::make_unique<Core::ROM::Cartridge>()) {
+Emulator::Emulator() : cartridge(std::make_unique<Core::ROM::Cartridge>()) {
     memoryController = std::make_unique<Core::Memory::Controller>(cartridge);
+    processor = std::make_unique<Core::CPU::Processor>(memoryController);
 }
 
 Emulator::~Emulator() {

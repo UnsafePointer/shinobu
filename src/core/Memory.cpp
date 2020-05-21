@@ -105,3 +105,11 @@ void Memory::Controller::initialize() {
         break;
     }
 }
+
+uint8_t Memory::Controller::load(uint16_t address) const {
+    return bankController->load(address);
+}
+
+void Memory::Controller::store(uint16_t address, uint8_t value) {
+    bankController->store(address, value);
+}
