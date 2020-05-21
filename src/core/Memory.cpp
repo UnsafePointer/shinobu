@@ -29,7 +29,26 @@ Memory::BankController::~BankController() {
 }
 
 uint8_t Memory::MBC1::Controller::load(uint16_t address) {
-    (void)address;
+    std::optional<uint32_t> offset = ROMBank00.contains(address);
+    if (offset) {
+        uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;
+        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ROMBank01_N.contains(address);
+    if (offset) {
+        uint32_t upperMask = _BANK2.bank2 << 5 | _BANK1.bank1;
+        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
+        uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
+        return cartridge->load(physicalAddress);
+    }
+    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << address;
+    exit(1);
     return 0;
 }
 

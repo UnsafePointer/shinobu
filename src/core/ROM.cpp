@@ -43,3 +43,11 @@ void ROM::Cartridge::open(std::filesystem::path &filePath) {
 bool ROM::Cartridge::isOpen() const {
     return !memory.empty();
 }
+
+uint8_t ROM::Cartridge::load(uint16_t address) {
+    if (address > memory.size()) {
+        std::cout << "ROM load out of bounds with address: 0x" << std::hex<< address << std::endl;
+        exit(1);
+    }
+    return memory[address];
+}

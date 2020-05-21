@@ -110,6 +110,7 @@ namespace Core {
 
             void open(std::filesystem::path &filePath);
             bool isOpen() const;
+            uint8_t load(uint16_t address);
         };
     }
 }
