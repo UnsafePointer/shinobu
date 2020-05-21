@@ -28,12 +28,12 @@ Memory::BankController::~BankController() {
 
 }
 
-uint8_t Memory::MBC1::load(uint16_t address) {
+uint8_t Memory::MBC1::Controller::load(uint16_t address) {
     (void)address;
     return 0;
 }
 
-void Memory::MBC1::store(uint16_t address, uint8_t value) {
+void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
     (void)address;
     (void)value;
 }
@@ -56,7 +56,7 @@ void Memory::Controller::initialize() {
     case ROM::MBC1:
     case ROM::MBC1_RAM:
     case ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1>(cartridge);
+        bankController = std::make_unique<MBC1::Controller>(cartridge);
         break;
     default:
         std::cout << "Unhandled cartridge type: 0x" << std::hex << cartridgeType << std::endl;
