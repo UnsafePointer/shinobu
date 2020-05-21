@@ -76,6 +76,8 @@ namespace Core {
             uint16_t stackPointer;
             uint16_t programCounter;
             std::unique_ptr<Memory::Controller> &memory;
+
+            friend uint8_t Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

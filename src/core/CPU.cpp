@@ -1,4 +1,5 @@
 #include "core/CPU.hpp"
+#include <iostream>
 
 using namespace Core;
 
@@ -55,11 +56,21 @@ uint8_t CPU::Processor::fetchInstruction() const {
 }
 
 CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t code) const {
-    return CPU::Instructions::table[code];
+    // TODO: Remove these checks once table is complete
+    if (code > CPU::Instructions::table.size()) {
+        std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
+        exit(1);
+    }
+    CPU::Instructions::InstructionHandler handler = CPU::Instructions::table[code];
+    if (handler == nullptr) {
+        std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
+        exit(1);
+    }
+    return handler;
 }
 
 uint8_t CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code) {
-    (void)processor;
     (void)code;
+    processor->programCounter++;
     return 4;
 }
