@@ -28,6 +28,10 @@ void ROM::Cartridge::open(std::filesystem::path &filePath) {
     std::cout << "Opened file path of size: " << std::dec << size << std::endl;
 }
 
+bool ROM::Cartridge::isOpen() const {
+    return file.is_open();
+}
+
 void ROM::Cartridge::readHeader() {
     if (!file.is_open()) {
         std::cout << "ROM file not open, unable to read the header." << std::endl;

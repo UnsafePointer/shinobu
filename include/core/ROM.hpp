@@ -107,6 +107,7 @@ namespace Core {
             ~Cartridge();
 
             void open(std::filesystem::path &filePath);
+            bool isOpen() const;
             void readHeader();
         };
     }
