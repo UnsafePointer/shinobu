@@ -34,8 +34,31 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) {
 }
 
 void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
-    (void)address;
-    (void)value;
+    std::optional<uint32_t> offset = RAMGRange.contains(address);
+    if (offset) {
+        _RAMG._value = value;
+        return;
+    }
+    offset = BANK1Range.contains(address);
+    if (offset) {
+        _BANK1._value = value;
+        if (_BANK1.bank1 == 0) {
+            _BANK1.bank1 = 0;
+        }
+        return;
+    }
+    offset = BANK2Range.contains(address);
+    if (offset) {
+        _BANK2._value = value;
+        return;
+    }
+    offset = ModeRange.contains(address);
+    if (offset) {
+        mode._value = value;
+        return;
+    }
+    std::cout << "Unhandled MBC1 store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << value;
+    exit(1);
 }
 
 Memory::Controller::Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {

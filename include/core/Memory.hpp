@@ -41,7 +41,57 @@ namespace Core {
         };
 
         namespace MBC1 {
+            // https://gbdev.io/pandocs/#mbc1
+            const Range RAMGRange = Range(0x0, 0x2000);
+            const Range BANK1Range = Range(0x2000, 0x2000);
+            const Range BANK2Range = Range(0x4000, 0x2000);
+            const Range ModeRange = Range(0x6000, 0x2000);
+
+            union RAMG {
+                uint8_t _value;
+                struct {
+                    uint8_t enableAccess : 4;
+                    uint8_t unused : 4;
+                };
+
+                RAMG() : _value() {}
+            };
+
+            union BANK1 {
+                uint8_t _value;
+                struct {
+                    uint8_t bank1 : 5;
+                    uint8_t unused : 4;
+                };
+
+                BANK1() : _value(0x1) {}
+            };
+
+            union BANK2 {
+                uint8_t _value;
+                struct {
+                    uint8_t bank2 : 2;
+                    uint8_t unused : 6;
+                };
+
+                BANK2() : _value() {}
+            };
+
+            union Mode {
+                uint8_t _value;
+                struct {
+                    uint8_t mode : 1;
+                    uint8_t unused : 7;
+                };
+
+                Mode() : _value() {}
+            };
+
             class Controller : public BankController {
+                RAMG _RAMG;
+                BANK1 _BANK1;
+                BANK2 _BANK2;
+                Mode mode;
             public:
                 Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : BankController(cartridge) {};
                 uint8_t load(uint16_t address) override;
