@@ -1,4 +1,6 @@
-#include "CPU.hpp"
+#include "core/CPU.hpp"
+
+using namespace Core;
 
 CPU::Processor::Processor() : registers(), stackPointer(), programCounter() {
 }
