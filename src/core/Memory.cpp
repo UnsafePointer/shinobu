@@ -28,7 +28,7 @@ Memory::BankController::~BankController() {
 
 }
 
-uint8_t Memory::MBC1::Controller::load(uint16_t address) {
+uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
     std::optional<uint32_t> offset = ROMBank00.contains(address);
     if (offset) {
         uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;

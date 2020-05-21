@@ -36,7 +36,7 @@ namespace Core {
         public:
             BankController(std::unique_ptr<ROM::Cartridge> &cartridge);
             ~BankController();
-            virtual uint8_t load(uint16_t address) = 0 ;
+            virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
         };
 
@@ -94,7 +94,7 @@ namespace Core {
                 Mode mode;
             public:
                 Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : BankController(cartridge) {};
-                uint8_t load(uint16_t address) override;
+                uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
         };
