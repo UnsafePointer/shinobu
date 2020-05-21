@@ -63,6 +63,8 @@ namespace Core {
         public:
             Processor();
             ~Processor();
+
+            void initialize();
         };
     };
 };

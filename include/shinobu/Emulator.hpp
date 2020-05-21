@@ -13,5 +13,7 @@ namespace Shinobu {
         ~Emulator();
 
         void setROMFilePath(std::filesystem::path &filePath);
+        void powerUp();
+        void start();
     };
 };

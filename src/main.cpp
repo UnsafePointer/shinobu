@@ -9,5 +9,7 @@ int main(int argc, char* argv[]) {
     runner.configure(argc, argv);
     Emulator emulator = Emulator();
     runner.configureEmulator(emulator);
+    emulator.powerUp();
+    emulator.start();
     return 0;
 }

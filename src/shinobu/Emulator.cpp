@@ -14,3 +14,11 @@ void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
     cartridge->readHeader();
 }
+
+void Emulator::powerUp() {
+    // TODO: implement power up sequence: https://gbdev.io/pandocs/#power-up-sequence
+    processor->initialize();
+}
+
+void Emulator::start() {
+}
