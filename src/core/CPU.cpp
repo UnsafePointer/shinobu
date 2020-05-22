@@ -179,3 +179,23 @@ uint8_t CPU::Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instru
     processor->registers.pc = address;
     return 24;
 }
+
+uint8_t CPU::Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->registers.pc++;
+    uint8_t R = RTable[instruction.y];
+    uint8_t R2 = RTable[instruction.z];
+    if (R != 0xFF) {
+        if (R2 != 0xFF) {
+            processor->registers._value8[R] = processor->registers._value8[R2];
+            return 4;
+        } else {
+            uint8_t value = processor->memory->load(processor->registers.hl);
+            processor->registers._value8[R] = value;
+            return 8;
+        }
+    } else {
+        uint8_t value = processor->registers._value8[R];
+        processor->memory->store(processor->registers.hl, value);
+        return 8;
+    }
+}
