@@ -199,3 +199,11 @@ uint8_t CPU::Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruc
         return 8;
     }
 }
+
+uint8_t CPU::Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    int8_t value = processor->memory->load(++processor->registers.pc);
+    processor->registers.pc++;
+    processor->registers.pc += value;
+    return 12;
+}
