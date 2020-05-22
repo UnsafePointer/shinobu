@@ -171,3 +171,11 @@ uint8_t CPU::Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruc
     processor->registers._value16[RR]--;
     return 8;
 }
+
+uint8_t CPU::Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->pushIntoStack(++processor->registers.pc);
+    processor->registers.pc = address;
+    return 24;
+}
