@@ -3,7 +3,7 @@
 
 using namespace Core;
 
-CPU::Processor::Processor(std::unique_ptr<Memory::Controller> &memory) : registers(), stackPointer(), programCounter(), memory(memory) {
+CPU::Processor::Processor(std::unique_ptr<Memory::Controller> &memory) : registers(), memory(memory) {
 }
 
 CPU::Processor::~Processor() {
@@ -14,8 +14,8 @@ void CPU::Processor::initialize() {
     registers.bc = 0x0013;
     registers.de = 0x00D8;
     registers.hl = 0x014D;
-    stackPointer = 0xFFFE;
-    programCounter = 0x0100;
+    registers.pc = 0x0100;
+    registers.sp = 0xFFFE;
     // TODO: I/O registers
     // memory->store(0xFF05, 0x00);
     // memory->store(0xFF06, 0x00);
@@ -52,16 +52,16 @@ void CPU::Processor::initialize() {
 }
 
 uint8_t CPU::Processor::fetchInstruction() const {
-    return memory->load(programCounter);
+    return memory->load(registers.pc);
 }
 
 CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t code) const {
     // TODO: Remove these checks once table is complete
-    if (code > CPU::Instructions::table.size()) {
+    if (code > CPU::Instructions::instructionHandlerTable.size()) {
         std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
     }
-    CPU::Instructions::InstructionHandler handler = CPU::Instructions::table[code];
+    CPU::Instructions::InstructionHandler handler = CPU::Instructions::instructionHandlerTable[code];
     if (handler == nullptr) {
         std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
@@ -69,22 +69,30 @@ CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t 
     return handler;
 }
 
-uint8_t CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code) {
-    (void)code;
-    processor->programCounter++;
+uint8_t CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->registers.pc++;
     return 4;
 }
 
-uint8_t CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, uint8_t code) {
-    (void)code;
-    uint16_t destinaton = processor->memory->loadDoubleWord(++processor->programCounter);
-    processor->programCounter = destinaton;
+uint8_t CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t destinaton = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->registers.pc = destinaton;
     return 16;
 }
 
-uint8_t CPU::Instructions::DI(std::unique_ptr<Processor> &processor, uint8_t code) {
+uint8_t CPU::Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
     // TODO: Interrupt handling
-    (void)code;
-    processor->programCounter++;
+    (void)instruction;
+    processor->registers.pc++;
     return 4;
+}
+
+uint8_t CPU::Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = Instructions::RPTable[instruction.p];
+    uint16_t value = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->registers.pc++;
+    processor->registers._value[RR] = value;
+    return 12;
 }

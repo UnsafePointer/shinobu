@@ -37,12 +37,14 @@ namespace Core {
         PC    -    -    Program Counter/Pointer
         */
         union Registers {
-            uint16_t _value[4];
+            uint16_t _value[6];
             struct {
                 uint16_t af;
                 uint16_t bc;
                 uint16_t de;
                 uint16_t hl;
+                uint16_t sp;
+                uint16_t pc;
             };
             struct {
                 uint8_t f;
@@ -62,42 +64,62 @@ namespace Core {
         class Processor;
 
         namespace Instructions {
-            typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, uint8_t code);
+            // https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
+            union Instruction {
+                uint8_t _value;
+                struct {
+                    uint8_t z : 3;
+                    uint8_t y : 3;
+                    uint8_t x : 2;
+                };
+                struct {
+                    uint8_t _padding : 3;
+                    uint8_t q : 1;
+                    uint8_t p : 2;
+                    uint8_t _unused : 3;
+                };
 
-            uint8_t NOP(std::unique_ptr<Processor> &processor, uint8_t code);
-            uint8_t JP_U16(std::unique_ptr<Processor> &processor, uint8_t code);
-            uint8_t DI(std::unique_ptr<Processor> &processor, uint8_t code);
+                Instruction(uint8_t value) : _value(value) {}
+            };
 
-            const std::vector<InstructionHandler> table = {
+            const std::vector<uint8_t> RPTable { 0x1, 0x2, 0x3, 0x4 };
+
+            typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, Instruction instruction);
+
+            uint8_t NOP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t DI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+
+            const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0    +1    +2    +3      +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
-            /*0+*/ NOP, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*1+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*2+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*3+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*4+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*5+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*6+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*7+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*8+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*9+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*A+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*B+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*C+*/NULL, NULL, NULL, JP_U16, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*D+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*E+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*F+*/NULL, NULL, NULL, DI,     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*0+*/ NOP, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*1+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*2+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*3+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*4+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*5+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*6+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*7+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*8+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*9+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*A+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*B+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*C+*/NULL, NULL,     NULL, JP_U16, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*D+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*E+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*F+*/NULL, NULL,     NULL, DI,     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             };
         };
 
         class Processor {
             Registers registers;
-            uint16_t stackPointer;
-            uint16_t programCounter;
             std::unique_ptr<Memory::Controller> &memory;
 
-            friend uint8_t Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code);
-            friend uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, uint8_t code);
-            friend uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, uint8_t code);
+            friend uint8_t Instructions::NOP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
