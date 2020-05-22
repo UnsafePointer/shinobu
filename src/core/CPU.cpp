@@ -315,3 +315,15 @@ uint8_t CPU::Instructions::STOP(std::unique_ptr<Processor> &processor, Instructi
     processor->registers.pc++;
     return 0;
 }
+
+uint8_t CPU::Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    std::function<bool(Flag&)> compare = CCTable[instruction.y];
+    uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
+    if (compare(processor->registers.flag)) {
+        processor->pushIntoStack(++processor->registers.pc);
+        processor->registers.pc = address;
+        return 24;
+    }
+    processor->registers.pc++;
+    return 12;
+}
