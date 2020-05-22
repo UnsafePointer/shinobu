@@ -262,3 +262,10 @@ uint8_t CPU::Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruc
     processor->registers.pc++;
     return 12;
 }
+
+uint8_t CPU::Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = RPTable[instruction.p];
+    processor->registers.pc++;
+    processor->registers._value16[RR]++;
+    return 8;
+}

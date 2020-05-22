@@ -106,13 +106,14 @@ namespace Core {
             uint8_t LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0       +1        +2             +3      +4      +5       +6      +7      +8      +9      +A       +B   +C      +D       +E      +F
-            /*0+*/ NOP,    LD_RR_NN, LD_INDIRECT,   NULL,   INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*1+*/NULL,    LD_RR_NN, LD_INDIRECT,   NULL,   INC_R,  NULL,    NULL,   LD_U8,  JR_I8,  NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*2+*/NULL,    LD_RR_NN, LD_INDIRECT,   NULL,   INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*3+*/NULL,    LD_RR_NN, LD_INDIRECT,   NULL,   INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*0+*/ NOP,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*1+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  JR_I8,  NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*2+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*3+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
             /*4+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
             /*5+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
             /*6+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
@@ -152,6 +153,7 @@ namespace Core {
             friend uint8_t Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
