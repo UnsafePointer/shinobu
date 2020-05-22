@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 #include "Memory.hpp"
@@ -86,6 +87,20 @@ namespace Core {
             const std::vector<uint8_t> RPTable = { 0x1, 0x2, 0x3, 0x4 };
             const std::vector<uint8_t> RP2Table = { 0x1, 0x2, 0x3, 0x0 };
             const std::vector<uint8_t> RTable = { 0x3, 0x2, 0x5, 0x4, 0x7, 0x6, 0xFF, 0x1 };
+            const std::vector<std::function<bool(Flag&)>> CCTable = {
+                [](Flag& flags) {
+                    return flags.zero == 0;
+                },
+                [](Flag& flags) {
+                    return flags.zero == 1;
+                },
+                [](Flag& flags) {
+                    return flags.carry == 0;
+                },
+                [](Flag& flags) {
+                    return flags.carry == 1;
+                },
+            };
 
             typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, Instruction instruction);
 
@@ -109,25 +124,26 @@ namespace Core {
             uint8_t INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t EI(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t OR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
-            //    +0       +1        +2             +3      +4      +5       +6      +7      +8      +9      +A           +B      +C      +D       +E      +F
-            /*0+*/ NOP,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*1+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  JR_I8,  NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*2+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*3+*/NULL,    LD_RR_NN, LD_INDIRECT,   INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,   NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
-            /*4+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
-            /*5+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
-            /*6+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
-            /*7+*/LD_R_R,  LD_R_R,   LD_R_R,        LD_R_R, LD_R_R, LD_R_R,  NULL,   LD_R_R, LD_R_R, LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
-            /*8+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
-            /*9+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
-            /*A+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
-            /*B+*/OR,      OR,       OR,            OR,     OR,     OR,      OR,     OR,     NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
-            /*C+*/NULL,    POP_RR,   NULL,          JP_U16, NULL,   PUSH_RR, RST_N,  NULL,   NULL,   RET,    NULL,        NULL,   NULL,   CALL_NN, NULL,   RST_N,
-            /*D+*/NULL,    POP_RR,   NULL,          NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   RST_N,
-            /*E+*/LDH_N_A, POP_RR,   NULL,          NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,   NULL,   LD_NN_A,     NULL,   NULL,   NULL,    NULL,   RST_N,
-            /*F+*/NULL,    POP_RR,   NULL,          DI,     NULL,   PUSH_RR, RST_N,  OR,     NULL,   NULL,   NULL,        EI,     NULL,   NULL,    NULL,   RST_N,
+            //    +0        +1        +2            +3      +4      +5       +6      +7      +8        +9      +A           +B      +C      +D       +E      +F
+            /*0+*/ NOP,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,  NULL,    NULL,   LD_U8,  NULL,     NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*1+*/NULL,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,  NULL,    NULL,   LD_U8,  JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*2+*/JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,  NULL,    NULL,   LD_U8,  JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*3+*/JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,  NULL,    NULL,   LD_U8,  JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,  NULL,    LD_U8,  NULL,
+            /*4+*/LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
+            /*5+*/LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
+            /*6+*/LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
+            /*7+*/LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R, LD_R_R,  NULL,   LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R, LD_R_R,  LD_R_R, LD_R_R,
+            /*8+*/NULL,     NULL,     NULL,         NULL,   NULL,   NULL,    NULL,   NULL,   NULL,     NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
+            /*9+*/NULL,     NULL,     NULL,         NULL,   NULL,   NULL,    NULL,   NULL,   NULL,     NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
+            /*A+*/NULL,     NULL,     NULL,         NULL,   NULL,   NULL,    NULL,   NULL,   NULL,     NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
+            /*B+*/OR,       OR,       OR,           OR,     OR,     OR,      OR,     OR,     NULL,     NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
+            /*C+*/NULL,     POP_RR,   NULL,         JP_U16, NULL,   PUSH_RR, RST_N,  NULL,   NULL,     RET,    NULL,        NULL,   NULL,   CALL_NN, NULL,   RST_N,
+            /*D+*/NULL,     POP_RR,   NULL,         NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,     NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   RST_N,
+            /*E+*/LDH_N_A,  POP_RR,   NULL,         NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,     NULL,   LD_NN_A,     NULL,   NULL,   NULL,    NULL,   RST_N,
+            /*F+*/NULL,     POP_RR,   NULL,         DI,     NULL,   PUSH_RR, RST_N,  OR,     NULL,     NULL,   NULL,        EI,     NULL,   NULL,    NULL,   RST_N,
             };
         };
 
@@ -158,6 +174,7 @@ namespace Core {
             friend uint8_t Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

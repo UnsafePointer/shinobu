@@ -298,3 +298,14 @@ uint8_t CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instruction
         return 0;
     }
 }
+
+uint8_t CPU::Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    std::function<bool(Flag&)> compare = CCTable[instruction.y - 4];
+    int8_t value = processor->memory->load(++processor->registers.pc);
+    processor->registers.pc++;
+    if (compare(processor->registers.flag)) {
+        processor->registers.pc += value;
+        return 12;
+    }
+    return 8;
+}
