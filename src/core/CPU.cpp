@@ -269,3 +269,10 @@ uint8_t CPU::Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruc
     processor->registers._value16[RR]++;
     return 8;
 }
+
+uint8_t CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    // TODO: Interrupt handling
+    (void)instruction;
+    processor->registers.pc++;
+    return 4;
+}
