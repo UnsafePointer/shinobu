@@ -134,3 +134,11 @@ uint8_t CPU::Instructions::RET(std::unique_ptr<Processor> &processor, Instructio
     processor->registers.pc = address;
     return 16;
 }
+
+uint8_t CPU::Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->registers.pc++;
+    processor->memory->store(address, processor->registers.a);
+    return 16;
+}
