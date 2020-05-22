@@ -81,3 +81,10 @@ uint8_t CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, uint8_t
     processor->programCounter = destinaton;
     return 16;
 }
+
+uint8_t CPU::Instructions::DI(std::unique_ptr<Processor> &processor, uint8_t code) {
+    // TODO: Interrupt handling
+    (void)code;
+    processor->programCounter++;
+    return 4;
+}
