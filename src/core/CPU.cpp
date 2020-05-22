@@ -254,3 +254,11 @@ uint8_t CPU::Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instru
     processor->registers.pc++;
     return 16;
 }
+
+uint8_t CPU::Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = RP2Table[instruction.p];
+    uint16_t value = processor->popFromStack();
+    processor->registers._value16[RR] = value;
+    processor->registers.pc++;
+    return 12;
+}
