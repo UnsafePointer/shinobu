@@ -142,3 +142,16 @@ uint8_t CPU::Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instru
     processor->memory->store(address, processor->registers.a);
     return 16;
 }
+
+uint8_t CPU::Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.y];
+    uint8_t value = processor->memory->load(++processor->registers.pc);
+    processor->registers.pc++;
+    if (R != 0xFF) {
+        processor->registers._value8[R] = value;
+        return 8;
+    } else {
+        processor->memory->store(processor->registers.hl, value);
+        return 12;
+    }
+}
