@@ -37,7 +37,8 @@ namespace Core {
         PC    -    -    Program Counter/Pointer
         */
         union Registers {
-            uint16_t _value[6];
+            uint16_t _value16[6];
+            uint8_t _value8[12];
             struct {
                 uint16_t af;
                 uint16_t bc;
@@ -58,7 +59,7 @@ namespace Core {
             };
             Flag flag;
 
-            Registers() : _value() {} ;
+            Registers() : _value16() {} ;
         };
 
         class Processor;
@@ -82,7 +83,8 @@ namespace Core {
                 Instruction(uint8_t value) : _value(value) {}
             };
 
-            const std::vector<uint8_t> RPTable { 0x1, 0x2, 0x3, 0x4 };
+            const std::vector<uint8_t> RPTable = { 0x1, 0x2, 0x3, 0x4 };
+            const std::vector<uint8_t> RTable = { 0x3, 0x2, 0x5, 0x4, 0x7, 0x6, 0xFF, 0x1 };
 
             typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, Instruction instruction);
 
@@ -91,25 +93,26 @@ namespace Core {
             uint8_t DI(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t RST_N(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t INC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
-            //    +0    +1    +2    +3      +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
-            /*0+*/ NOP, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*1+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*2+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*3+*/NULL, LD_RR_NN, NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*4+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*5+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*6+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*7+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*8+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*9+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*A+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*B+*/NULL, NULL,     NULL, NULL,   NULL, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*C+*/NULL, NULL,     NULL, JP_U16, NULL, NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RST_N,
-            /*D+*/NULL, NULL,     NULL, NULL,   NULL, NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RST_N,
-            /*E+*/NULL, NULL,     NULL, NULL,   NULL, NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RST_N,
-            /*F+*/NULL, NULL,     NULL, DI,     NULL, NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RST_N,
+            //    +0    +1        +2    +3      +4     +5    +6     +7    +8    +9    +A    +B    +C     +D    +E    +F
+            /*0+*/ NOP, LD_RR_NN, NULL, NULL,   INC_R, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, INC_R, NULL, NULL, NULL,
+            /*1+*/NULL, LD_RR_NN, NULL, NULL,   INC_R, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, INC_R, NULL, NULL, NULL,
+            /*2+*/NULL, LD_RR_NN, NULL, NULL,   INC_R, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, INC_R, NULL, NULL, NULL,
+            /*3+*/NULL, LD_RR_NN, NULL, NULL,   INC_R, NULL, NULL,  NULL, NULL, NULL, NULL, NULL, INC_R, NULL, NULL, NULL,
+            /*4+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*5+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*6+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*7+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*8+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*9+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*A+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*B+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, NULL,  NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, NULL,
+            /*C+*/NULL, NULL,     NULL, JP_U16, NULL,  NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, RST_N,
+            /*D+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, RST_N,
+            /*E+*/NULL, NULL,     NULL, NULL,   NULL,  NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, RST_N,
+            /*F+*/NULL, NULL,     NULL, DI,     NULL,  NULL, RST_N, NULL, NULL, NULL, NULL, NULL, NULL,  NULL, NULL, RST_N,
             };
         };
 
@@ -125,6 +128,7 @@ namespace Core {
             friend uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

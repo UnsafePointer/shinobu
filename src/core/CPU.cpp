@@ -104,7 +104,7 @@ uint8_t CPU::Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instr
     uint8_t RR = Instructions::RPTable[instruction.p];
     uint16_t value = processor->memory->loadDoubleWord(++processor->registers.pc);
     processor->registers.pc++;
-    processor->registers._value[RR] = value;
+    processor->registers._value16[RR] = value;
     return 12;
 }
 
@@ -113,4 +113,17 @@ uint8_t CPU::Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruct
     processor->pushIntoStack(++processor->registers.pc);
     processor->registers.pc = N;
     return 16;
+}
+
+uint8_t CPU::Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.y];
+    processor->registers.pc++;
+    if (R != 0xFF) {
+        processor->registers._value8[R]++;
+        return 4;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        processor->memory->store(processor->registers.hl, ++value);
+        return 12;
+    }
 }
