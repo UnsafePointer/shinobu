@@ -309,3 +309,9 @@ uint8_t CPU::Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instr
     }
     return 8;
 }
+
+uint8_t CPU::Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->registers.pc++;
+    return 0;
+}
