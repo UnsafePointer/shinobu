@@ -119,3 +119,10 @@ uint16_t Memory::Controller::loadDoubleWord(uint16_t address) const {
     uint16_t msb = load(address + 1);
     return (msb << 8) | lsb;
 }
+
+void Memory::Controller::storeDoubleWord(uint16_t address, uint16_t value) {
+    uint8_t lsb = value & 0xFF;
+    store(address, lsb);
+    uint8_t msb = value >> 8;
+    store(address + 1, msb);
+}

@@ -9,6 +9,17 @@ CPU::Processor::Processor(std::unique_ptr<Memory::Controller> &memory) : registe
 CPU::Processor::~Processor() {
 }
 
+void CPU::Processor::pushIntoStack(uint16_t value) {
+    registers.sp -= 2;
+    memory->storeDoubleWord(registers.sp, value);
+}
+
+uint16_t CPU::Processor::popFromStack() {
+    uint16_t value = memory->loadDoubleWord(registers.sp);
+    registers.sp += 2;
+    return value;
+}
+
 void CPU::Processor::initialize() {
     registers.af = 0x01B0;
     registers.bc = 0x0013;
@@ -95,4 +106,11 @@ uint8_t CPU::Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instr
     processor->registers.pc++;
     processor->registers._value[RR] = value;
     return 12;
+}
+
+uint8_t CPU::Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t N = instruction.y * 8;
+    processor->pushIntoStack(++processor->registers.pc);
+    processor->registers.pc = N;
+    return 16;
 }

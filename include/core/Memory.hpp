@@ -110,6 +110,7 @@ namespace Core {
             uint8_t load(uint16_t address) const;
             void store(uint16_t address, uint8_t value);
             uint16_t loadDoubleWord(uint16_t address) const;
+            void storeDoubleWord(uint16_t address, uint16_t value);
         };
     };
 };
