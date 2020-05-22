@@ -155,3 +155,12 @@ uint8_t CPU::Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruct
         return 12;
     }
 }
+
+uint8_t CPU::Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint8_t value = processor->memory->load(++processor->registers.pc);
+    processor->registers.pc++;
+    uint16_t address = 0xFF00 | value;
+    processor->memory->store(address, processor->registers.a);
+    return 12;
+}

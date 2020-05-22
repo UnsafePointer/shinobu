@@ -51,7 +51,7 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
     if (offset) {
         return WRAMBank01_N[*offset];
     }
-    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << address;
+    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << (unsigned int)address;
     exit(1);
     return 0;
 }
@@ -85,7 +85,17 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
         WRAMBank01_N[*offset] = value;
         return;
     }
-    std::cout << "Unhandled MBC1 store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << value;
+    offset = I_ORegisters.contains(address);
+    if (offset) {
+        std::cout << "Unhandled I/O Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        return;
+    }
+    offset = InterruptsEnableRegister.contains(address);
+    if (offset) {
+        std::cout << "Unhandled Interrupt Enable Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        return;
+    }
+    std::cout << "Unhandled MBC1 store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
     exit(1);
 }
 
@@ -110,7 +120,7 @@ void Memory::Controller::initialize() {
         bankController = std::make_unique<MBC1::Controller>(cartridge);
         break;
     default:
-        std::cout << "Unhandled cartridge type: 0x" << std::hex << cartridgeType << std::endl;
+        std::cout << "Unhandled cartridge type: 0x" << std::hex << (unsigned int)cartridgeType << std::endl;
         break;
     }
 }
