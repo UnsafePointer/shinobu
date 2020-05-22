@@ -108,6 +108,7 @@ namespace Core {
             uint8_t POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t EI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t OR(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0       +1        +2             +3      +4      +5       +6      +7      +8      +9      +A           +B      +C      +D       +E      +F
@@ -122,11 +123,11 @@ namespace Core {
             /*8+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
             /*9+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
             /*A+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
-            /*B+*/NULL,    NULL,     NULL,          NULL,   NULL,   NULL,    NULL,   NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
+            /*B+*/OR,      OR,       OR,            OR,     OR,     OR,      OR,     OR,     NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   NULL,
             /*C+*/NULL,    POP_RR,   NULL,          JP_U16, NULL,   PUSH_RR, RST_N,  NULL,   NULL,   RET,    NULL,        NULL,   NULL,   CALL_NN, NULL,   RST_N,
             /*D+*/NULL,    POP_RR,   NULL,          NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,   NULL,   NULL,        NULL,   NULL,   NULL,    NULL,   RST_N,
             /*E+*/LDH_N_A, POP_RR,   NULL,          NULL,   NULL,   PUSH_RR, RST_N,  NULL,   NULL,   NULL,   LD_NN_A,     NULL,   NULL,   NULL,    NULL,   RST_N,
-            /*F+*/NULL,    POP_RR,   NULL,          DI,     NULL,   PUSH_RR, RST_N,  NULL,   NULL,   NULL,   NULL,        EI,     NULL,   NULL,    NULL,   RST_N,
+            /*F+*/NULL,    POP_RR,   NULL,          DI,     NULL,   PUSH_RR, RST_N,  OR,     NULL,   NULL,   NULL,        EI,     NULL,   NULL,    NULL,   RST_N,
             };
         };
 
@@ -156,6 +157,7 @@ namespace Core {
             friend uint8_t Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

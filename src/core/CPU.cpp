@@ -276,3 +276,25 @@ uint8_t CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instruction
     processor->registers.pc++;
     return 4;
 }
+
+uint8_t CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->registers.pc++;
+    if (instruction.x == 2) {
+        uint8_t R = RTable[instruction.z];
+        if (R != 0xFF) {
+            processor->registers.a = processor->registers.a | processor->registers._value8[R];
+            return 4;
+        } else {
+            uint8_t value = processor->memory->load(processor->registers.hl);
+            processor->registers.a = processor->registers.a | value;
+            return 8;
+        }
+    } else if (instruction.x == 3) {
+        uint8_t value = processor->memory->load(processor->registers.pc);
+        processor->registers.pc++;
+        processor->registers.a = processor->registers.a | value;
+        return 8;
+    } else {
+        return 0;
+    }
+}
