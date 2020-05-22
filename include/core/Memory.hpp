@@ -33,6 +33,7 @@ namespace Core {
         class BankController {
         protected:
             std::unique_ptr<ROM::Cartridge> &cartridge;
+            std::array<uint8_t, 0x1000> WRAMBank01_N;
         public:
             BankController(std::unique_ptr<ROM::Cartridge> &cartridge);
             ~BankController();

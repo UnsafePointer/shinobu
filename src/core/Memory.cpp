@@ -20,7 +20,7 @@ std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
     }
  }
 
-Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {
+Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N() {
 
 }
 
@@ -74,6 +74,11 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
     offset = ModeRange.contains(address);
     if (offset) {
         mode._value = value;
+        return;
+    }
+    offset = WorkRAMBank01_N.contains(address);
+    if (offset) {
+        WRAMBank01_N[*offset] = value;
         return;
     }
     std::cout << "Unhandled MBC1 store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << value;
