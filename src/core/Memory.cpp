@@ -1,5 +1,6 @@
 #include "core/Memory.hpp"
 #include <iostream>
+#include "core/device/SerialCommunicationController.hpp"
 
 using namespace Core;
 
@@ -20,7 +21,7 @@ std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
     }
  }
 
-Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N() {
+Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()) {
 
 }
 
@@ -87,6 +88,11 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
     }
     offset = I_ORegisters.contains(address);
     if (offset) {
+        offset = Device::SerialCommunication::AddressRange.contains(address);
+        if (offset) {
+            serialCommController->store(*offset, value);
+            return;
+        }
         std::cout << "Unhandled I/O Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
         return;
     }
