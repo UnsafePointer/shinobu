@@ -164,3 +164,10 @@ uint8_t CPU::Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instru
     processor->memory->store(address, processor->registers.a);
     return 12;
 }
+
+uint8_t CPU::Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = RPTable[instruction.p];
+    processor->registers.pc++;
+    processor->registers._value16[RR]--;
+    return 8;
+}
