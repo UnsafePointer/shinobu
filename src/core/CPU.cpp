@@ -247,3 +247,10 @@ uint8_t CPU::Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, In
     processor->registers.pc++;
     return 8;
 }
+
+uint8_t CPU::Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = RP2Table[instruction.p];
+    processor->pushIntoStack(processor->registers._value16[RR]);
+    processor->registers.pc++;
+    return 16;
+}
