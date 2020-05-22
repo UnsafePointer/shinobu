@@ -74,3 +74,10 @@ uint8_t CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t co
     processor->programCounter++;
     return 4;
 }
+
+uint8_t CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, uint8_t code) {
+    (void)code;
+    uint16_t destinaton = processor->memory->loadDoubleWord(++processor->programCounter);
+    processor->programCounter = destinaton;
+    return 16;
+}

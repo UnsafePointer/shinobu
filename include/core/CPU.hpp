@@ -65,9 +65,26 @@ namespace Core {
             typedef uint8_t (*InstructionHandler) (std::unique_ptr<Processor> &processor, uint8_t code);
 
             uint8_t NOP(std::unique_ptr<Processor> &processor, uint8_t code);
+            uint8_t JP_U16(std::unique_ptr<Processor> &processor, uint8_t code);
 
             const std::vector<InstructionHandler> table = {
-                NOP,
+            //    +0    +1    +2    +3      +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
+            /*0+*/ NOP, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*1+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*2+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*3+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*4+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*5+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*6+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*7+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*8+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*9+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*A+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*B+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*C+*/NULL, NULL, NULL, JP_U16, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*D+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*E+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*F+*/NULL, NULL, NULL, NULL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             };
         };
 
@@ -78,6 +95,7 @@ namespace Core {
             std::unique_ptr<Memory::Controller> &memory;
 
             friend uint8_t Instructions::NOP(std::unique_ptr<Processor> &processor, uint8_t code);
+            friend uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, uint8_t code);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
