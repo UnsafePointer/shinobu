@@ -47,6 +47,10 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
         uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
         return cartridge->load(physicalAddress);
     }
+    offset = WorkRAMBank01_N.contains(address);
+    if (offset) {
+        return WRAMBank01_N[*offset];
+    }
     std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << address;
     exit(1);
     return 0;

@@ -127,3 +127,10 @@ uint8_t CPU::Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruct
         return 12;
     }
 }
+
+uint8_t CPU::Instructions::RET(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t address = processor->popFromStack();
+    processor->registers.pc = address;
+    return 16;
+}
