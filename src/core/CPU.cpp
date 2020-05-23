@@ -20,32 +20,41 @@ uint16_t CPU::Processor::popFromStack() {
     return value;
 }
 
-uint8_t CPU::Processor::executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation, bool useAccumulator) {
+uint8_t CPU::Processor::executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator) {
     registers.pc++;
     if (instruction.x == 2) {
         uint8_t R = CPU::Instructions::RTable[instruction.z];
         if (R != 0xFF) {
             uint8_t RValue = registers._value8[R];
-            uint8_t result = operation(registers.a, RValue);
+            uint8_t result;
+            Flag flags;
+            std::tie(result, flags) = operation(registers.a, RValue);
             if (useAccumulator) {
                 registers.a = result;
             }
+            registers.flag = flags;
             return 4;
         } else {
             uint8_t HLValue = memory->load(registers.hl);
-            uint8_t result = operation(registers.a, HLValue);
+            uint8_t result;
+            Flag flags;
+            std::tie(result, flags) = operation(registers.a, HLValue);
             if (useAccumulator) {
                 registers.a = result;
             }
+            registers.flag = flags;
             return 8;
         }
     } else if (instruction.x == 3) {
         uint8_t NValue = memory->load(registers.pc);
         registers.pc++;
-        uint8_t result = operation(registers.a, NValue);
+        int8_t result;
+        Flag flags;
+        std::tie(result, flags) = operation(registers.a, NValue);
         if (useAccumulator) {
             registers.a = result;
         }
+        registers.flag = flags;
         return 8;
     } else {
         return 0;
@@ -320,7 +329,9 @@ uint8_t CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instruction
 
 uint8_t CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
-        return operand1 | operand2;
+        uint8_t result = operand1 | operand2;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     });
     return cycles;
 }
@@ -356,7 +367,9 @@ uint8_t CPU::Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Ins
 
 uint8_t CPU::Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
-        return operand1 - operand2;
+        uint8_t result = operand1 - operand2;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     });
     return cycles;
 }
@@ -395,7 +408,9 @@ uint8_t CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruct
         if (carry) {
             subtrahend++;
         }
-        return minuend - subtrahend;
+        uint8_t result = minuend - subtrahend;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     });
     return cycles;
 }
@@ -415,7 +430,9 @@ uint8_t CPU::Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruct
 
 uint8_t CPU::Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
-        return operand1 ^ operand2;
+        uint8_t result = operand1 ^ operand2;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     });
     return cycles;
 }
@@ -426,7 +443,9 @@ uint8_t CPU::Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruct
         if (carry) {
             operand2++;
         }
-        return operand1 + operand2;
+        uint8_t result = operand1 + operand2;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     });
     return cycles;
 }
@@ -484,7 +503,8 @@ uint8_t CPU::Instructions::RLC(std::unique_ptr<Processor> &processor, Instructio
 uint8_t CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 - operand2;
-        return result;
+        Flag flags = Flag();
+        return std::tuple(result, flags);
     }, false);
     return cycles;
 }

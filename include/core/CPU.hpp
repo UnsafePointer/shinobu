@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <tuple>
 #include <vector>
 #include "Memory.hpp"
 
@@ -192,7 +193,7 @@ namespace Core {
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
 
-            uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation, bool useAccumulator = true);
+            uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator = true);
 
             Instructions::InstructionHandler decodePrefixedInstruction(uint8_t code) const;
 
