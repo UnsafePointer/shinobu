@@ -377,3 +377,35 @@ uint8_t CPU::Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instru
     processor->registers.a = value;
     return 16;
 }
+
+uint8_t CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->registers.pc++;
+    if (instruction.x == 2) {
+        uint8_t R = RTable[instruction.z];
+        if (R != 0xFF) {
+            uint8_t subtrahend = processor->registers._value8[R];
+            if (processor->registers.flag.carry) {
+                subtrahend++;
+            }
+            processor->registers.a = processor->registers.a - subtrahend;
+            return 4;
+        } else {
+            uint8_t subtrahend = processor->memory->load(processor->registers.hl);
+            if (processor->registers.flag.carry) {
+                subtrahend++;
+            }
+            processor->registers.a = processor->registers.a - subtrahend;
+            return 8;
+        }
+    } else if (instruction.x == 3) {
+        uint8_t subtrahend = processor->memory->load(processor->registers.pc);
+        processor->registers.pc++;
+        if (processor->registers.flag.carry) {
+            subtrahend++;
+        }
+        processor->registers.a = processor->registers.a - subtrahend;
+        return 8;
+    } else {
+        return 0;
+    }
+}
