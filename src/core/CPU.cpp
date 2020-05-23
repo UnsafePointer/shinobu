@@ -20,6 +20,32 @@ uint16_t CPU::Processor::popFromStack() {
     return value;
 }
 
+uint8_t CPU::Processor::executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation) {
+    registers.pc++;
+    if (instruction.x == 2) {
+        uint8_t R = CPU::Instructions::RTable[instruction.z];
+        if (R != 0xFF) {
+            uint8_t RValue = registers._value8[R];
+            uint8_t result = operation(registers.a, RValue);
+            registers.a = result;
+            return 4;
+        } else {
+            uint8_t HLValue = memory->load(registers.hl);
+            uint8_t result = operation(registers.a, HLValue);
+            registers.a = result;
+            return 8;
+        }
+    } else if (instruction.x == 3) {
+        uint8_t NValue = memory->load(registers.pc);
+        registers.pc++;
+        uint8_t result = operation(registers.a, NValue);
+        registers.a = result;
+        return 8;
+    } else {
+        return 0;
+    }
+}
+
 void CPU::Processor::initialize() {
     registers.af = 0x01B0;
     registers.bc = 0x0013;
@@ -278,25 +304,10 @@ uint8_t CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instruction
 }
 
 uint8_t CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    processor->registers.pc++;
-    if (instruction.x == 2) {
-        uint8_t R = RTable[instruction.z];
-        if (R != 0xFF) {
-            processor->registers.a = processor->registers.a | processor->registers._value8[R];
-            return 4;
-        } else {
-            uint8_t value = processor->memory->load(processor->registers.hl);
-            processor->registers.a = processor->registers.a | value;
-            return 8;
-        }
-    } else if (instruction.x == 3) {
-        uint8_t value = processor->memory->load(processor->registers.pc);
-        processor->registers.pc++;
-        processor->registers.a = processor->registers.a | value;
-        return 8;
-    } else {
-        return 0;
-    }
+    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+        return operand1 | operand2;
+    });
+    return cycles;
 }
 
 uint8_t CPU::Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
@@ -329,25 +340,10 @@ uint8_t CPU::Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Ins
 }
 
 uint8_t CPU::Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    processor->registers.pc++;
-    if (instruction.x == 2) {
-        uint8_t R = RTable[instruction.z];
-        if (R != 0xFF) {
-            processor->registers.a = processor->registers.a + processor->registers._value8[R];
-            return 4;
-        } else {
-            uint8_t value = processor->memory->load(processor->registers.hl);
-            processor->registers.a = processor->registers.a + value;
-            return 8;
-        }
-    } else if (instruction.x == 3) {
-        uint8_t value = processor->memory->load(processor->registers.pc);
-        processor->registers.pc++;
-        processor->registers.a = processor->registers.a + value;
-        return 8;
-    } else {
-        return 0;
-    }
+    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+        return operand1 - operand2;
+    });
+    return cycles;
 }
 
 uint8_t CPU::Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction) {
@@ -379,33 +375,12 @@ uint8_t CPU::Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instru
 }
 
 uint8_t CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    processor->registers.pc++;
-    if (instruction.x == 2) {
-        uint8_t R = RTable[instruction.z];
-        if (R != 0xFF) {
-            uint8_t subtrahend = processor->registers._value8[R];
-            if (processor->registers.flag.carry) {
-                subtrahend++;
-            }
-            processor->registers.a = processor->registers.a - subtrahend;
-            return 4;
-        } else {
-            uint8_t subtrahend = processor->memory->load(processor->registers.hl);
-            if (processor->registers.flag.carry) {
-                subtrahend++;
-            }
-            processor->registers.a = processor->registers.a - subtrahend;
-            return 8;
-        }
-    } else if (instruction.x == 3) {
-        uint8_t subtrahend = processor->memory->load(processor->registers.pc);
-        processor->registers.pc++;
-        if (processor->registers.flag.carry) {
+    uint8_t carry = processor->registers.flag.carry;
+    uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t minuend, uint8_t subtrahend) {
+        if (carry) {
             subtrahend++;
         }
-        processor->registers.a = processor->registers.a - subtrahend;
-        return 8;
-    } else {
-        return 0;
-    }
+        return minuend - subtrahend;
+    });
+    return cycles;
 }

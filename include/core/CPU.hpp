@@ -161,6 +161,8 @@ namespace Core {
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
 
+            uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation);
+
             friend uint8_t Instructions::NOP(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction);
