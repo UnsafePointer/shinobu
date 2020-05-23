@@ -384,3 +384,16 @@ uint8_t CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruct
     });
     return cycles;
 }
+
+uint8_t CPU::Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.y];
+    processor->registers.pc++;
+    if (R != 0xFF) {
+        processor->registers._value8[R]--;
+        return 4;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        processor->memory->store(processor->registers.hl, --value);
+        return 12;
+    }
+}
