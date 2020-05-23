@@ -139,6 +139,7 @@ namespace Core {
             uint8_t JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t RLC(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> InstructionHandlerTable = {
             //    +0         +1        +2           +3      +4          +5       +6      +7      +8        +9      +A           +B      +C          +D          +E      +F
@@ -163,8 +164,8 @@ namespace Core {
             const uint8_t InstructionPrefix = 0xCB;
 
             const std::vector<InstructionHandler> PrefixedInstructionHandlerTable = {
-            //    +0    +1    +2    +3    +4    +5    +6    +6    +8    +9    +A    +B    +C    +D    +E    +F
-            /*0+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            //    +0    +1    +2    +3    +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
+            /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*1+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*2+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*3+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -228,6 +229,7 @@ namespace Core {
             friend uint8_t Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
