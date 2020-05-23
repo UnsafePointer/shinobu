@@ -81,6 +81,11 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
         mode._value = value;
         return;
     }
+    offset = VideoRAM.contains(address);
+    if (offset) {
+        std::cout << "Unhandled Video RAM write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        return;
+    }
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
         WRAMBank01_N[*offset] = value;
