@@ -140,6 +140,7 @@ namespace Core {
             uint8_t RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t RLC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t CP_A(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> InstructionHandlerTable = {
             //    +0         +1        +2           +3      +4          +5       +6      +7      +8        +9      +A           +B      +C          +D          +E      +F
@@ -154,11 +155,11 @@ namespace Core {
             /*8+*/ ADD,      ADD,      ADD,         ADD,    ADD,        ADD,     ADD,    ADD,    ADC_A,    ADC_A,  ADC_A,       ADC_A,  ADC_A,      ADC_A,      ADC_A,  ADC_A,
             /*9+*/ NULL,     NULL,     NULL,        NULL,   NULL,       NULL,    NULL,   NULL,   SBC_A,    SBC_A,  SBC_A,       SBC_A,  SBC_A,      SBC_A,      SBC_A,  SBC_A,
             /*A+*/ NULL,     NULL,     NULL,        NULL,   NULL,       NULL,    NULL,   NULL,   XOR_A,    XOR_A,  XOR_A,       XOR_A,  XOR_A,      XOR_A,      XOR_A,  XOR_A,
-            /*B+*/ OR,       OR,       OR,          OR,     OR,         OR,      OR,     OR,     NULL,     NULL,   NULL,        NULL,   NULL,       NULL,       NULL,   NULL,
+            /*B+*/ OR,       OR,       OR,          OR,     OR,         OR,      OR,     OR,     CP_A,     CP_A,   CP_A,        CP_A,   CP_A,       CP_A,       CP_A,   CP_A,
             /*C+*/ RET_CC,   POP_RR,   NULL,        JP_U16, CALL_CC_NN, PUSH_RR, RST_N,  ADD,    RET_CC,   RET,    NULL,        NULL,   CALL_CC_NN, CALL_NN,    ADC_A,  RST_N,
             /*D+*/ RET_CC,   POP_RR,   NULL,        NULL,   CALL_CC_NN, PUSH_RR, RST_N,  NULL,   RET_CC,   NULL,   NULL,        NULL,   CALL_CC_NN, NULL,       SBC_A,  RST_N,
             /*E+*/ LDH_N_A,  POP_RR,   NULL,        NULL,   NULL,       PUSH_RR, RST_N,  NULL,   NULL,     JP_HL,  LD_NN_A,     NULL,   NULL,       NULL,       XOR_A,  RST_N,
-            /*F+*/ NULL,     POP_RR,   NULL,        DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       NULL,   RST_N,
+            /*F+*/ NULL,     POP_RR,   NULL,        DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
             };
 
             const uint8_t InstructionPrefix = 0xCB;
@@ -191,7 +192,7 @@ namespace Core {
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
 
-            uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation);
+            uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation, bool useAccumulator = true);
 
             Instructions::InstructionHandler decodePrefixedInstruction(uint8_t code) const;
 
@@ -230,6 +231,7 @@ namespace Core {
             friend uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

@@ -20,26 +20,32 @@ uint16_t CPU::Processor::popFromStack() {
     return value;
 }
 
-uint8_t CPU::Processor::executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation) {
+uint8_t CPU::Processor::executeArithmetic(Instructions::Instruction instruction, std::function<uint8_t(uint8_t,uint8_t)> operation, bool useAccumulator) {
     registers.pc++;
     if (instruction.x == 2) {
         uint8_t R = CPU::Instructions::RTable[instruction.z];
         if (R != 0xFF) {
             uint8_t RValue = registers._value8[R];
             uint8_t result = operation(registers.a, RValue);
-            registers.a = result;
+            if (useAccumulator) {
+                registers.a = result;
+            }
             return 4;
         } else {
             uint8_t HLValue = memory->load(registers.hl);
             uint8_t result = operation(registers.a, HLValue);
-            registers.a = result;
+            if (useAccumulator) {
+                registers.a = result;
+            }
             return 8;
         }
     } else if (instruction.x == 3) {
         uint8_t NValue = memory->load(registers.pc);
         registers.pc++;
         uint8_t result = operation(registers.a, NValue);
-        registers.a = result;
+        if (useAccumulator) {
+            registers.a = result;
+        }
         return 8;
     } else {
         return 0;
@@ -473,4 +479,12 @@ uint8_t CPU::Instructions::RLC(std::unique_ptr<Processor> &processor, Instructio
         processor->memory->store(processor->registers.hl, value);
         return 16;
     }
+}
+
+uint8_t CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+        uint8_t result = operand1 - operand2;
+        return result;
+    }, false);
+    return cycles;
 }
