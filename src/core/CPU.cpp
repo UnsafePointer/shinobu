@@ -504,6 +504,16 @@ uint8_t CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instructi
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 - operand2;
         Flag flags = Flag();
+        if (result == 0) {
+            flags.zero = 1;
+        }
+        flags.n = 1;
+        if ((operand2 & 0xF) > (operand1 & 0xF)) {
+            flags.halfcarry = 1;
+        }
+        if (operand2 > operand1) {
+            flags.carry = 1;
+        }
         return std::tuple(result, flags);
     }, false);
     return cycles;
