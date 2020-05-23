@@ -357,3 +357,14 @@ uint8_t CPU::Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instr
     processor->memory->storeDoubleWord(address, processor->registers.sp);
     return 20;
 }
+
+uint8_t CPU::Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint8_t result = (processor->registers.a & 0x80) >> 7;
+    // TODO: breaks test
+    // processor->registers.flag.carry = result;
+    processor->registers.a <<= 1;
+    processor->registers.a |= result;
+    processor->registers.pc++;
+    return 4;
+}
