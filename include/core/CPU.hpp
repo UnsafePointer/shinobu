@@ -132,10 +132,10 @@ namespace Core {
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0         +1        +2            +3      +4          +5       +6      +7      +8        +9      +A           +B      +C       +D          +E      +F
-            /*0+*/ NOP,      LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    NULL,   LD_U8,  LD_NN_SP, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
-            /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    NULL,   LD_U8,  JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
-            /*2+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    NULL,   LD_U8,  JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
-            /*3+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    NULL,   LD_U8,  JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
+            /*0+*/ NOP,      LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    LD_U8,  NULL,   LD_NN_SP, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
+            /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    LD_U8,  NULL,   JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
+            /*2+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    LD_U8,  NULL,   JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
+            /*3+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      NULL,    LD_U8,  NULL,   JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,   NULL,       LD_U8,  NULL,
             /*4+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,  LD_R_R,     LD_R_R, LD_R_R,
             /*5+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,  LD_R_R,     LD_R_R, LD_R_R,
             /*6+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,  LD_R_R,     LD_R_R, LD_R_R,
