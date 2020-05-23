@@ -415,3 +415,9 @@ uint8_t CPU::Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruct
     });
     return cycles;
 }
+
+uint8_t CPU::Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->registers.pc = processor->registers.hl;
+    return 4;
+}
