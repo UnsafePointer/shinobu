@@ -134,6 +134,7 @@ namespace Core {
             uint8_t SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0         +1        +2            +3      +4          +5       +6      +7      +8        +9      +A           +B      +C          +D          +E      +F
@@ -145,11 +146,11 @@ namespace Core {
             /*5+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*6+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*7+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  NULL,   LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
-            /*8+*/ ADD,      ADD,      ADD,          ADD,    ADD,        ADD,     ADD,    ADD,    NULL,     NULL,   NULL,        NULL,   NULL,       NULL,       NULL,   NULL,
+            /*8+*/ ADD,      ADD,      ADD,          ADD,    ADD,        ADD,     ADD,    ADD,    ADC_A,    ADC_A,  ADC_A,       ADC_A,  ADC_A,      ADC_A,      ADC_A,  ADC_A,
             /*9+*/ NULL,     NULL,     NULL,         NULL,   NULL,       NULL,    NULL,   NULL,   SBC_A,    SBC_A,  SBC_A,       SBC_A,  SBC_A,      SBC_A,      SBC_A,  SBC_A,
             /*A+*/ NULL,     NULL,     NULL,         NULL,   NULL,       NULL,    NULL,   NULL,   XOR_A,    XOR_A,  XOR_A,       XOR_A,  XOR_A,      XOR_A,      XOR_A,  XOR_A,
             /*B+*/ OR,       OR,       OR,           OR,     OR,         OR,      OR,     OR,     NULL,     NULL,   NULL,        NULL,   NULL,       NULL,       NULL,   NULL,
-            /*C+*/ NULL,     POP_RR,   NULL,         JP_U16, CALL_CC_NN, PUSH_RR, RST_N,  ADD,    NULL,     RET,    NULL,        NULL,   CALL_CC_NN, CALL_NN,    NULL,   RST_N,
+            /*C+*/ NULL,     POP_RR,   NULL,         JP_U16, CALL_CC_NN, PUSH_RR, RST_N,  ADD,    NULL,     RET,    NULL,        NULL,   CALL_CC_NN, CALL_NN,    ADC_A,   RST_N,
             /*D+*/ NULL,     POP_RR,   NULL,         NULL,   CALL_CC_NN, PUSH_RR, RST_N,  NULL,   NULL,     NULL,   NULL,        NULL,   CALL_CC_NN, NULL,       SBC_A,  RST_N,
             /*E+*/ LDH_N_A,  POP_RR,   NULL,         NULL,   NULL,       PUSH_RR, RST_N,  NULL,   NULL,     NULL,   LD_NN_A,     NULL,   NULL,       NULL,       XOR_A,   RST_N,
             /*F+*/ NULL,     POP_RR,   NULL,         DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       NULL,   RST_N,
@@ -195,6 +196,7 @@ namespace Core {
             friend uint8_t Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

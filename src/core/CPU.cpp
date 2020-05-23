@@ -404,3 +404,14 @@ uint8_t CPU::Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruct
     });
     return cycles;
 }
+
+uint8_t CPU::Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t carry = processor->registers.flag.carry;
+    uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t operand1, uint8_t operand2) {
+        if (carry) {
+            operand2++;
+        }
+        return operand1 + operand2;
+    });
+    return cycles;
+}
