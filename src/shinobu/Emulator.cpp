@@ -24,8 +24,16 @@ void Emulator::powerUp() {
 void Emulator::start() {
     while (true) {
         uint8_t code = processor->fetchInstruction();
-        Core::CPU::Instructions::InstructionHandler handler = processor->decodeInstruction(code);
-        Core::CPU::Instructions::Instruction instruction = Core::CPU::Instructions::Instruction(code);
+        Core::CPU::Instructions::InstructionHandler handler;
+        Core::CPU::Instructions::Instruction instruction;
+        if (code == Core::CPU::Instructions::InstructionPrefix) {
+            uint8_t prefixedCode = processor->fetchPrefixedInstruction();
+            handler = processor->decodeInstruction(prefixedCode, Core::CPU::Instructions::PrefixedInstructionHandlerTable);
+            instruction = Core::CPU::Instructions::Instruction(prefixedCode);
+        } else {
+            instruction = Core::CPU::Instructions::Instruction(code);
+            handler = processor->decodeInstruction(code, Core::CPU::Instructions::InstructionHandlerTable);
+        }
         handler(processor, instruction);
     }
 }

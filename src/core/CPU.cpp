@@ -92,15 +92,24 @@ uint8_t CPU::Processor::fetchInstruction() const {
     return memory->load(registers.pc);
 }
 
-CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t code) const {
+uint8_t CPU::Processor::fetchPrefixedInstruction() const {
+    uint8_t immediateAddress = registers.pc + 1;
+    return memory->load(immediateAddress);
+}
+
+CPU::Instructions::InstructionHandler CPU::Processor::decodeInstruction(uint8_t code, std::vector<CPU::Instructions::InstructionHandler> table) const {
     // TODO: Remove these checks once table is complete
-    if (code > CPU::Instructions::instructionHandlerTable.size()) {
-        std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
+    std::string isPrefixed = "";
+    if (table == Instructions::PrefixedInstructionHandlerTable) {
+        isPrefixed = " prefixed";
+    }
+    if (code > table.size()) {
+        std::cout << "Unhandled" << isPrefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
     }
-    CPU::Instructions::InstructionHandler handler = CPU::Instructions::instructionHandlerTable[code];
+    CPU::Instructions::InstructionHandler handler = table[code];
     if (handler == nullptr) {
-        std::cout << "Unhandled instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
+        std::cout << "Unhandled" << isPrefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
     }
     return handler;
