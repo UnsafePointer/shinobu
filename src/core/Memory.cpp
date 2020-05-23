@@ -52,7 +52,12 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
     if (offset) {
         return WRAMBank01_N[*offset];
     }
-    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << (unsigned int)address;
+    offset = HighRAM.contains(address);
+    if (offset) {
+        std::cout << "Unhandled HRAM load at address: 0x" << std::hex << (unsigned int)address << std::endl;
+        return 0;
+    }
+    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << (unsigned int)address << std::endl;
     exit(1);
     return 0;
 }
