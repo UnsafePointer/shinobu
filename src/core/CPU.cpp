@@ -368,3 +368,12 @@ uint8_t CPU::Instructions::RLCA(std::unique_ptr<Processor> &processor, Instructi
     processor->registers.pc++;
     return 4;
 }
+
+uint8_t CPU::Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->registers.pc++;
+    uint8_t value = processor->memory->load(address);
+    processor->registers.a = value;
+    return 16;
+}
