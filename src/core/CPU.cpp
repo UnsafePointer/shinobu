@@ -433,3 +433,14 @@ uint8_t CPU::Instructions::RRA(std::unique_ptr<Processor> &processor, Instructio
     processor->registers.pc++;
     return 4;
 }
+
+uint8_t CPU::Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    std::function<bool(Flag&)> compare = CCTable[instruction.y];
+    if (compare(processor->registers.flag)) {
+        uint16_t address = processor->popFromStack();
+        processor->registers.pc = address;
+        return 20;
+    }
+    processor->registers.pc++;
+    return 8;
+}
