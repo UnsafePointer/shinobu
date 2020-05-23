@@ -421,3 +421,15 @@ uint8_t CPU::Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruct
     processor->registers.pc = processor->registers.hl;
     return 4;
 }
+
+uint8_t CPU::Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint8_t carry = processor->registers.flag.carry;
+    carry <<= 7;
+    uint8_t result = processor->registers.a & 0x1;
+    processor->registers.flag.carry = result;
+    processor->registers.a >>= 1;
+    processor->registers.a |= carry;
+    processor->registers.pc++;
+    return 4;
+}

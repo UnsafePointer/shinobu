@@ -136,11 +136,12 @@ namespace Core {
             uint8_t XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             uint8_t JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            uint8_t RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             const std::vector<InstructionHandler> instructionHandlerTable = {
             //    +0         +1        +2            +3      +4          +5       +6      +7      +8        +9      +A           +B      +C          +D          +E      +F
             /*0+*/ NOP,      LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      DEC_R,   LD_U8,  RLCA,   LD_NN_SP, NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
-            /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
+            /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  RRA,
             /*2+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*3+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT,  INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_CC_I8, NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*4+*/ LD_R_R,   LD_R_R,   LD_R_R,       LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,   LD_R_R, LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
@@ -199,6 +200,7 @@ namespace Core {
             friend uint8_t Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             friend uint8_t Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
