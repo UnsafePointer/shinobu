@@ -57,6 +57,10 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
     if (offset) {
         return WRAMBank01_N[*offset];
     }
+    offset = EchoRAM.contains(address);
+    if (offset) {
+        return WRAMBank00[*offset];
+    }
     offset = I_ORegisters.contains(address);
     if (offset) {
         offset = Device::SerialCommunication::AddressRange.contains(address);
@@ -117,6 +121,11 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
         WRAMBank01_N[*offset] = value;
+        return;
+    }
+    offset = EchoRAM.contains(address);
+    if (offset) {
+        WRAMBank00[*offset] = value;
         return;
     }
     offset = I_ORegisters.contains(address);
