@@ -6,9 +6,14 @@
 #include "ROM.hpp"
 
 namespace Core {
-    namespace Device::SerialCommunication {
-        class Controller;
-    };
+    namespace Device {
+        namespace SerialCommunication {
+            class Controller;
+        };
+        namespace PictureProcessingUnit {
+            class Processor;
+        };
+    }
 
     namespace Memory {
         class Range {
@@ -39,6 +44,7 @@ namespace Core {
             std::unique_ptr<ROM::Cartridge> &cartridge;
             std::array<uint8_t, 0x1000> WRAMBank01_N;
             std::unique_ptr<Core::Device::SerialCommunication::Controller> serialCommController;
+            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
         public:
             BankController(std::unique_ptr<ROM::Cartridge> &cartridge);
             ~BankController();

@@ -1,6 +1,7 @@
 #include "core/Memory.hpp"
 #include <iostream>
 #include "core/device/SerialCommunicationController.hpp"
+#include "core/device/PictureProcessingUnit.hpp"
 
 using namespace Core;
 
@@ -21,7 +22,7 @@ std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
     }
  }
 
-Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()) {
+Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
 
 }
 
@@ -51,6 +52,19 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
         return WRAMBank01_N[*offset];
+    }
+    offset = I_ORegisters.contains(address);
+    if (offset) {
+        offset = Device::SerialCommunication::AddressRange.contains(address);
+        if (offset) {
+            return serialCommController->load(*offset);
+        }
+        offset = Device::PictureProcessingUnit::AddressRange.contains(address);
+        if (offset) {
+            return PPU->load(*offset);;
+        }
+        std::cout << "Unhandled I/O Register load at address: 0x" << std::hex << address << std::endl;
+        return 0;
     }
     offset = HighRAM.contains(address);
     if (offset) {
@@ -101,6 +115,11 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
         offset = Device::SerialCommunication::AddressRange.contains(address);
         if (offset) {
             serialCommController->store(*offset, value);
+            return;
+        }
+        offset = Device::PictureProcessingUnit::AddressRange.contains(address);
+        if (offset) {
+            PPU->store(*offset, value);
             return;
         }
         std::cout << "Unhandled I/O Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
