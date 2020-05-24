@@ -3,11 +3,45 @@
 #include <filesystem>
 #include <fstream>
 #include <vector>
+#include <array>
+#include "core/Memory.hpp"
 
 namespace Core {
     const uint16_t HEADER_START_ADDRESS = 0x100;
 
     namespace ROM {
+        namespace BOOT {
+            union Lock {
+                uint8_t _value;
+                struct {
+                    uint8_t BOOT_OFF : 1;
+                    uint8_t unused : 7;
+                };
+
+                Lock() : _value() {}
+            };
+
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0x0, 0xFF);
+            const Core::Memory::Range BootROMRegisterRange = Core::Memory::Range(0xFF50, 0x1);
+
+            const uint16_t BOOT_ROM_SIZE = 0x100;
+            const std::filesystem::path DEFAULT_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
+
+            class ROM {
+                Lock lockRegister;
+                std::array<uint8_t, BOOT_ROM_SIZE> data;
+            public:
+                ROM();
+                ~ROM();
+
+                void initialize();
+                uint8_t load(uint16_t offset) const;
+                bool isLocked() const;
+                uint8_t loadLockRegister() const;
+                void storeLockRegister(uint8_t value);
+            };
+        };
+
         enum Type : uint8_t {
             ROM = 0x0,
             MBC1 = 0x1,

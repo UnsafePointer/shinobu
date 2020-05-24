@@ -2,6 +2,7 @@
 #include <iostream>
 #include "core/device/SerialCommunicationController.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
+#include "core/ROM.hpp"
 
 using namespace Core::Memory;
 
@@ -22,7 +23,7 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
+BankController::BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
 
 }
 
@@ -62,6 +63,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         offset = Device::PictureProcessingUnit::AddressRange.contains(address);
         if (offset) {
             return PPU->load(*offset);;
+        }
+        offset = Core::ROM::BOOT::AddressRange.contains(address);
+        if (offset) {
+            return bootROM->loadLockRegister();
         }
         std::cout << "Unhandled I/O Register load at address: 0x" << std::hex << address << std::endl;
         return 0;
@@ -107,6 +112,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         offset = Device::PictureProcessingUnit::AddressRange.contains(address);
         if (offset) {
             PPU->store(*offset, value);
+            return;
+        }
+        offset = Core::ROM::BOOT::AddressRange.contains(address);
+        if (offset) {
+            bootROM->storeLockRegister(value);
             return;
         }
         std::cout << "Unhandled I/O Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
@@ -189,7 +199,7 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
-Controller::Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge) {
+Controller::Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge), bootROM(std::make_unique<Core::ROM::BOOT::ROM>()) {
 
 }
 
@@ -198,6 +208,7 @@ Controller::~Controller() {
 }
 
 void Controller::initialize() {
+    bootROM->initialize();
     if (!cartridge->isOpen()) {
         std::cout << "ROM file not open, unable to initialize memory." << std::endl;
         return;
@@ -205,12 +216,12 @@ void Controller::initialize() {
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(cartridge);
+        bankController = std::make_unique<ROM::Controller>(cartridge, bootROM);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(cartridge);
+        bankController = std::make_unique<MBC1::Controller>(cartridge, bootROM);
         break;
     default:
         std::cout << "Unhandled cartridge type: 0x" << std::hex << (unsigned int)cartridgeType << std::endl;
@@ -219,10 +230,22 @@ void Controller::initialize() {
 }
 
 uint8_t Controller::load(uint16_t address) const {
+    if (bootROM->isLocked()) {
+        std::optional<uint32_t> offset = Core::ROM::BOOT::AddressRange.contains(address);
+        if (offset) {
+            return bootROM->load(*offset);
+        }
+    }
     return bankController->load(address);
 }
 
 void Controller::store(uint16_t address, uint8_t value) {
+    if (bootROM->isLocked()) {
+        std::optional<uint32_t> offset = Core::ROM::BOOT::AddressRange.contains(address);
+        if (offset) {
+            return;
+        }
+    }
     bankController->store(address, value);
 }
 

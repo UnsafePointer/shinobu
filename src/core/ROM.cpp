@@ -4,6 +4,49 @@
 
 using namespace Core::ROM;
 
+BOOT::ROM::ROM() : lockRegister(), data() {
+
+}
+
+BOOT::ROM::~ROM() {
+
+}
+
+void BOOT::ROM::initialize() {
+    if (!std::filesystem::exists(DEFAULT_BOOT_ROM_FILE_PATH)) {
+        std::cout << "Couldn't find BOOT_ROM at path: " << DEFAULT_BOOT_ROM_FILE_PATH.string() << std::endl;
+        return;
+    }
+    std::ifstream bootROMFile = std::ifstream();
+    bootROMFile.open(DEFAULT_BOOT_ROM_FILE_PATH, std::ios::binary | std::ios::ate);
+    if (!bootROMFile.is_open()) {
+        std::cout << "Unable to open BOOT_ROM at path: " << DEFAULT_BOOT_ROM_FILE_PATH.string() << std::endl;
+        exit(1);
+    }
+    std::streampos fileSize = bootROMFile.tellg();
+    std::cout << "Opened BOOT ROM file of size: 0x" << std::hex << fileSize << std::endl;
+    bootROMFile.seekg(0, bootROMFile.beg);
+    bootROMFile.read(reinterpret_cast<char *>(&data[0]), fileSize);
+    bootROMFile.close();
+}
+
+uint8_t BOOT::ROM::load(uint16_t offset) const {
+    return data[offset];
+}
+
+bool BOOT::ROM::isLocked() const {
+    return lockRegister.BOOT_OFF == 0x0;
+}
+
+uint8_t BOOT::ROM::loadLockRegister() const {
+    return lockRegister._value;
+}
+
+void BOOT::ROM::storeLockRegister(uint8_t value) {
+    lockRegister._value = value;
+    lockRegister.unused = 0x3F; // Read as 1
+}
+
 Cartridge::Cartridge() : file(), memory(), header() {
 
 }
