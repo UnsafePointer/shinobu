@@ -41,16 +41,26 @@ namespace Core {
 
         class BankController {
         protected:
-            std::unique_ptr<ROM::Cartridge> &cartridge;
+            std::unique_ptr<Core::ROM::Cartridge> &cartridge;
             std::array<uint8_t, 0x1000> WRAMBank00;
             std::array<uint8_t, 0x1000> WRAMBank01_N;
             std::unique_ptr<Core::Device::SerialCommunication::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
         public:
-            BankController(std::unique_ptr<ROM::Cartridge> &cartridge);
+            BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge);
             ~BankController();
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
+        };
+
+        namespace ROM {
+            const Range ROMRange = Range(0x0, 8000);
+            class Controller : public BankController {
+            public:
+                Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : BankController(cartridge) {};
+                uint8_t load(uint16_t address) const override;
+                void store(uint16_t address, uint8_t value) override;
+            };
         };
 
         namespace MBC1 {
@@ -106,17 +116,17 @@ namespace Core {
                 BANK2 _BANK2;
                 Mode mode;
             public:
-                Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : BankController(cartridge) {};
+                Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : BankController(cartridge) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
         };
 
         class Controller {
-            std::unique_ptr<ROM::Cartridge> &cartridge;
+            std::unique_ptr<Core::ROM::Cartridge> &cartridge;
             std::unique_ptr<BankController> bankController;
         public:
-            Controller(std::unique_ptr<ROM::Cartridge> &cartridge);
+            Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge);
             ~Controller();
 
             void initialize();

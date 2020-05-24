@@ -22,12 +22,28 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
+BankController::BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
 
 }
 
 BankController::~BankController() {
 
+}
+
+uint8_t ROM::Controller::load(uint16_t address) const {
+    std::optional<uint32_t> offset = ROMRange.contains(address);
+    if (offset) {
+        return cartridge->load(*offset);
+    }
+    std::cout << "Unhandled ROM load at address: 0x" << std::hex << (unsigned int)address << std::endl;
+    exit(1);
+    return 0;
+}
+
+void ROM::Controller::store(uint16_t address, uint8_t value) {
+    std::cout << "Unhandled ROM store at address: 0x" << std::hex << (unsigned int)address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+    exit(1);
+    return;
 }
 
 uint8_t MBC1::Controller::load(uint16_t address) const {
@@ -167,7 +183,7 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     exit(1);
 }
 
-Controller::Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {
+Controller::Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge) {
 
 }
 
@@ -180,11 +196,14 @@ void Controller::initialize() {
         std::cout << "ROM file not open, unable to initialize memory." << std::endl;
         return;
     }
-    ROM::Type cartridgeType = cartridge->header.cartridgeType;
+    Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
-    case ROM::MBC1:
-    case ROM::MBC1_RAM:
-    case ROM::MBC1_RAM_BATTERY:
+    case Core::ROM::ROM:
+        bankController = std::make_unique<ROM::Controller>(cartridge);
+        break;
+    case Core::ROM::MBC1:
+    case Core::ROM::MBC1_RAM:
+    case Core::ROM::MBC1_RAM_BATTERY:
         bankController = std::make_unique<MBC1::Controller>(cartridge);
         break;
     default:
