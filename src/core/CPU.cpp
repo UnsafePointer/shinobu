@@ -262,23 +262,6 @@ uint8_t Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruc
     if (instruction.q) {
         switch (instruction.p) {
         case 0:
-            processor->memory->store(processor->registers.bc, processor->registers.a);
-            break;
-        case 1:
-            processor->memory->store(processor->registers.de, processor->registers.a);
-            break;
-        case 2:
-            processor->memory->store(processor->registers.hl, processor->registers.a);
-            processor->registers.hl++;
-            break;
-        case 3:
-            processor->memory->store(processor->registers.hl, processor->registers.a);
-            processor->registers.hl--;
-            break;
-        }
-    } else {
-        switch (instruction.p) {
-        case 0:
             processor->registers.a = processor->memory->load(processor->registers.bc);
             break;
         case 1:
@@ -290,6 +273,23 @@ uint8_t Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruc
             break;
         case 3:
             processor->registers.a = processor->memory->load(processor->registers.hl);
+            processor->registers.hl--;
+            break;
+        }
+    } else {
+        switch (instruction.p) {
+        case 0:
+            processor->memory->store(processor->registers.bc, processor->registers.a);
+            break;
+        case 1:
+            processor->memory->store(processor->registers.de, processor->registers.a);
+            break;
+        case 2:
+            processor->memory->store(processor->registers.hl, processor->registers.a);
+            processor->registers.hl++;
+            break;
+        case 3:
+            processor->memory->store(processor->registers.hl, processor->registers.a);
             processor->registers.hl--;
             break;
         }
