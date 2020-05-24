@@ -30,42 +30,8 @@ BankController::~BankController() {
 
 }
 
-uint8_t ROM::Controller::load(uint16_t address) const {
-    std::optional<uint32_t> offset = ROMRange.contains(address);
-    if (offset) {
-        return cartridge->load(*offset);
-    }
-    std::cout << "Unhandled ROM load at address: 0x" << std::hex << (unsigned int)address << std::endl;
-    exit(1);
-    return 0;
-}
-
-void ROM::Controller::store(uint16_t address, uint8_t value) {
-    std::cout << "Unhandled ROM store at address: 0x" << std::hex << (unsigned int)address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
-    exit(1);
-    return;
-}
-
-uint8_t MBC1::Controller::load(uint16_t address) const {
-    std::optional<uint32_t> offset = ROMBank00.contains(address);
-    if (offset) {
-        uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;
-        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
-        return cartridge->load(physicalAddress);
-    }
-    offset = ROMBank01_N.contains(address);
-    if (offset) {
-        uint32_t upperMask = _BANK2.bank2 << 5 | _BANK1.bank1;
-        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
-        return cartridge->load(physicalAddress);
-    }
-    offset = ExternalRAM.contains(address);
-    if (offset) {
-        uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
-        uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
-        return cartridge->load(physicalAddress);
-    }
-    offset = WorkRAMBank00.contains(address);
+uint8_t BankController::loadInternal(uint16_t address) const {
+    std::optional<uint32_t> offset = WorkRAMBank00.contains(address);
     if (offset) {
         return WRAMBank00[*offset];
     }
@@ -105,36 +71,13 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
         std::cout << "Unhandled HRAM load at address: 0x" << std::hex << (unsigned int)address << std::endl;
         return 0;
     }
-    std::cout << "Unhandled MBC1 load at address: 0x" << std::hex << (unsigned int)address << std::endl;
+    std::cout << "Unhandled load at address: 0x" << std::hex << (unsigned int)address << std::endl;
     exit(1);
     return 0;
 }
 
-void MBC1::Controller::store(uint16_t address, uint8_t value) {
-    std::optional<uint32_t> offset = RAMGRange.contains(address);
-    if (offset) {
-        _RAMG._value = value;
-        return;
-    }
-    offset = BANK1Range.contains(address);
-    if (offset) {
-        _BANK1._value = value;
-        if (_BANK1.bank1 == 0) {
-            _BANK1.bank1 = 0;
-        }
-        return;
-    }
-    offset = BANK2Range.contains(address);
-    if (offset) {
-        _BANK2._value = value;
-        return;
-    }
-    offset = ModeRange.contains(address);
-    if (offset) {
-        mode._value = value;
-        return;
-    }
-    offset = VideoRAM.contains(address);
+void BankController::storeInternal(uint16_t address, uint8_t value) {
+    std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
         std::cout << "Unhandled Video RAM write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
         return;
@@ -179,8 +122,71 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
         std::cout << "Unhandled Interrupt Enable Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
         return;
     }
-    std::cout << "Unhandled MBC1 store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+    std::cout << "Unhandled store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
     exit(1);
+}
+
+uint8_t ROM::Controller::load(uint16_t address) const {
+    std::optional<uint32_t> offset = ROMRange.contains(address);
+    if (offset) {
+        return cartridge->load(*offset);
+    }
+    return loadInternal(address);
+}
+
+void ROM::Controller::store(uint16_t address, uint8_t value) {
+    storeInternal(address, value);
+    return;
+}
+
+uint8_t MBC1::Controller::load(uint16_t address) const {
+    std::optional<uint32_t> offset = ROMBank00.contains(address);
+    if (offset) {
+        uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;
+        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ROMBank01_N.contains(address);
+    if (offset) {
+        uint32_t upperMask = _BANK2.bank2 << 5 | _BANK1.bank1;
+        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
+        uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
+        return cartridge->load(physicalAddress);
+    }
+    return loadInternal(address);
+}
+
+void MBC1::Controller::store(uint16_t address, uint8_t value) {
+    std::optional<uint32_t> offset = RAMGRange.contains(address);
+    if (offset) {
+        _RAMG._value = value;
+        return;
+    }
+    offset = BANK1Range.contains(address);
+    if (offset) {
+        _BANK1._value = value;
+        if (_BANK1.bank1 == 0) {
+            _BANK1.bank1 = 0;
+        }
+        return;
+    }
+    offset = BANK2Range.contains(address);
+    if (offset) {
+        _BANK2._value = value;
+        return;
+    }
+    offset = ModeRange.contains(address);
+    if (offset) {
+        mode._value = value;
+        return;
+    }
+    storeInternal(address, value);
+    return;
 }
 
 Controller::Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge) {
