@@ -3,17 +3,17 @@
 #include "core/device/SerialCommunicationController.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 
-using namespace Core;
+using namespace Core::Memory;
 
-Core::Memory::Range::Range(uint32_t start, uint32_t length) : start(start), length(length) {
-
-}
-
-Core::Memory::Range::~Range() {
+Range::Range(uint32_t start, uint32_t length) : start(start), length(length) {
 
 }
 
-std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
+Range::~Range() {
+
+}
+
+std::optional<uint32_t> Range::contains(uint32_t address) const {
     if (address >= start && address < (start + length)) {
         uint32_t offset = address - start;
         return { offset };
@@ -22,15 +22,15 @@ std::optional<uint32_t> Core::Memory::Range::contains(uint32_t address) const {
     }
  }
 
-Memory::BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
+BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
 
 }
 
-Memory::BankController::~BankController() {
+BankController::~BankController() {
 
 }
 
-uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
+uint8_t MBC1::Controller::load(uint16_t address) const {
     std::optional<uint32_t> offset = ROMBank00.contains(address);
     if (offset) {
         uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;
@@ -76,7 +76,7 @@ uint8_t Memory::MBC1::Controller::load(uint16_t address) const {
     return 0;
 }
 
-void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
+void MBC1::Controller::store(uint16_t address, uint8_t value) {
     std::optional<uint32_t> offset = RAMGRange.contains(address);
     if (offset) {
         _RAMG._value = value;
@@ -139,15 +139,15 @@ void Memory::MBC1::Controller::store(uint16_t address, uint8_t value) {
     exit(1);
 }
 
-Memory::Controller::Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {
+Controller::Controller(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge) {
 
 }
 
-Memory::Controller::~Controller() {
+Controller::~Controller() {
 
 }
 
-void Memory::Controller::initialize() {
+void Controller::initialize() {
     if (!cartridge->isOpen()) {
         std::cout << "ROM file not open, unable to initialize memory." << std::endl;
         return;
@@ -165,21 +165,21 @@ void Memory::Controller::initialize() {
     }
 }
 
-uint8_t Memory::Controller::load(uint16_t address) const {
+uint8_t Controller::load(uint16_t address) const {
     return bankController->load(address);
 }
 
-void Memory::Controller::store(uint16_t address, uint8_t value) {
+void Controller::store(uint16_t address, uint8_t value) {
     bankController->store(address, value);
 }
 
-uint16_t Memory::Controller::loadDoubleWord(uint16_t address) const {
+uint16_t Controller::loadDoubleWord(uint16_t address) const {
     uint16_t lsb = load(address);
     uint16_t msb = load(address + 1);
     return (msb << 8) | lsb;
 }
 
-void Memory::Controller::storeDoubleWord(uint16_t address, uint16_t value) {
+void Controller::storeDoubleWord(uint16_t address, uint16_t value) {
     uint8_t lsb = value & 0xFF;
     store(address, lsb);
     uint8_t msb = value >> 8;

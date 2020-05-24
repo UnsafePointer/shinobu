@@ -2,15 +2,15 @@
 #include <iostream>
 #include <cstring>
 
-using namespace Core;
+using namespace Core::ROM;
 
-ROM::Cartridge::Cartridge() : file(), memory(), header() {
+Cartridge::Cartridge() : file(), memory(), header() {
 
 }
 
-ROM::Cartridge::~Cartridge() { }
+Cartridge::~Cartridge() { }
 
-void ROM::Cartridge::open(std::filesystem::path &filePath) {
+void Cartridge::open(std::filesystem::path &filePath) {
     if (!std::filesystem::exists(filePath)) {
         std::cout << "No ROM file set." << std::endl;
         return;
@@ -40,11 +40,11 @@ void ROM::Cartridge::open(std::filesystem::path &filePath) {
     file.close();
 }
 
-bool ROM::Cartridge::isOpen() const {
+bool Cartridge::isOpen() const {
     return !memory.empty();
 }
 
-uint8_t ROM::Cartridge::load(uint16_t address) const {
+uint8_t Cartridge::load(uint16_t address) const {
     if (address > memory.size()) {
         std::cout << "ROM load out of bounds with address: 0x" << std::hex<< address << std::endl;
         exit(1);

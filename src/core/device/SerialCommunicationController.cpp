@@ -1,15 +1,17 @@
 #include "core/device/SerialCommunicationController.hpp"
 #include <iostream>
 
-Core::Device::SerialCommunication::Controller::Controller() {
+using namespace Core::Device::SerialCommunication;
+
+Controller::Controller() {
 
 }
 
-Core::Device::SerialCommunication::Controller::~Controller() {
+Controller::~Controller() {
 
 }
 
-uint8_t Core::Device::SerialCommunication::Controller::load(uint16_t offset) {
+uint8_t Controller::load(uint16_t offset) {
     switch (offset) {
     case 0x0:
         return data;
@@ -22,7 +24,7 @@ uint8_t Core::Device::SerialCommunication::Controller::load(uint16_t offset) {
     }
 }
 
-void Core::Device::SerialCommunication::Controller::store(uint16_t offset, uint8_t value) {
+void Controller::store(uint16_t offset, uint8_t value) {
     switch (offset) {
     case 0x0:
         data = value;
