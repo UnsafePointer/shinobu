@@ -84,3 +84,4 @@ build
 # Game Boy
 
 *.gb
+*.BIN
