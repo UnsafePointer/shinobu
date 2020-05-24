@@ -518,3 +518,12 @@ uint8_t CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instructi
     }, false);
     return cycles;
 }
+
+uint8_t CPU::Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint8_t value = processor->memory->load(++processor->registers.pc);
+    processor->registers.pc++;
+    uint16_t address = 0xFF00 | value;
+    processor->registers.a = processor->memory->load(address);
+    return 12;
+}
