@@ -66,6 +66,11 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
         std::cout << "Unhandled Sprite attribute table load at address: 0x" << std::hex << address << std::endl;
         return 0;
     }
+    offset = NotUsable.contains(address);
+    if (offset) {
+        std::cout << "Unhandled Not Usable load at address: 0x" << std::hex << address << std::endl;
+        return 0;
+    }
     offset = I_ORegisters.contains(address);
     if (offset) {
         offset = Device::SerialCommunication::AddressRange.contains(address);
