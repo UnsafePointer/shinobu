@@ -22,7 +22,7 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
+BankController::BankController(std::unique_ptr<ROM::Cartridge> &cartridge) : cartridge(cartridge), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
 
 }
 
@@ -48,6 +48,10 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
         uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
         uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
         return cartridge->load(physicalAddress);
+    }
+    offset = WorkRAMBank00.contains(address);
+    if (offset) {
+        return WRAMBank00[*offset];
     }
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
@@ -103,6 +107,11 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     offset = VideoRAM.contains(address);
     if (offset) {
         std::cout << "Unhandled Video RAM write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        return;
+    }
+    offset = WorkRAMBank00.contains(address);
+    if (offset) {
+        WRAMBank00[*offset] = value;
         return;
     }
     offset = WorkRAMBank01_N.contains(address);
