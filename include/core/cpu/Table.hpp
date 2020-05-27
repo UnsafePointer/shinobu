@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-#include "CPU.hpp"
-#include "CPU.tcc"
+#include "core/cpu/CPU.hpp"
+#include "core/cpu/CPU.tcc"
 
 namespace Core {
     namespace CPU {

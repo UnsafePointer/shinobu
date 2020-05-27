@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <memory>
-#include "core/CPU.hpp"
+#include "core/cpu/CPU.hpp"
 #include "core/ROM.hpp"
 #include "core/Memory.hpp"
 

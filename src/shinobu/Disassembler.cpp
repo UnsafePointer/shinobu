@@ -1,5 +1,5 @@
 #include "shinobu/Disassembler.hpp"
-#include "core/CPU.hpp"
+#include "core/cpu/CPU.hpp"
 
 using namespace Shinobu::Disassembler;
 

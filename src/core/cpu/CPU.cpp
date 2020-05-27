@@ -1,6 +1,7 @@
-#include "core/CPU.hpp"
+#include "core/cpu/CPU.hpp"
 #include <iostream>
-#include "core/Table.hpp"
+#include "core/cpu/Table.hpp"
+#include "core/cpu/Decoding.hpp"
 
 using namespace Core::CPU;
 
