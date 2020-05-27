@@ -28,11 +28,11 @@ void Emulator::start() {
         Core::CPU::Instructions::Instruction instruction;
         if (code == Core::CPU::Instructions::InstructionPrefix) {
             uint8_t prefixedCode = processor->fetchPrefixedInstruction();
-            handler = processor->decodeInstruction(prefixedCode, Core::CPU::Instructions::PrefixedInstructionHandlerTable);
+            handler = processor->decodeInstruction(prefixedCode, true);
             instruction = Core::CPU::Instructions::Instruction(prefixedCode);
         } else {
             instruction = Core::CPU::Instructions::Instruction(code);
-            handler = processor->decodeInstruction(code, Core::CPU::Instructions::InstructionHandlerTable);
+            handler = processor->decodeInstruction(code, false);
         }
         handler(processor, instruction);
     }
