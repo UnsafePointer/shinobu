@@ -31,7 +31,7 @@ template<>
 uint8_t Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t RR = Instructions::RPTable[instruction.p];
     uint16_t value = processor->memory->loadDoubleWord(++processor->registers.pc);
-    processor->registers.pc++;
+    processor->registers.pc += 2;
     processor->registers._value16[RR] = value;
     return 12;
 }
@@ -70,7 +70,7 @@ template<>
 uint8_t Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
-    processor->registers.pc++;
+    processor->registers.pc += 2;
     processor->memory->store(address, processor->registers.a);
     return 16;
 }
@@ -111,7 +111,8 @@ template<>
 uint8_t Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
-    processor->pushIntoStack(++processor->registers.pc);
+    processor->registers.pc += 2;
+    processor->pushIntoStack(processor->registers.pc);
     processor->registers.pc = address;
     return 24;
 }
@@ -253,12 +254,12 @@ template<>
 uint8_t Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::function<bool(Flag&)> compare = CCTable[instruction.y];
     uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
+    processor->registers.pc += 2;
     if (compare(processor->registers.flag)) {
-        processor->pushIntoStack(++processor->registers.pc);
+        processor->pushIntoStack(processor->registers.pc);
         processor->registers.pc = address;
         return 24;
     }
-    processor->registers.pc++;
     return 12;
 }
 
@@ -276,7 +277,7 @@ template<>
 uint8_t Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
-    processor->registers.pc++;
+    processor->registers.pc += 2;
     processor->memory->storeDoubleWord(address, processor->registers.sp);
     return 20;
 }
@@ -297,7 +298,7 @@ template<>
 uint8_t Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->memory->loadDoubleWord(++processor->registers.pc);
-    processor->registers.pc++;
+    processor->registers.pc += 2;
     uint8_t value = processor->memory->load(address);
     processor->registers.a = value;
     return 16;
