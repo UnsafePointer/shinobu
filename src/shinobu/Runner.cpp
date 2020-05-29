@@ -4,7 +4,7 @@
 
 using namespace Shinobu;
 
-Runner::Runner() : ROMFilePath() {
+Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath() {
 
 }
 
@@ -32,17 +32,16 @@ void Runner::configure(int argc, char* argv[]) {
     if (checkOption(argv, argv + argc, "--rom")) {
         char *path = getOptionValue(argv, argv + argc, "--rom");
         if (path == NULL) {
-            std::cout << "Incorrect arguments passed. See README.md for usage." << std::endl;
-            exit(1);
+            logger.logError("Incorrect arguments passed. See README.md for usage.");
         }
         ROMFilePath = std::filesystem::current_path() / std::string(path);
         if (!std::filesystem::exists(ROMFilePath)) {
-            std::cout << "The filepath provided with the --rom flag doesn't exist." << std::endl;
+            logger.logError("The filepath provided with the --rom flag doesn't exist.");
         }
         argumentFound = true;
     }
     if (!argumentFound) {
-        std::cout << "Incorrect arguments passed. See README.md for usage." << std::endl;
+        logger.logError("Incorrect arguments passed. See README.md for usage.");
     }
 }
 

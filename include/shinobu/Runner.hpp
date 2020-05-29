@@ -2,9 +2,11 @@
 #include <string>
 #include <filesystem>
 #include <shinobu/Emulator.hpp>
+#include <common/Logger.hpp>
 
 namespace Shinobu {
     class Runner {
+        Common::Logs::Logger logger;
         std::filesystem::path ROMFilePath;
 
         bool checkOption(char** begin, char** end, const std::string &option) const;
