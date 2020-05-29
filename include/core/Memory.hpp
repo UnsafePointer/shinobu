@@ -3,6 +3,7 @@
 #include <memory>
 #include <filesystem>
 #include <optional>
+#include <common/Logger.hpp>
 
 namespace Core {
     namespace Device {
@@ -46,6 +47,8 @@ namespace Core {
 
         class BankController {
         protected:
+            Common::Logs::Logger logger;
+
             std::unique_ptr<Core::ROM::Cartridge> &cartridge;
             std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM;
             std::array<uint8_t, 0x1000> WRAMBank00;
@@ -56,7 +59,7 @@ namespace Core {
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:
-            BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM);
+            BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM);
             ~BankController();
 
             virtual uint8_t load(uint16_t address) const = 0;
@@ -67,7 +70,7 @@ namespace Core {
             const Range ROMRange = Range(0x0, 8000);
             class Controller : public BankController {
             public:
-                Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : BankController(cartridge, bootROM) {};
+                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : BankController(logLevel, cartridge, bootROM) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -126,18 +129,20 @@ namespace Core {
                 BANK2 _BANK2;
                 Mode mode;
             public:
-                Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : BankController(cartridge, bootROM) {};
+                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : BankController(logLevel, cartridge, bootROM) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
         };
 
         class Controller {
+            Common::Logs::Logger logger;
+
             std::unique_ptr<Core::ROM::Cartridge> &cartridge;
             std::unique_ptr<BankController> bankController;
             std::unique_ptr<Core::ROM::BOOT::ROM> bootROM;
         public:
-            Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge);
+            Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge);
             ~Controller();
 
             void initialize();

@@ -1,12 +1,16 @@
 #include "shinobu/Emulator.hpp"
 #include <iostream>
 #include "common/Formatter.hpp"
+#include "shinobu/Configuration.hpp"
 
 using namespace Shinobu;
 
-Emulator::Emulator() : cartridge(std::make_unique<Core::ROM::Cartridge>()) {
-    memoryController = std::make_unique<Core::Memory::Controller>(cartridge);
-    processor = std::make_unique<Core::CPU::Processor>(memoryController);
+Emulator::Emulator() {
+    Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
+
+    cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
+    memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge);
+    processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController);
 }
 
 Emulator::~Emulator() {

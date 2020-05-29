@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include "core/Memory.hpp"
+#include "common/Logger.hpp"
 
 namespace Core {
     const uint16_t HEADER_START_ADDRESS = 0x100;
@@ -28,10 +29,12 @@ namespace Core {
             const std::filesystem::path DEFAULT_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
 
             class ROM {
+                Common::Logs::Logger logger;
+
                 Lock lockRegister;
                 std::array<uint8_t, BOOT_ROM_SIZE> data;
             public:
-                ROM();
+                ROM(Common::Logs::Level logLevel);
                 ~ROM();
 
                 void initialize();
@@ -135,11 +138,13 @@ namespace Core {
         };
 
         class Cartridge {
+            Common::Logs::Logger logger;
+
             std::ifstream file;
             std::vector<uint8_t> memory;
         public:
             Header header;
-            Cartridge();
+            Cartridge(Common::Logs::Level logLevel);
             ~Cartridge();
 
             void open(std::filesystem::path &filePath);

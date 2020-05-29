@@ -4,7 +4,7 @@
 
 using namespace Core::ROM;
 
-BOOT::ROM::ROM() : lockRegister(), data() {
+BOOT::ROM::ROM(Common::Logs::Level logLevel) : logger(logLevel, "  [BOOTROM]: "), lockRegister(), data() {
 
 }
 
@@ -14,17 +14,16 @@ BOOT::ROM::~ROM() {
 
 void BOOT::ROM::initialize() {
     if (!std::filesystem::exists(DEFAULT_BOOT_ROM_FILE_PATH)) {
-        std::cout << "Couldn't find BOOT_ROM at path: " << DEFAULT_BOOT_ROM_FILE_PATH.string() << std::endl;
+        logger.logWarning("Couldn't find BOOT_ROM at path: %s", DEFAULT_BOOT_ROM_FILE_PATH.string().c_str());
         return;
     }
     std::ifstream bootROMFile = std::ifstream();
     bootROMFile.open(DEFAULT_BOOT_ROM_FILE_PATH, std::ios::binary | std::ios::ate);
     if (!bootROMFile.is_open()) {
-        std::cout << "Unable to open BOOT_ROM at path: " << DEFAULT_BOOT_ROM_FILE_PATH.string() << std::endl;
-        exit(1);
+        logger.logError("Unable to open BOOT_ROM at path: %s", DEFAULT_BOOT_ROM_FILE_PATH.string().c_str());
     }
     std::streampos fileSize = bootROMFile.tellg();
-    std::cout << "Opened BOOT ROM file of size: 0x" << std::hex << fileSize << std::endl;
+    logger.logMessage("Opened BOOT ROM file of size: %x", fileSize);
     bootROMFile.seekg(0, bootROMFile.beg);
     bootROMFile.read(reinterpret_cast<char *>(&data[0]), fileSize);
     bootROMFile.close();
@@ -47,7 +46,7 @@ void BOOT::ROM::storeLockRegister(uint8_t value) {
     lockRegister.unused = 0x3F; // Read as 1
 }
 
-Cartridge::Cartridge() : file(), memory(), header() {
+Cartridge::Cartridge(Common::Logs::Level logLevel) : logger(logLevel, "  [ROM]: "), file(), memory(), header() {
 
 }
 
@@ -55,18 +54,17 @@ Cartridge::~Cartridge() { }
 
 void Cartridge::open(std::filesystem::path &filePath) {
     if (!std::filesystem::exists(filePath)) {
-        std::cout << "No ROM file set." << std::endl;
+        logger.logWarning("No ROM file set.");
         return;
     }
 
     file.open(filePath, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
-        std::cout << "Unable to load ROM file at path: " << filePath.string() << std::endl;
-        exit(1);
+        logger.logError("Unable to load ROM file at path: %s", filePath.string().c_str());
     }
 
     std::streampos fileSize = file.tellg();
-    std::cout << "Opened file path of size: 0x" << std::hex << fileSize << std::endl;
+    logger.logMessage("Opened file path of size: %x", fileSize);
 
     file.seekg(HEADER_START_ADDRESS, file.beg);
     file.read(reinterpret_cast<char *>(&header), sizeof(Header));
@@ -75,10 +73,10 @@ void Cartridge::open(std::filesystem::path &filePath) {
     file.seekg(0, file.beg);
     file.read(reinterpret_cast<char *>(&memory[0]), fileSize);
 
-    std::cout << "ROM header information: " << std::endl;
-    std::cout << "Cartridge type: 0x" << std::hex << header.cartridgeType << std::endl;
-    std::cout << "ROM Size: 0x" << std::hex << header._ROMSize << std::endl;
-    std::cout << "RAM Size: 0x" << std::hex << header._RAMSize << std::endl;
+    logger.logMessage("ROM header information: ");
+    logger.logMessage("Cartridge type: %x", header.cartridgeType);
+    logger.logMessage("ROM Size: %x", header._ROMSize);
+    logger.logMessage("RAM Size: %x", header._RAMSize);
 
     file.close();
 }
@@ -89,8 +87,7 @@ bool Cartridge::isOpen() const {
 
 uint8_t Cartridge::load(uint16_t address) const {
     if (address > memory.size()) {
-        std::cout << "ROM load out of bounds with address: 0x" << std::hex<< address << std::endl;
-        exit(1);
+        logger.logError("ROM load out of bounds with address: %04x", address);
     }
     return memory[address];
 }

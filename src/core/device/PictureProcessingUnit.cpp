@@ -3,7 +3,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor() {
+Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: ") {
 
 }
 
@@ -14,7 +14,7 @@ Processor::~Processor() {
 uint8_t Processor::load(uint16_t offset) {
     switch (offset) {
     default:
-        std::cout << "Unhandled Picture Processing Unit load at offset: 0x" << std::hex << (unsigned int)offset << std::endl;
+        logger.logWarning("Unhandled Picture Processing Unit load at offset: %04x", offset);
         return 0;
     }
 }
@@ -22,7 +22,7 @@ uint8_t Processor::load(uint16_t offset) {
 void Processor::store(uint16_t offset, uint8_t value) {
     switch (offset) {
     default:
-        std::cout << "Unhandled Picture Processing Unit at offset: 0x" << std::hex << (unsigned int)offset << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled Picture Processing Unit at offset: %04x with value: %04x", offset, value);
         return;
     }
 }

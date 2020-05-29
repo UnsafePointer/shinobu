@@ -3,6 +3,7 @@
 #include "core/device/SerialCommunicationController.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 #include "core/ROM.hpp"
+#include "shinobu/Configuration.hpp"
 
 using namespace Core::Memory;
 
@@ -23,8 +24,10 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), serialCommController(std::make_unique<Device::SerialCommunication::Controller>()), PPU(std::make_unique<Device::PictureProcessingUnit::Processor>()) {
-
+BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N() {
+    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
+    serialCommController = std::make_unique<Device::SerialCommunication::Controller>(configurationManager->serialLogLevel());
+    PPU = std::make_unique<Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
 }
 
 BankController::~BankController() {
@@ -46,12 +49,12 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = SpriteAttributeTable.contains(address);
     if (offset) {
-        std::cout << "Unhandled Sprite attribute table load at address: 0x" << std::hex << address << std::endl;
+        logger.logWarning("Unhandled Sprite attribute table load at address: %04x", address);
         return 0;
     }
     offset = NotUsable.contains(address);
     if (offset) {
-        std::cout << "Unhandled Not Usable load at address: 0x" << std::hex << address << std::endl;
+        logger.logWarning("Unhandled Not Usable load at address: %04x", address);
         return 0;
     }
     offset = I_ORegisters.contains(address);
@@ -68,23 +71,22 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return bootROM->loadLockRegister();
         }
-        std::cout << "Unhandled I/O Register load at address: 0x" << std::hex << address << std::endl;
+        logger.logWarning("Unhandled I/O Register load at address: %04x", address);
         return 0;
     }
     offset = HighRAM.contains(address);
     if (offset) {
-        std::cout << "Unhandled HRAM load at address: 0x" << std::hex << (unsigned int)address << std::endl;
+        logger.logWarning("Unhandled HRAM load at address: %04x", address);
         return 0;
     }
-    std::cout << "Unhandled load at address: 0x" << std::hex << (unsigned int)address << std::endl;
-    exit(1);
+    logger.logError("Unhandled load at address: %04x", address);
     return 0;
 }
 
 void BankController::storeInternal(uint16_t address, uint8_t value) {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
-        std::cout << "Unhandled Video RAM write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled Video RAM write at address: %04x with value: %02x", address, value);
         return;
     }
     offset = WorkRAMBank00.contains(address);
@@ -119,20 +121,20 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             bootROM->storeLockRegister(value);
             return;
         }
-        std::cout << "Unhandled I/O Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled I/O Register write at address: %04x with value: %02x", address, value);
         return;
     }
     offset = HighRAM.contains(address);
     if (offset) {
-        std::cout << "Unhandled HRAM write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled HRAM write at address: %04x with value: %02x", address, value);
         return;
     }
     offset = InterruptsEnableRegister.contains(address);
     if (offset) {
-        std::cout << "Unhandled Interrupt Enable Register write at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled Interrupt Enable Register write at address: %04x with value: %02x", address, value);
         return;
     }
-    std::cout << "Unhandled store at address: 0x" << std::hex << address << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+    logger.logError("Unhandled store at address: %04x with value: %02x", address, value);
     exit(1);
 }
 
@@ -199,8 +201,9 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
-Controller::Controller(std::unique_ptr<Core::ROM::Cartridge> &cartridge) : cartridge(cartridge), bootROM(std::make_unique<Core::ROM::BOOT::ROM>()) {
-
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge) : logger(logLevel, "  [Memory]: "), cartridge(cartridge) {
+    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
+    bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
 
 Controller::~Controller() {
@@ -210,21 +213,21 @@ Controller::~Controller() {
 void Controller::initialize() {
     bootROM->initialize();
     if (!cartridge->isOpen()) {
-        std::cout << "ROM file not open, unable to initialize memory." << std::endl;
+        logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
     }
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(cartridge, bootROM);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(cartridge, bootROM);
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM);
         break;
     default:
-        std::cout << "Unhandled cartridge type: 0x" << std::hex << (unsigned int)cartridgeType << std::endl;
+        logger.logError("Unhandled cartridge type: %02x", cartridgeType);
         break;
     }
 }

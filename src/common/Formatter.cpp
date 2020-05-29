@@ -1,7 +1,7 @@
 #include "common/Formatter.hpp"
 #include <cstdarg>
 
-std::string _format(const char *fmt, va_list args) {
+std::string Common::Formatter::format(const char *fmt, va_list args) {
     char buffer[4096];
 
     const auto result = vsnprintf(buffer, sizeof(buffer), fmt, args);
@@ -24,7 +24,7 @@ std::string _format(const char *fmt, va_list args) {
 std::string Common::Formatter::format(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    std::string formatted = _format(fmt, args);
+    std::string formatted = format(fmt, args);
     va_end(args);
     return formatted;
 }

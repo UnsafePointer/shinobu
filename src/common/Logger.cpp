@@ -7,8 +7,23 @@
 
 using namespace Common::Logs;
 
+Level Common::Logs::levelWithValue(std::string value) {
+    if (value.compare("WAR") == 0) {
+        return Level::Warning;
+    } else if (value.compare("MSG") == 0) {
+        return Level::Message;
+    } else if (value.compare("NOLOG") == 0) {
+        return Level::NoLog;
+    }
+    return Level::NoLog;
+}
+
 Logger::Logger(Level level, std::string prefix) : level(level), prefix(prefix) {
 
+}
+
+Level Logger::logLevel() {
+    return level;
 }
 
 void Logger::logDebug(const char *fmt, ...) const {

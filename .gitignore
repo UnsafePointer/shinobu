@@ -85,3 +85,4 @@ build
 
 *.gb
 *.BIN
+*.yaml

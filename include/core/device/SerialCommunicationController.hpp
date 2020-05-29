@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "core/Memory.hpp"
+#include "common/Logger.hpp"
 
 namespace Core {
     namespace Device {
@@ -19,10 +20,11 @@ namespace Core {
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF01, 0x2);
 
             class Controller {
+                Common::Logs::Logger logger;
                 uint8_t data;
                 ControlRegister control;
             public:
-                Controller();
+                Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
                 uint8_t load(uint16_t offset);

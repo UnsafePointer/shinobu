@@ -3,7 +3,7 @@
 
 using namespace Core::Device::SerialCommunication;
 
-Controller::Controller() {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Serial]: ") {
 
 }
 
@@ -19,7 +19,7 @@ uint8_t Controller::load(uint16_t offset) {
         control.unused = 0x3F; // Read as 1
         return control._value;
     default:
-        std::cout << "Unhandled Serial Communication load at offset: 0x" << std::hex << (unsigned int)offset << std::endl;
+        logger.logWarning("Unhandled Serial Communication load at offset: %04x", offset);
         return 0;
     }
 }
@@ -33,7 +33,7 @@ void Controller::store(uint16_t offset, uint8_t value) {
         control._value = value;
         return;
     default:
-        std::cout << "Unhandled Serial Communication load at offset: 0x" << std::hex << (unsigned int)offset << " with value: 0x" << std::hex << (unsigned int)value << std::endl;
+        logger.logWarning("Unhandled Serial Communication load at offset: %04x with value: %04x", offset, value);
         return;
     }
 }

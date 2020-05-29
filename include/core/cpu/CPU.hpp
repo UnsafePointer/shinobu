@@ -6,6 +6,7 @@
 #include <vector>
 #include "core/Memory.hpp"
 #include "core/cpu/Instructions.hpp"
+#include "common/Logger.hpp"
 
 namespace Core {
     namespace CPU {
@@ -66,6 +67,8 @@ namespace Core {
         };
 
         class Processor {
+            Common::Logs::Logger logger;
+
             Registers registers;
             std::unique_ptr<Memory::Controller> &memory;
 
@@ -149,7 +152,7 @@ namespace Core {
             template<typename T>
             friend T CPU::Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
-            Processor(std::unique_ptr<Memory::Controller> &memory);
+            Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
 
             void initialize();

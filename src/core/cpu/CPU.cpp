@@ -5,7 +5,7 @@
 
 using namespace Core::CPU;
 
-Processor::Processor(std::unique_ptr<Memory::Controller> &memory) : registers(), memory(memory) {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory) : logger(logLevel, "  [CPU]: "), registers(), memory(memory) {
 }
 
 Processor::~Processor() {
@@ -122,7 +122,7 @@ Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  
     // TODO: Remove these checks once table is complete
     std::string prefixed = "";
     if (isPrefixed) {
-        prefixed = " prefixed";
+        prefixed = "prefixed ";
     }
     std::vector<Instructions::InstructionHandler<T>> table;
     if (isPrefixed) {
@@ -131,13 +131,11 @@ Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  
         table = Instructions::InstructionHandlerTable<T>;
     }
     if (code > table.size()) {
-        std::cout << "Unhandled" << prefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
-        exit(1);
+        logger.logError("Unhandled %sinstruction with code: %02x", prefixed.c_str(), code);
     }
     Instructions::InstructionHandler<T> handler = table[code];
     if (handler == nullptr) {
-        std::cout << "Unhandled" << prefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
-        exit(1);
+        logger.logError("Unhandled %sinstruction with code: %02x", prefixed.c_str(), code);
     }
     return handler;
 }
