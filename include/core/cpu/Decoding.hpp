@@ -22,6 +22,17 @@ namespace Core {
                     return flags.carry == 1;
                 },
             };
+            namespace Disassembler {
+                const std::vector<std::string> RPTable = { "BC", "DE", "HL", "SP" };
+                const std::vector<std::string> RP2Table = { "BC", "DE", "HL", "AF" };
+                const std::vector<std::string> RTable = { "B", "C", "D", "E", "H", "L", "(HL)", "A" };
+                const std::vector<std::string> CCTable = {
+                    "NZ",
+                    "Z",
+                    "NC",
+                    "C",
+                };
+            };
         };
     };
 };

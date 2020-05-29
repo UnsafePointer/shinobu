@@ -113,26 +113,34 @@ uint8_t Processor::fetchPrefixedInstruction() const {
     return memory->load(immediateAddress);
 }
 
-Instructions::InstructionHandler Processor::decodeInstruction(uint8_t code,  bool isPrefixed) const {
+uint16_t Processor::programCounter() const {
+    return registers.pc;
+}
+
+template<typename T>
+Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  bool isPrefixed) const {
     // TODO: Remove these checks once table is complete
     std::string prefixed = "";
     if (isPrefixed) {
         prefixed = " prefixed";
     }
-    std::vector<Instructions::InstructionHandler> table;
+    std::vector<Instructions::InstructionHandler<T>> table;
     if (isPrefixed) {
-        table = Instructions::PrefixedInstructionHandlerTable;
+        table = Instructions::PrefixedInstructionHandlerTable<T>;
     } else {
-        table = Instructions::InstructionHandlerTable;
+        table = Instructions::InstructionHandlerTable<T>;
     }
     if (code > table.size()) {
         std::cout << "Unhandled" << prefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
     }
-    Instructions::InstructionHandler handler = table[code];
+    Instructions::InstructionHandler<T> handler = table[code];
     if (handler == nullptr) {
         std::cout << "Unhandled" << prefixed << " instruction with code: 0x" << std::hex << (unsigned int)code << std::endl;
         exit(1);
     }
     return handler;
 }
+
+template Instructions::InstructionHandler<uint8_t> Processor::decodeInstruction<uint8_t>(uint8_t code,  bool isPrefixed) const;
+template Instructions::InstructionHandler<std::string> Processor::decodeInstruction<std::string>(uint8_t code,  bool isPrefixed) const;

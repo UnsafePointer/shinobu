@@ -155,7 +155,10 @@ namespace Core {
             void initialize();
             uint8_t fetchInstruction() const;
             uint8_t fetchPrefixedInstruction() const;
-            Instructions::InstructionHandler decodeInstruction(uint8_t code, bool isPrefixed) const;
+            uint16_t programCounter() const;
+
+            template<typename T>
+            Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;
         };
     };
 };

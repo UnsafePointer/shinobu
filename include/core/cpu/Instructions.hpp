@@ -103,7 +103,8 @@ namespace Core {
             template<typename T>
             T LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction);
 
-            typedef uint8_t (*InstructionHandler) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);
+            template<typename T>
+            using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);
         };
     };
 };

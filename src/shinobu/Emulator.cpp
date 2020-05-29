@@ -1,4 +1,6 @@
 #include "shinobu/Emulator.hpp"
+#include <iostream>
+#include "common/Formatter.hpp"
 
 using namespace Shinobu;
 
@@ -24,16 +26,22 @@ void Emulator::powerUp() {
 void Emulator::start() {
     while (true) {
         uint8_t code = processor->fetchInstruction();
-        Core::CPU::Instructions::InstructionHandler handler;
+        Core::CPU::Instructions::InstructionHandler<uint8_t> handler;
+        Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler;
         Core::CPU::Instructions::Instruction instruction;
         if (code == Core::CPU::Instructions::InstructionPrefix) {
             uint8_t prefixedCode = processor->fetchPrefixedInstruction();
-            handler = processor->decodeInstruction(prefixedCode, true);
+            handler = processor->decodeInstruction<uint8_t>(prefixedCode, true);
+            disassemblerHandler = processor->decodeInstruction<std::string>(prefixedCode, true);
             instruction = Core::CPU::Instructions::Instruction(prefixedCode);
         } else {
             instruction = Core::CPU::Instructions::Instruction(code);
-            handler = processor->decodeInstruction(code, false);
+            handler = processor->decodeInstruction<uint8_t>(code, false);
+            disassemblerHandler = processor->decodeInstruction<std::string>(code, false);
         }
+        std::string disassembledInstruction = disassemblerHandler(processor, instruction);
+        std::string separator = std::string(16 - disassembledInstruction.length(), ' ');
+        std::cout << disassembledInstruction << separator << Common::Formatter::format("; $%04x", processor->programCounter()) << std::endl;
         handler(processor, instruction);
     }
 }

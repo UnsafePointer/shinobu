@@ -2,11 +2,13 @@
 #include <memory>
 #include "core/cpu/CPU.hpp"
 #include "core/cpu/CPU.tcc"
+#include "core/cpu/Disassembler.tcc"
 
 namespace Core {
     namespace CPU {
         namespace Instructions {
-            const std::vector<InstructionHandler> InstructionHandlerTable = {
+            template <typename T>
+            const std::vector<InstructionHandler<T>> InstructionHandlerTable = {
             //    +0         +1        +2           +3      +4          +5       +6      +7      +8        +9      +A           +B      +C          +D          +E      +F
             /*0+*/ NOP,      LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  RLCA,   LD_NN_SP, NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_I8,    NULL,   LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  RRA,
@@ -26,7 +28,8 @@ namespace Core {
             /*F+*/ LDH_A_N,  POP_RR,   NULL,        DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
             };
 
-            const std::vector<InstructionHandler> PrefixedInstructionHandlerTable = {
+            template <typename T>
+            const std::vector<InstructionHandler<T>> PrefixedInstructionHandlerTable = {
             //    +0    +1    +2    +3    +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
             /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*1+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
