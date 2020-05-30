@@ -318,3 +318,10 @@ std::string Instructions::RL(std::unique_ptr<Processor> &processor, Instruction 
     std::string R = Disassembler::RTable[instruction.z];
     return Common::Formatter::format("RL %s", R.c_str());
 }
+
+template<>
+std::string Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "RLA";
+}

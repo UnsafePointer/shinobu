@@ -287,8 +287,7 @@ template<>
 uint8_t Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint8_t result = (processor->registers.a & 0x80) >> 7;
-    // TODO: breaks test
-    // processor->registers.flag.carry = result;
+    processor->registers.flag.carry = result;
     processor->registers.a <<= 1;
     processor->registers.a |= result;
     processor->registers.pc++;
@@ -502,4 +501,16 @@ uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction inst
         processor->memory->store(processor->registers.hl, value);
         return 16;
     }
+}
+
+template<>
+uint8_t Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint8_t result = (processor->registers.a & 0x80) >> 7;
+    uint8_t carry = processor->registers.flag.carry;
+    processor->registers.flag.carry = result;
+    processor->registers.a <<= 1;
+    processor->registers.a |= carry;
+    processor->registers.pc++;
+    return 4;
 }
