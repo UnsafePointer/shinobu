@@ -24,7 +24,7 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N() {
+BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), HRAM() {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialCommunication::Controller>(configurationManager->serialLogLevel());
     PPU = std::make_unique<Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
@@ -76,8 +76,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = HighRAM.contains(address);
     if (offset) {
-        logger.logWarning("Unhandled HRAM load at address: %04x", address);
-        return 0;
+        return HRAM[*offset];
     }
     logger.logError("Unhandled load at address: %04x", address);
     return 0;
@@ -126,7 +125,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     }
     offset = HighRAM.contains(address);
     if (offset) {
-        logger.logWarning("Unhandled HRAM write at address: %04x with value: %02x", address, value);
+        HRAM[*offset] = value;
         return;
     }
     offset = InterruptsEnableRegister.contains(address);

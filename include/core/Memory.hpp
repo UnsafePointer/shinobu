@@ -55,6 +55,7 @@ namespace Core {
             std::array<uint8_t, 0x1000> WRAMBank01_N;
             std::unique_ptr<Core::Device::SerialCommunication::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
+            std::array<uint8_t, 0x7F> HRAM;
 
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
