@@ -1,6 +1,7 @@
 #pragma once
 #include "core/cpu/CPU.hpp"
 #include "core/cpu/Decoding.hpp"
+#include <bitset>
 
 using namespace Core::CPU;
 
@@ -438,4 +439,26 @@ uint8_t Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction
     uint16_t address = 0xFF00 | value;
     processor->registers.a = processor->memory->load(address);
     return 12;
+}
+
+template<>
+uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = RTable[instruction.z];
+    processor->registers.pc += 2;
+    if (R != 0xFF) {
+        std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
+        bool isSet = bits.test(instruction.y);
+        processor->registers.flag.zero = isSet ? 1 : 0;
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 1;
+        return 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        std::bitset<8> bits = std::bitset<8>(value);
+        bool isSet = bits.test(instruction.y);
+        processor->registers.flag.zero = isSet ? 1 : 0;
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 1;
+        return 12;
+    }
 }

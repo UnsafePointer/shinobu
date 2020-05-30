@@ -102,6 +102,8 @@ namespace Core {
             T CP_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T BIT(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);

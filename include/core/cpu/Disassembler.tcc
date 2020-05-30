@@ -291,3 +291,10 @@ std::string Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruc
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
     return Common::Formatter::format("LD A,($FF00+$%02x)", value);
 }
+
+template<>
+std::string Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.z];
+    return Common::Formatter::format("BIT %d,%s", instruction.y, R.c_str());
+}
