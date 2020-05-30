@@ -71,7 +71,7 @@ template<>
 std::string Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string R = Disassembler::RTable[instruction.y];
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
-    return Common::Formatter::format("LD %s,$%04x", R.c_str(), value);
+    return Common::Formatter::format("LD %s,$%02x", R.c_str(), value);
 }
 
 template<>
