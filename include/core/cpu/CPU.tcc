@@ -324,6 +324,7 @@ uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction i
     processor->registers.pc++;
     if (R != 0xFF) {
         processor->registers._value8[R]--;
+        processor->registers.flag.zero = processor->registers._value8[R] == 0 ? 1 : 0;
         return 4;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
