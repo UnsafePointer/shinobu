@@ -462,3 +462,21 @@ uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction ins
         return 12;
     }
 }
+
+template<>
+uint8_t Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->registers.pc++;
+    uint16_t address = 0xFF00 | processor->registers.c;
+    processor->memory->store(address, processor->registers.a);
+    return 8;
+}
+
+template<>
+uint8_t Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->registers.pc++;
+    uint16_t address = 0xFF00 | processor->registers.c;
+    processor->registers.a = processor->memory->load(address);
+    return 8;
+}

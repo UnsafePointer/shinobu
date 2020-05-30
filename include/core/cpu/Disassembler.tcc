@@ -298,3 +298,17 @@ std::string Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.z];
     return Common::Formatter::format("BIT %d,%s", instruction.y, R.c_str());
 }
+
+template<>
+std::string Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "LD ($FF00+C),A";
+}
+
+template<>
+std::string Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "LD A,($FF00+C)";
+}

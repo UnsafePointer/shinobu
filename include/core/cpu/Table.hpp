@@ -24,8 +24,8 @@ namespace Core {
             /*B+*/ OR,       OR,       OR,          OR,     OR,         OR,      OR,     OR,     CP_A,     CP_A,   CP_A,        CP_A,   CP_A,       CP_A,       CP_A,   CP_A,
             /*C+*/ RET_CC,   POP_RR,   NULL,        JP_U16, CALL_CC_NN, PUSH_RR, RST_N,  ADD,    RET_CC,   RET,    NULL,        NULL,   CALL_CC_NN, CALL_NN,    ADC_A,  RST_N,
             /*D+*/ RET_CC,   POP_RR,   NULL,        NULL,   CALL_CC_NN, PUSH_RR, RST_N,  NULL,   RET_CC,   NULL,   NULL,        NULL,   CALL_CC_NN, NULL,       SBC_A,  RST_N,
-            /*E+*/ LDH_N_A,  POP_RR,   NULL,        NULL,   NULL,       PUSH_RR, RST_N,  NULL,   NULL,     JP_HL,  LD_NN_A,     NULL,   NULL,       NULL,       XOR_A,  RST_N,
-            /*F+*/ LDH_A_N,  POP_RR,   NULL,        DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
+            /*E+*/ LDH_N_A,  POP_RR,   LDH_C_A,     NULL,   NULL,       PUSH_RR, RST_N,  NULL,   NULL,     JP_HL,  LD_NN_A,     NULL,   NULL,       NULL,       XOR_A,  RST_N,
+            /*F+*/ LDH_A_N,  POP_RR,   LDH_A_C,     DI,     NULL,       PUSH_RR, RST_N,  OR,     NULL,     NULL,   LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
             };
 
             template <typename T>
