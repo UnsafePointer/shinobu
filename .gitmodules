@@ -1,0 +1,3 @@
+[submodule "mini-yaml"]
+	path = mini-yaml
+	url = git@github.com:UnsafePointer/mini-yaml.git
