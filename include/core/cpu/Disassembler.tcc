@@ -274,7 +274,6 @@ std::string Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruct
 template<>
 std::string Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    (void)instruction;
     std::string R = Disassembler::RTable[instruction.z];
     return Common::Formatter::format("RLC %s", R.c_str());
 }
@@ -311,4 +310,11 @@ std::string Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruc
     (void)processor;
     (void)instruction;
     return "LD A,($FF00+C)";
+}
+
+template<>
+std::string Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.z];
+    return Common::Formatter::format("RL %s", R.c_str());
 }

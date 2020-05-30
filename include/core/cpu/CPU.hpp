@@ -157,6 +157,8 @@ namespace Core {
             friend T CPU::Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             friend T CPU::Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            friend T CPU::Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

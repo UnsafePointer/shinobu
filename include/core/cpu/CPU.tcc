@@ -480,3 +480,26 @@ uint8_t Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction
     processor->registers.a = processor->memory->load(address);
     return 8;
 }
+
+template<>
+uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.z];
+    processor->registers.pc += 2;
+    if (R != 0xFF) {
+        uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
+        uint8_t carry = processor->registers.flag.carry;
+        processor->registers.flag.carry = lastBit;
+        processor->registers._value8[R] <<= 1;
+        processor->registers._value8[R] |= carry;
+        return 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t lastBit = (value & 0x80) >> 7;
+        uint8_t carry = processor->registers.flag.carry;
+        processor->registers.flag.carry = lastBit;
+        value <<= 1;
+        value |= carry;
+        processor->memory->store(processor->registers.hl, value);
+        return 16;
+    }
+}

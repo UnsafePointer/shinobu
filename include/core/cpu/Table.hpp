@@ -32,7 +32,7 @@ namespace Core {
             const std::vector<InstructionHandler<T>> PrefixedInstructionHandlerTable = {
             //    +0    +1    +2    +3    +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
             /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*1+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*1+*/RL,   RL,   RL,   RL,   RL,   RL,   RL,   RL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*2+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*3+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*4+*/BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,
