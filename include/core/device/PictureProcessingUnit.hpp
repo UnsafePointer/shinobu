@@ -67,6 +67,10 @@ namespace Core {
                 Common::Logs::Logger logger;
                 LCDControl control;
                 LCDStatus status;
+                uint8_t scrollY;
+                uint8_t scrollX;
+                uint8_t LY;
+                uint8_t LYC;
             public:
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();
