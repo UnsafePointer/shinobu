@@ -39,12 +39,34 @@ namespace Core {
                 Background_WindowTileMapLocation windowTimeMapDisplaySelect() { return Background_WindowTileMapLocation(_windowTimeMapDisplaySelect); }
             };
 
+            enum LCDCMode : uint8_t {
+                HBlank = 0,
+                VBlank = 1,
+                SearchingOAM = 2,
+                TransferingData = 3,
+            };
+
+            union LCDStatus {
+                uint8_t _value;
+                struct {
+                    uint8_t _mode : 2;
+                    uint8_t coincidence : 1;
+                    uint8_t mode0InterruptEnable : 1;
+                    uint8_t mode1InterruptEnable : 1;
+                    uint8_t mode2InterruptEnable : 1;
+                    uint8_t coincidenceInterruptEnable : 1;
+                };
+
+                LCDStatus() : _value(0) {}
+                LCDCMode mode() { return LCDCMode(_mode); }
+             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x6);
 
             class Processor {
                 Common::Logs::Logger logger;
                 LCDControl control;
+                LCDStatus status;
             public:
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();
