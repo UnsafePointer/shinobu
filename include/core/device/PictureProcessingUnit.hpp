@@ -71,6 +71,7 @@ namespace Core {
                 uint8_t scrollX;
                 uint8_t LY;
                 uint8_t LYC;
+                uint32_t steps;
             public:
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();

@@ -1,9 +1,10 @@
 #include "core/device/PictureProcessingUnit.hpp"
 #include <iostream>
+#include "common/Timing.hpp"
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), control() {
+Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps() {
 
 }
 
@@ -60,6 +61,13 @@ void Processor::store(uint16_t offset, uint8_t value) {
 }
 
 void Processor::step(uint8_t cycles) {
-    (void)cycles;
+    steps += cycles;
+    if (steps >= CyclesPerScanline) {
+        LY++;
+        if (LY >= TotalScanlines) {
+            LY = 0;
+        }
+        steps = 0;
+    }
     return;
 }
