@@ -58,3 +58,8 @@ void Processor::store(uint16_t offset, uint8_t value) {
         return;
     }
 }
+
+void Processor::step(uint8_t cycles) {
+    (void)cycles;
+    return;
+}

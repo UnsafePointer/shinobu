@@ -2,14 +2,16 @@
 #include <iostream>
 #include "common/Formatter.hpp"
 #include "shinobu/Configuration.hpp"
+#include "core/device/PictureProcessingUnit.hpp"
 
 using namespace Shinobu;
 
 Emulator::Emulator() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
+    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
-    memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge);
+    memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController);
 }
 
@@ -46,6 +48,7 @@ void Emulator::start() {
         std::string disassembledInstruction = disassemblerHandler(processor, instruction);
         std::string separator = std::string(16 - disassembledInstruction.length(), ' ');
         std::cout << disassembledInstruction << separator << Common::Formatter::format("; $%04x", processor->programCounter()) << std::endl;
-        handler(processor, instruction);
+        uint8_t cycles = handler(processor, instruction);
+        PPU->step(cycles);
     }
 }

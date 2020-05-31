@@ -77,6 +77,7 @@ namespace Core {
 
                 uint8_t load(uint16_t offset);
                 void store(uint16_t offset, uint8_t value);
+                void step(uint8_t cycles);
             };
         };
     };

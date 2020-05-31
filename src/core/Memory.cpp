@@ -24,10 +24,9 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), HRAM() {
+BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), PPU(PPU), HRAM() {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialCommunication::Controller>(configurationManager->serialLogLevel());
-    PPU = std::make_unique<Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
 }
 
 BankController::~BankController() {
@@ -200,7 +199,7 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge) : logger(logLevel, "  [Memory]: "), cartridge(cartridge) {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), PPU(PPU) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
@@ -218,12 +217,12 @@ void Controller::initialize() {
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM);
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);

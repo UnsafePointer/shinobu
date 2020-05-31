@@ -4,12 +4,14 @@
 #include "core/cpu/CPU.hpp"
 #include "core/ROM.hpp"
 #include "core/Memory.hpp"
+#include "core/device/PictureProcessingUnit.hpp"
 
 namespace Shinobu {
     class Emulator {
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
         std::unique_ptr<Core::Memory::Controller> memoryController;
+        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
     public:
         Emulator();
         ~Emulator();
