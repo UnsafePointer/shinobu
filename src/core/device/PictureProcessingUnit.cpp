@@ -3,7 +3,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: ") {
+Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), control() {
 
 }
 
