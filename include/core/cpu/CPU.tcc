@@ -267,7 +267,7 @@ uint8_t Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruct
 template<>
 uint8_t Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
-        uint8_t result = operand1 - operand2;
+        uint8_t result = operand1 + operand2;
         Flag flags = Flag();
         return std::tuple(result, flags);
     });
