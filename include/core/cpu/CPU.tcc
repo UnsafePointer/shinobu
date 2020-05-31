@@ -515,3 +515,17 @@ uint8_t Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->registers.pc++;
     return 4;
 }
+
+template<>
+uint8_t Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+        uint8_t result = operand1 - operand2;
+        Flag flags = Flag();
+        flags.zero = result == 0 ? 1 : 0;
+        flags.n = 1;
+        flags.halfcarry = ((operand2 & 0xF) > (operand1 & 0xF)) ? 1 : 0;
+        flags.carry = operand2 > operand1 ? 1 : 0;
+        return std::tuple(result, flags);
+    });
+    return cycles;
+}

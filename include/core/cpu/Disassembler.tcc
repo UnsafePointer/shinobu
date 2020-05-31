@@ -325,3 +325,9 @@ std::string Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction
     (void)instruction;
     return "RLA";
 }
+
+template<>
+std::string Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    return disassembleArithmetic(instruction, "SUB");
+}
