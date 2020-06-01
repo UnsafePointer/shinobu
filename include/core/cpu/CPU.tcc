@@ -240,6 +240,10 @@ uint8_t Instructions::OR(std::unique_ptr<Processor> &processor, Instruction inst
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 | operand2;
         Flag flags = Flag();
+        flags.calculateZero(result);
+        flags.n = 0;
+        flags.halfcarry = 0;
+        flags.carry = 0;
         return std::tuple(result, flags);
     });
     return cycles;
@@ -374,6 +378,10 @@ uint8_t Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction i
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 ^ operand2;
         Flag flags = Flag();
+        flags.calculateZero(result);
+        flags.n = 0;
+        flags.halfcarry = 0;
+        flags.carry = 0;
         return std::tuple(result, flags);
     });
     return cycles;
@@ -459,16 +467,10 @@ uint8_t Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction in
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 - operand2;
         Flag flags = Flag();
-        if (result == 0) {
-            flags.zero = 1;
-        }
+        flags.calculateZero(result);
         flags.n = 1;
-        if ((operand2 & 0xF) > (operand1 & 0xF)) {
-            flags.halfcarry = 1;
-        }
-        if (operand2 > operand1) {
-            flags.carry = 1;
-        }
+        flags.calculateSubtractionHalfCarry(operand1, operand2);
+        flags.calculateSubtractionCarry(operand1, operand2);
         return std::tuple(result, flags);
     }, false);
     return cycles;
