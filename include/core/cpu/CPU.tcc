@@ -626,3 +626,16 @@ uint8_t Instructions::SET(std::unique_ptr<Processor> &processor, Instruction ins
         return 16;
     }
 }
+
+template<>
+uint8_t Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t RR = Instructions::RPTable[instruction.p];
+    processor->registers.pc += 1;
+    uint16_t augend = processor->registers.hl;
+    uint16_t addend = processor->registers._value16[RR];
+    processor->registers.hl += processor->registers._value16[RR];
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = ((((uint32_t)augend & 0xFFF) + ((uint32_t)addend & 0xFFF)) & 0x1000) == 0x1000;
+    processor->registers.flag.carry = ((((uint32_t)augend & 0xFFFF) + ((uint32_t)addend & 0xFFFF)) & 0x10000) == 0x10000;
+    return 8;
+}
