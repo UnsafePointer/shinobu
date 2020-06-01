@@ -333,6 +333,10 @@ uint8_t Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction i
         }
         uint8_t result = minuend - subtrahend;
         Flag flags = Flag();
+        flags.calculateZero(result);
+        flags.n = 1;
+        flags.calculateSubtractionHalfCarry(minuend, subtrahend);
+        flags.calculateSubtractionCarry(minuend, subtrahend);
         return std::tuple(result, flags);
     });
     return cycles;
@@ -384,6 +388,10 @@ uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction i
         }
         uint8_t result = operand1 + operand2;
         Flag flags = Flag();
+        flags.calculateZero(result);
+        flags.n = 0;
+        flags.calculateAdditionHalfCarry(operand1, operand2);
+        flags.calculateAdditionCarry(operand1, operand2);
         return std::tuple(result, flags);
     });
     return cycles;
