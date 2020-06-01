@@ -608,3 +608,21 @@ uint8_t Instructions::AND(std::unique_ptr<Processor> &processor, Instruction ins
     });
     return cycles;
 }
+
+template<>
+uint8_t Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = RTable[instruction.z];
+    processor->registers.pc += 2;
+    if (R != 0xFF) {
+        std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
+        bits.set(instruction.y);
+        processor->registers._value8[R] = bits.to_ulong();
+        return 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        std::bitset<8> bits = std::bitset<8>(value);
+        bits.set(instruction.y);
+        processor->memory->store(processor->registers.hl, bits.to_ulong());
+        return 16;
+    }
+}

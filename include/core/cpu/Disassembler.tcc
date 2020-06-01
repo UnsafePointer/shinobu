@@ -337,3 +337,10 @@ std::string Instructions::AND(std::unique_ptr<Processor> &processor, Instruction
     (void)processor;
     return disassembleArithmetic(instruction, "AND");
 }
+
+template<>
+std::string Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.z];
+    return Common::Formatter::format("SET %d,%s", instruction.y, R.c_str());
+}

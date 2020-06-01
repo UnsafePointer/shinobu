@@ -43,10 +43,10 @@ namespace Core {
             /*9+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*A+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*B+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*C+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*D+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*E+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-            /*F+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*C+*/SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,
+            /*D+*/SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,
+            /*E+*/SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,
+            /*F+*/SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,  SET,
             };
         };
     };
