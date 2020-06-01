@@ -29,6 +29,26 @@ namespace Core {
             uint8_t _value;
 
             Flag() : _value() {}
+
+            void calculateZero(uint8_t result) {
+                zero = (result == 0);
+            }
+
+            void calculateAdditionHalfCarry(uint8_t augend, uint8_t addend) {
+                halfcarry = (((augend & 0xF) + (addend & 0xF)) & 0x10) == 0x10;
+            }
+
+            void calculateAdditionCarry(uint8_t augend, uint8_t addend) {
+                carry = ((((uint16_t)augend & 0xFF) + ((uint16_t)addend & 0xFF)) & 0x100) == 0x100;
+            }
+
+            void calculateSubtractionHalfCarry(uint8_t minuend, uint8_t subtrahend) {
+                halfcarry = (minuend & 0xF) < (subtrahend & 0xF);
+            }
+
+            void calculateSubtractionCarry(uint8_t minuend, uint8_t subtrahend) {
+                carry = minuend < subtrahend;
+            }
         };
 
         /*

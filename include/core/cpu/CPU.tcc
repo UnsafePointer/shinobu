@@ -49,14 +49,27 @@ template<>
 uint8_t Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.y];
     processor->registers.pc++;
+    uint8_t augend;
+    uint8_t addend = 1;
+    uint8_t result;
+    uint8_t cycles;
     if (R != 0xFF) {
-        processor->registers._value8[R]++;
-        return 4;
+        augend = processor->registers._value8[R];
     } else {
-        uint8_t value = processor->memory->load(processor->registers.hl);
-        processor->memory->store(processor->registers.hl, ++value);
-        return 12;
+        augend = processor->memory->load(processor->registers.hl);
     }
+    result = augend + addend;
+    processor->registers.flag.calculateZero(result);
+    processor->registers.flag.n = 0;
+    processor->registers.flag.calculateAdditionHalfCarry(augend, addend);
+    if (R != 0xFF) {
+        processor->registers._value8[R] = result;
+        cycles = 4;
+    } else {
+        processor->memory->store(processor->registers.hl, result);
+        cycles = 12;
+    }
+    return cycles;
 }
 
 template<>
@@ -323,15 +336,27 @@ template<>
 uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.y];
     processor->registers.pc++;
+    uint8_t minuend;
+    uint8_t subtrahend = 1;
+    uint8_t result;
+    uint8_t cycles;
     if (R != 0xFF) {
-        processor->registers._value8[R]--;
-        processor->registers.flag.zero = processor->registers._value8[R] == 0 ? 1 : 0;
-        return 4;
+        minuend = processor->registers._value8[R];
     } else {
-        uint8_t value = processor->memory->load(processor->registers.hl);
-        processor->memory->store(processor->registers.hl, --value);
-        return 12;
+        minuend = processor->memory->load(processor->registers.hl);
     }
+    result = minuend - subtrahend;
+    processor->registers.flag.calculateZero(result);
+    processor->registers.flag.n = 1;
+    processor->registers.flag.calculateSubtractionHalfCarry(minuend, subtrahend);
+    if (R != 0xFF) {
+        processor->registers._value8[R] = result;
+        cycles = 4;
+    } else {
+        processor->memory->store(processor->registers.hl, result);
+        cycles = 12;
+    }
+    return cycles;
 }
 
 template<>
