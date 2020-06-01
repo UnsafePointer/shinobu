@@ -301,6 +301,9 @@ template<>
 uint8_t Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint8_t result = (processor->registers.a & 0x80) >> 7;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = result;
     processor->registers.a <<= 1;
     processor->registers.a |= result;
@@ -535,6 +538,9 @@ uint8_t Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction ins
     (void)instruction;
     uint8_t result = (processor->registers.a & 0x80) >> 7;
     uint8_t carry = processor->registers.flag.carry;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = result;
     processor->registers.a <<= 1;
     processor->registers.a |= carry;
