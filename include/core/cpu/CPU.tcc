@@ -215,6 +215,12 @@ uint8_t Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction 
     uint8_t RR = RP2Table[instruction.p];
     uint16_t value = processor->popFromStack();
     processor->registers._value16[RR] = value;
+    if (RR == 0x3) {
+        processor->registers.flag.zero = (value & 0xFF) & 0x80 ? 1 : 0;
+        processor->registers.flag.n = (value & 0xFF) & 0x40 ? 1 : 0;
+        processor->registers.flag.halfcarry = (value & 0xFF) & 0x20 ? 1 : 0;
+        processor->registers.flag.carry = (value & 0xFF) & 0x10 ? 1 : 0;
+    }
     processor->registers.pc++;
     return 12;
 }
