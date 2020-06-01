@@ -114,6 +114,8 @@ namespace Core {
             T RLA(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T SUB(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T AND(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);

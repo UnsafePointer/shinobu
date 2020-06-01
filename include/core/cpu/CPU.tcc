@@ -594,3 +594,17 @@ uint8_t Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction ins
     });
     return cycles;
 }
+
+template<>
+uint8_t Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+        uint8_t result = operand1 & operand2;
+        Flag flags = Flag();
+        flags.calculateZero(result);
+        flags.n = 0;
+        flags.halfcarry = 1;
+        flags.carry = 0;
+        return std::tuple(result, flags);
+    });
+    return cycles;
+}

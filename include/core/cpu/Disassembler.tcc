@@ -331,3 +331,9 @@ std::string Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction
     (void)processor;
     return disassembleArithmetic(instruction, "SUB");
 }
+
+template<>
+std::string Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    return disassembleArithmetic(instruction, "AND");
+}
