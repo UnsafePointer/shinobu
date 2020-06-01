@@ -180,7 +180,7 @@ template<>
 std::string Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string compare = Disassembler::CCTable[instruction.y - 4];
     int8_t immediate = processor->memory->load(processor->registers.pc + 1);
-    uint16_t destinationAddress = processor->registers.pc + immediate;
+    uint16_t destinationAddress = processor->registers.pc + immediate + 2;
     return Common::Formatter::format("JR %s,$%04x", compare.c_str(), destinationAddress);
 }
 
