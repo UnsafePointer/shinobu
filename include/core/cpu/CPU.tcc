@@ -399,6 +399,9 @@ uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction ins
     uint8_t carry = processor->registers.flag.carry;
     carry <<= 7;
     uint8_t result = processor->registers.a & 0x1;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = result;
     processor->registers.a >>= 1;
     processor->registers.a |= carry;
