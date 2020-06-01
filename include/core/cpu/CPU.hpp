@@ -189,6 +189,8 @@ namespace Core {
             friend T CPU::Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             friend T CPU::Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            friend T CPU::Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory);
             ~Processor();

@@ -351,3 +351,10 @@ std::string Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instr
     std::string RR = Disassembler::RPTable[instruction.p];
     return Common::Formatter::format("ADD HL,%s", RR.c_str());
 }
+
+template<>
+std::string Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.z];
+    return Common::Formatter::format("RES %d,%s", instruction.y, R.c_str());
+}

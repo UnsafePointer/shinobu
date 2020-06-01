@@ -639,3 +639,21 @@ uint8_t Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instructi
     processor->registers.flag.carry = ((((uint32_t)augend & 0xFFFF) + ((uint32_t)addend & 0xFFFF)) & 0x10000) == 0x10000;
     return 8;
 }
+
+template<>
+uint8_t Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = RTable[instruction.z];
+    processor->registers.pc += 2;
+    if (R != 0xFF) {
+        std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
+        bits.reset(instruction.y);
+        processor->registers._value8[R] = bits.to_ulong();
+        return 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        std::bitset<8> bits = std::bitset<8>(value);
+        bits.reset(instruction.y);
+        processor->memory->store(processor->registers.hl, bits.to_ulong());
+        return 16;
+    }
+}

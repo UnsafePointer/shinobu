@@ -120,6 +120,8 @@ namespace Core {
             T SET(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T RES(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);
