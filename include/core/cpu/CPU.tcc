@@ -282,7 +282,10 @@ uint8_t Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction ins
     uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 + operand2;
         Flag flags = Flag();
-        flags.zero = result == 0 ? 1 : 0;
+        flags.calculateZero(result);
+        flags.n = 0;
+        flags.calculateAdditionHalfCarry(operand1, operand2);
+        flags.calculateAdditionCarry(operand1, operand2);
         return std::tuple(result, flags);
     });
     return cycles;
