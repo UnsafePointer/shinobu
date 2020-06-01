@@ -544,18 +544,24 @@ uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction inst
     if (R != 0xFF) {
         uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
         uint8_t carry = processor->registers.flag.carry;
-        processor->registers.flag.carry = lastBit;
         processor->registers._value8[R] <<= 1;
         processor->registers._value8[R] |= carry;
+        processor->registers.flag.calculateZero(processor->registers._value8[R]);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = lastBit;
         return 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lastBit = (value & 0x80) >> 7;
         uint8_t carry = processor->registers.flag.carry;
-        processor->registers.flag.carry = lastBit;
         value <<= 1;
         value |= carry;
         processor->memory->store(processor->registers.hl, value);
+        processor->registers.flag.calculateZero(value);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = lastBit;
         return 16;
     }
 }
