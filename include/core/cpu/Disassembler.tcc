@@ -422,3 +422,10 @@ std::string Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instr
     int8_t value = processor->memory->load(processor->registers.pc + 1);
     return Common::Formatter::format("ADD SP,$%02x", value);
 }
+
+template<>
+std::string Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "RETI";
+}

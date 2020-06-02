@@ -840,3 +840,12 @@ uint8_t Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instructi
     processor->registers.sp += value;
     return 16;
 }
+
+template<>
+uint8_t Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    uint16_t address = processor->popFromStack();
+    processor->registers.pc = address;
+    // TODO: Interrupt handling
+    return 16;
+}

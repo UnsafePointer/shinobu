@@ -147,6 +147,8 @@ namespace Core {
             T LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T RETI(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);
