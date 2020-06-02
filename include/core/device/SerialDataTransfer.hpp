@@ -23,6 +23,9 @@ namespace Core {
                 Common::Logs::Logger logger;
                 uint8_t data;
                 ControlRegister control;
+                std::string ttyBuffer;
+
+                void checkTTY(char c);
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();

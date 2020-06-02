@@ -3,12 +3,21 @@
 
 using namespace Core::Device::SerialDataTransfer;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Serial]: ") {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Serial]: "), ttyBuffer() {
 
 }
 
 Controller::~Controller() {
 
+}
+
+void Controller::checkTTY(char c) {
+    if (c == '\n') {
+        logger.logDebug("%s", ttyBuffer.c_str());
+        ttyBuffer.clear();
+        return;
+    }
+    ttyBuffer.append(1, c);
 }
 
 uint8_t Controller::load(uint16_t offset) {
@@ -30,6 +39,9 @@ void Controller::store(uint16_t offset, uint8_t value) {
         data = value;
         return;
     case 0x1:
+        if (value == 0x81) {
+            checkTTY(data);
+        }
         control._value = value;
         return;
     default:
