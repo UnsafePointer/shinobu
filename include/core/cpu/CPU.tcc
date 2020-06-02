@@ -825,3 +825,10 @@ uint8_t Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return cycles;
 }
+
+template<>
+uint8_t Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->advanceProgramCounter(instruction);
+    processor->registers.sp = processor->registers.hl;
+    return 8;
+}

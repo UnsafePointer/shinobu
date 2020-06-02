@@ -408,3 +408,10 @@ std::string Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("RRC %s", R.c_str());
 }
+
+template<>
+std::string Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return Common::Formatter::format("LD SP,HL");
+}

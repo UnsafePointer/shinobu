@@ -25,7 +25,7 @@ namespace Core {
             /*C+*/ RET_CC,   POP_RR,   JP_CC_NN,    JP_U16, CALL_CC_NN, PUSH_RR, ADD,    RST_N,  RET_CC,      RET,       JP_CC_NN,    NULL,   CALL_CC_NN, CALL_NN,    ADC_A,  RST_N,
             /*D+*/ RET_CC,   POP_RR,   JP_CC_NN,    NULL,   CALL_CC_NN, PUSH_RR, SUB,    RST_N,  RET_CC,      NULL,      JP_CC_NN,    NULL,   CALL_CC_NN, NULL,       SBC_A,  RST_N,
             /*E+*/ LDH_N_A,  POP_RR,   LDH_C_A,     NULL,   NULL,       PUSH_RR, AND,    RST_N,  NULL,        JP_HL,     LD_NN_A,     NULL,   NULL,       NULL,       XOR_A,  RST_N,
-            /*F+*/ LDH_A_N,  POP_RR,   LDH_A_C,     DI,     NULL,       PUSH_RR, OR,     RST_N,  LD_HL_SP_I8, NULL,      LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
+            /*F+*/ LDH_A_N,  POP_RR,   LDH_A_C,     DI,     NULL,       PUSH_RR, OR,     RST_N,  LD_HL_SP_I8, LD_SP_HL,  LD_A_NN,     EI,     NULL,       NULL,       CP_A,   RST_N,
             };
 
             const std::vector<uint8_t> InstructionSizeTable = {
