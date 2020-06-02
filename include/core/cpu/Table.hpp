@@ -51,7 +51,7 @@ namespace Core {
             template <typename T>
             const std::vector<InstructionHandler<T>> PrefixedInstructionHandlerTable = {
             //    +0    +1    +2    +3    +4    +5    +6    +7    +8    +9    +A    +B    +C    +D    +E    +F
-            /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RRC,  RRC,  RRC,  RRC,  RRC,  RRC,  RRC,  RRC,
             /*1+*/RL,   RL,   RL,   RL,   RL,   RL,   RL,   RL,   RR,   RR,   RR,   RR,   RR,   RR,   RR,   RR,
             /*2+*/SLA,  SLA,  SLA,  SLA,  SLA,  SLA,  SLA,  SLA,  SRA,  SRA,  SRA,  SRA,  SRA,  SRA,  SRA,  SRA,
             /*3+*/SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
