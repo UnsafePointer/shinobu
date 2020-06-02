@@ -832,3 +832,11 @@ uint8_t Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instructio
     processor->registers.sp = processor->registers.hl;
     return 8;
 }
+
+template<>
+uint8_t Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    processor->advanceProgramCounter(instruction);
+    processor->registers.sp += value;
+    return 16;
+}
