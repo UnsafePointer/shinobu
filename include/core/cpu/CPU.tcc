@@ -763,3 +763,34 @@ uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return cycles;
 }
+
+template<>
+uint8_t Instructions::RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.code.z];
+    uint8_t cycles;
+    if (R != 0xFF) {
+        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        uint8_t carryMask = processor->registers.flag.carry << 7;
+        processor->registers._value8[R] >>= 1;
+        processor->registers._value8[R] |= carryMask;
+        processor->registers.flag.calculateZero(processor->registers._value8[R]);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = firstBit;
+        cycles = 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        uint8_t carryMask = processor->registers.flag.carry << 7;
+        value >>= 1;
+        value |= carryMask;
+        processor->memory->store(processor->registers.hl, value);
+        processor->registers.flag.calculateZero(value);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = firstBit;
+        cycles = 16;
+    }
+    processor->advanceProgramCounter(instruction);
+    return cycles;
+}

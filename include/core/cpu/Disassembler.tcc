@@ -394,3 +394,10 @@ std::string Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("SRA %s", R.c_str());
 }
+
+template<>
+std::string Instructions::RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("RR %s", R.c_str());
+}
