@@ -17,6 +17,7 @@ namespace Shinobu {
             Common::Logs::Level ROM;
             Common::Logs::Level PPU;
             Common::Logs::Level serial;
+            Common::Logs::Level disassembler;
             bool trace;
 
             Manager();
@@ -28,6 +29,7 @@ namespace Shinobu {
             Common::Logs::Level ROMLogLevel() const;
             Common::Logs::Level PPULogLevel() const;
             Common::Logs::Level serialLogLevel() const;
+            Common::Logs::Level disassemblerLogLevel() const;
             bool shouldTraceLogs() const;
             void setupConfigurationFile() const;
             void loadConfiguration();

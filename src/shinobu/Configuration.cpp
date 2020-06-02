@@ -42,6 +42,10 @@ Common::Logs::Level Configuration::Manager::serialLogLevel() const {
     return serial;
 }
 
+Common::Logs::Level Configuration::Manager::disassemblerLogLevel() const {
+    return disassembler;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -59,6 +63,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["ROM"] = "NOLOG";
     logConfigurationRef["PPU"] = "NOLOG";
     logConfigurationRef["serial"] = "NOLOG";
+    logConfigurationRef["disassembler"] = "NOLOG";
     logConfigurationRef["trace"] = "false";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
@@ -74,6 +79,7 @@ void Configuration::Manager::loadConfiguration() {
     ROM = Common::Logs::levelWithValue(configuration["log"]["ROM"].As<std::string>());
     PPU = Common::Logs::levelWithValue(configuration["log"]["PPU"].As<std::string>());
     serial = Common::Logs::levelWithValue(configuration["log"]["serial"].As<std::string>());
+    disassembler = Common::Logs::levelWithValue(configuration["log"]["disassembler"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
