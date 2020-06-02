@@ -716,3 +716,15 @@ uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction in
     processor->advanceProgramCounter(instruction);
     return cycles;
 }
+
+template<>
+uint8_t Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    std::function<bool(Flag&)> compare = CCTable[instruction.code.y];
+    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    processor->advanceProgramCounter(instruction);
+    if (compare(processor->registers.flag)) {
+        processor->registers.pc = address;
+        return 16;
+    }
+    return 12;
+}

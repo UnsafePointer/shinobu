@@ -133,6 +133,8 @@ namespace Core {
             T SRA(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T SWAP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);

@@ -372,3 +372,10 @@ std::string Instructions::SWAP(std::unique_ptr<Processor> &processor, Instructio
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("SWAP %s", R.c_str());
 }
+
+template<>
+std::string Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    std::string compare = Disassembler::CCTable[instruction.code.y];
+    uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    return Common::Formatter::format("JP %s,$%04x", compare.c_str(), destination);
+}
