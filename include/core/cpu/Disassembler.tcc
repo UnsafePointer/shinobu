@@ -358,3 +358,10 @@ std::string Instructions::RES(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("RES %d,%s", instruction.code.y, R.c_str());
 }
+
+template<>
+std::string Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("SRA %s", R.c_str());
+}
