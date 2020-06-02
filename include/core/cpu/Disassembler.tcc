@@ -6,7 +6,7 @@
 using namespace Core::CPU;
 
 std::string disassembleArithmetic(Instructions::Instruction instruction, std::string operation) {
-    std::string R = Instructions::Disassembler::RTable[instruction.z];
+    std::string R = Instructions::Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("%s A,%s", operation.c_str(), R.c_str());
 }
 
@@ -33,7 +33,7 @@ std::string Instructions::DI(std::unique_ptr<Processor> &processor, Instruction 
 
 template<>
 std::string Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    std::string RR = Disassembler::RPTable[instruction.p];
+    std::string RR = Disassembler::RPTable[instruction.code.p];
     uint16_t value = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     return Common::Formatter::format("LD %s,$%04x", RR.c_str(), value);
 }
@@ -41,7 +41,7 @@ std::string Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instru
 template<>
 std::string Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    uint8_t N = instruction.y * 8;
+    uint8_t N = instruction.code.y * 8;
     return Common::Formatter::format("RET $%04x", N);
 }
 
@@ -49,7 +49,7 @@ template<>
 std::string Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
     (void)instruction;
-    std::string R = Disassembler::RTable[instruction.y];
+    std::string R = Disassembler::RTable[instruction.code.y];
     return Common::Formatter::format("INC %s", R.c_str());
 }
 
@@ -69,7 +69,7 @@ std::string Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruc
 
 template<>
 std::string Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    std::string R = Disassembler::RTable[instruction.y];
+    std::string R = Disassembler::RTable[instruction.code.y];
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
     return Common::Formatter::format("LD %s,$%02x", R.c_str(), value);
 }
@@ -85,7 +85,7 @@ template<>
 std::string Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
     (void)instruction;
-    std::string RR = Disassembler::RPTable[instruction.p];
+    std::string RR = Disassembler::RPTable[instruction.code.p];
     return Common::Formatter::format("DEC %s", RR.c_str());
 }
 
@@ -99,8 +99,8 @@ std::string Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruc
 template<>
 std::string Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.y];
-    std::string R2 = Disassembler::RTable[instruction.z];
+    std::string R = Disassembler::RTable[instruction.code.y];
+    std::string R2 = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("LD %s,%s", R.c_str(), R2.c_str());
 }
 
@@ -115,8 +115,8 @@ std::string Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instructi
 template<>
 std::string Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    if (instruction.q) {
-        switch (instruction.p) {
+    if (instruction.code.q) {
+        switch (instruction.code.p) {
         case 0:
             return Common::Formatter::format("LD A,(BC)");
         case 1:
@@ -127,7 +127,7 @@ std::string Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Ins
             return Common::Formatter::format("LD A,(HL-)");
         }
     } else {
-        switch (instruction.p) {
+        switch (instruction.code.p) {
         case 0:
             return Common::Formatter::format("LD (BC),A");
         case 1:
@@ -144,7 +144,7 @@ std::string Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Ins
 template<>
 std::string Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string RR = Disassembler::RP2Table[instruction.p];
+    std::string RR = Disassembler::RP2Table[instruction.code.p];
     return Common::Formatter::format("PUSH %s", RR.c_str());
 }
 
@@ -152,14 +152,14 @@ template<>
 std::string Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
     (void)instruction;
-    std::string RR = Disassembler::RP2Table[instruction.p];
+    std::string RR = Disassembler::RP2Table[instruction.code.p];
     return Common::Formatter::format("POP %s", RR.c_str());
 }
 
 template<>
 std::string Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string RR = Disassembler::RPTable[instruction.p];
+    std::string RR = Disassembler::RPTable[instruction.code.p];
     return Common::Formatter::format("INC %s", RR.c_str());
 }
 
@@ -178,7 +178,7 @@ std::string Instructions::OR(std::unique_ptr<Processor> &processor, Instruction 
 
 template<>
 std::string Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    std::string compare = Disassembler::CCTable[instruction.y - 4];
+    std::string compare = Disassembler::CCTable[instruction.code.y - 4];
     int8_t immediate = processor->memory->load(processor->registers.pc + 1);
     uint16_t destinationAddress = processor->registers.pc + immediate + 2;
     return Common::Formatter::format("JR %s,$%04x", compare.c_str(), destinationAddress);
@@ -193,7 +193,7 @@ std::string Instructions::STOP(std::unique_ptr<Processor> &processor, Instructio
 
 template<>
 std::string Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    std::string compare = Disassembler::CCTable[instruction.y];
+    std::string compare = Disassembler::CCTable[instruction.code.y];
     uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     return Common::Formatter::format("CALL %s,$%04x", compare.c_str(), destination);
 }
@@ -235,7 +235,7 @@ template<>
 std::string Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
     (void)instruction;
-    std::string R = Disassembler::RTable[instruction.y];
+    std::string R = Disassembler::RTable[instruction.code.y];
     return Common::Formatter::format("DEC %s", R.c_str());
 }
 
@@ -267,14 +267,14 @@ std::string Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction
 template<>
 std::string Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string compare = Disassembler::CCTable[instruction.y];
+    std::string compare = Disassembler::CCTable[instruction.code.y];
     return Common::Formatter::format("RET %s", compare.c_str());
 }
 
 template<>
 std::string Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.z];
+    std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("RLC %s", R.c_str());
 }
 
@@ -294,8 +294,8 @@ std::string Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruc
 template<>
 std::string Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.z];
-    return Common::Formatter::format("BIT %d,%s", instruction.y, R.c_str());
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("BIT %d,%s", instruction.code.y, R.c_str());
 }
 
 template<>
@@ -315,7 +315,7 @@ std::string Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruc
 template<>
 std::string Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.z];
+    std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("RL %s", R.c_str());
 }
 
@@ -341,20 +341,20 @@ std::string Instructions::AND(std::unique_ptr<Processor> &processor, Instruction
 template<>
 std::string Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.z];
-    return Common::Formatter::format("SET %d,%s", instruction.y, R.c_str());
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("SET %d,%s", instruction.code.y, R.c_str());
 }
 
 template<>
 std::string Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string RR = Disassembler::RPTable[instruction.p];
+    std::string RR = Disassembler::RPTable[instruction.code.p];
     return Common::Formatter::format("ADD HL,%s", RR.c_str());
 }
 
 template<>
 std::string Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
-    std::string R = Disassembler::RTable[instruction.z];
-    return Common::Formatter::format("RES %d,%s", instruction.y, R.c_str());
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("RES %d,%s", instruction.code.y, R.c_str());
 }

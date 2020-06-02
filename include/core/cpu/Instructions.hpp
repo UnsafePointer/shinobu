@@ -8,7 +8,7 @@ namespace Core {
 
         namespace Instructions {
             // https://gb-archive.github.io/salvage/decoding_gbz80_opcodes/Decoding%20Gamboy%20Z80%20Opcodes.html
-            union Instruction {
+            union Code {
                 uint8_t _value;
                 struct {
                     uint8_t z : 3;
@@ -22,8 +22,15 @@ namespace Core {
                     uint8_t _unused : 3;
                 };
 
-                Instruction() : _value() {}
-                Instruction(uint8_t value) : _value(value) {}
+                Code(uint8_t value) : _value(value) {}
+            };
+
+            struct Instruction {
+                Code code;
+                bool isPrefixed;
+
+                Instruction() : code(0x0), isPrefixed(false) {}
+                Instruction(uint8_t value, bool isPrefixed) : code(value), isPrefixed(isPrefixed) {}
             };
 
             const uint8_t InstructionPrefix = 0xCB;

@@ -39,9 +39,9 @@ void Emulator::start() {
             uint8_t prefixedCode = processor->fetchPrefixedInstruction();
             handler = processor->decodeInstruction<uint8_t>(prefixedCode, true);
             disassemblerHandler = processor->decodeInstruction<std::string>(prefixedCode, true);
-            instruction = Core::CPU::Instructions::Instruction(prefixedCode);
+            instruction = Core::CPU::Instructions::Instruction(prefixedCode, true);
         } else {
-            instruction = Core::CPU::Instructions::Instruction(code);
+            instruction = Core::CPU::Instructions::Instruction(code, false);
             handler = processor->decodeInstruction<uint8_t>(code, false);
             disassemblerHandler = processor->decodeInstruction<std::string>(code, false);
         }

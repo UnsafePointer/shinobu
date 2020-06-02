@@ -22,10 +22,20 @@ uint16_t Processor::popFromStack() {
     return value;
 }
 
+void Processor::advanceProgramCounter(Instructions::Instruction instruction) {
+    if (instruction.isPrefixed) {
+        registers.pc += 2;
+    } else {
+        uint8_t length = Instructions::InstructionSizeTable[instruction.code._value];
+        registers.pc += length;
+    }
+}
+
 uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator) {
-    registers.pc++;
-    if (instruction.x == 2) {
-        uint8_t R = Instructions::RTable[instruction.z];
+    advanceProgramCounter(instruction);
+    uint8_t cycles;
+    if (instruction.code.x == 2) {
+        uint8_t R = Instructions::RTable[instruction.code.z];
         if (R != 0xFF) {
             uint8_t RValue = registers._value8[R];
             uint8_t result;
@@ -35,7 +45,7 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
                 registers.a = result;
             }
             registers.flag = flags;
-            return 4;
+            cycles = 4;
         } else {
             uint8_t HLValue = memory->load(registers.hl);
             uint8_t result;
@@ -45,11 +55,10 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
                 registers.a = result;
             }
             registers.flag = flags;
-            return 8;
+            cycles = 8;
         }
-    } else if (instruction.x == 3) {
-        uint8_t NValue = memory->load(registers.pc);
-        registers.pc++;
+    } else if (instruction.code.x == 3) {
+        uint8_t NValue = memory->load(registers.pc - 1); // PC is already at next instruction
         int8_t result;
         Flag flags;
         std::tie(result, flags) = operation(registers.a, NValue);
@@ -57,10 +66,12 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
             registers.a = result;
         }
         registers.flag = flags;
-        return 8;
+        cycles = 8;
     } else {
+        logger.logError("Invalid instruction decoding");
         return 0;
     }
+    return cycles;
 }
 
 void Processor::initialize() {

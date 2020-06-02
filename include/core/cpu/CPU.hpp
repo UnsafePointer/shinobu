@@ -94,6 +94,7 @@ namespace Core {
 
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
+            void advanceProgramCounter(Instructions::Instruction instruction);
 
             uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator = true);
 
