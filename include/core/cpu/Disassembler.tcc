@@ -387,3 +387,10 @@ std::string Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Ins
     uint16_t result = processor->registers.sp + value;
     return Common::Formatter::format("LD HL,$%04x", result);
 }
+
+template<>
+std::string Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("SRA %s", R.c_str());
+}

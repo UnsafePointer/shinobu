@@ -736,3 +736,30 @@ uint8_t Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruc
     processor->registers.hl = processor->registers.sp + value;
     return 12;
 }
+
+template<>
+uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.code.z];
+    uint8_t cycles;
+    if (R != 0xFF) {
+        uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
+        processor->registers._value8[R] <<= 1;
+        processor->registers.flag.calculateZero(processor->registers._value8[R]);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = lastBit;
+        cycles = 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
+        value <<= 1;
+        processor->memory->store(processor->registers.hl, value);
+        processor->registers.flag.calculateZero(value);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = lastBit;
+        cycles = 16;
+    }
+    processor->advanceProgramCounter(instruction);
+    return cycles;
+}
