@@ -3,7 +3,7 @@
 
 using namespace Shinobu;
 
-Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "")),
+Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "", false)),
     CPU(Common::Logs::Level::NoLog),
     memory(Common::Logs::Level::NoLog),
     ROM(Common::Logs::Level::NoLog),
@@ -22,24 +22,28 @@ Configuration::Manager* Configuration::Manager::getInstance() {
     return instance;
 }
 
-Common::Logs::Level Configuration::Manager::CPULogLevel() {
+Common::Logs::Level Configuration::Manager::CPULogLevel() const {
     return CPU;
 }
 
-Common::Logs::Level Configuration::Manager::memoryLogLevel() {
+Common::Logs::Level Configuration::Manager::memoryLogLevel() const {
     return memory;
 }
 
-Common::Logs::Level Configuration::Manager::ROMLogLevel() {
+Common::Logs::Level Configuration::Manager::ROMLogLevel() const {
     return ROM;
 }
 
-Common::Logs::Level Configuration::Manager::PPULogLevel() {
+Common::Logs::Level Configuration::Manager::PPULogLevel() const {
     return PPU;
 }
 
-Common::Logs::Level Configuration::Manager::serialLogLevel() {
+Common::Logs::Level Configuration::Manager::serialLogLevel() const {
     return serial;
+}
+
+bool Configuration::Manager::shouldTraceLogs() const {
+    return trace;
 }
 
 void Configuration::Manager::setupConfigurationFile() const {
@@ -55,6 +59,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["ROM"] = "NOLOG";
     logConfigurationRef["PPU"] = "NOLOG";
     logConfigurationRef["serial"] = "NOLOG";
+    logConfigurationRef["trace"] = "false";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -69,4 +74,8 @@ void Configuration::Manager::loadConfiguration() {
     ROM = Common::Logs::levelWithValue(configuration["log"]["ROM"].As<std::string>());
     PPU = Common::Logs::levelWithValue(configuration["log"]["PPU"].As<std::string>());
     serial = Common::Logs::levelWithValue(configuration["log"]["serial"].As<std::string>());
+    trace = configuration["log"]["trace"].As<bool>();
+    if (trace) {
+        std::filesystem::remove(Common::Logs::filePath);
+    }
 }

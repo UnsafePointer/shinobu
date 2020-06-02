@@ -4,8 +4,12 @@
 #include <filesystem>
 #include <cstdarg>
 #include "common/Formatter.hpp"
+#include "shinobu/Configuration.hpp"
 
 using namespace Common::Logs;
+
+std::stringstream stream = std::stringstream();
+uint16_t bufferSize = 0;
 
 Level Common::Logs::levelWithValue(std::string value) {
     if (value.compare("WAR") == 0) {
@@ -19,11 +23,37 @@ Level Common::Logs::levelWithValue(std::string value) {
 }
 
 Logger::Logger(Level level, std::string prefix) : level(level), prefix(prefix) {
+    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
+    shouldTrace = configurationManager->shouldTraceLogs();
+}
+
+Logger::Logger(Level level, std::string prefix, bool shouldTrace) : level(level), prefix(prefix), shouldTrace(shouldTrace) {
 
 }
 
 Level Logger::logLevel() {
     return level;
+}
+
+void Logger::flush() const {
+    std::ofstream logfile = std::ofstream();
+    logfile.open(filePath, std::ios::out | std::ios::app);
+    logfile << stream.str();
+    logfile.close();
+    stream.str(std::string());
+    bufferSize = 0;
+}
+
+void Logger::traceMessage(std::string message) const {
+    if (!shouldTrace) {
+        return;
+    }
+    stream << message << std::endl;
+    bufferSize += message.length();
+    if (bufferSize < BUFFER_SIZE_LIMIT) {
+        return;
+    }
+    flush();
 }
 
 void Logger::logDebug(const char *fmt, ...) const {
@@ -34,6 +64,7 @@ void Logger::logDebug(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
+    traceMessage(formatted);
 }
 
 void Logger::logMessage(const char *fmt, ...) const {
@@ -47,6 +78,7 @@ void Logger::logMessage(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
+    traceMessage(formatted);
 }
 
 void Logger::logWarning(const char *fmt, ...) const {
@@ -60,6 +92,7 @@ void Logger::logWarning(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
+    traceMessage(formatted);
 }
 
 void Logger::logError(const char *fmt, ...) const {
@@ -70,5 +103,7 @@ void Logger::logError(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
+    traceMessage(formatted);
+    flush();
     exit(1);
 }

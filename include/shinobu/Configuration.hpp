@@ -17,16 +17,18 @@ namespace Shinobu {
             Common::Logs::Level ROM;
             Common::Logs::Level PPU;
             Common::Logs::Level serial;
+            bool trace;
 
             Manager();
         public:
             static Manager* getInstance();
 
-            Common::Logs::Level CPULogLevel();
-            Common::Logs::Level memoryLogLevel();
-            Common::Logs::Level ROMLogLevel();
-            Common::Logs::Level PPULogLevel();
-            Common::Logs::Level serialLogLevel();
+            Common::Logs::Level CPULogLevel() const;
+            Common::Logs::Level memoryLogLevel() const;
+            Common::Logs::Level ROMLogLevel() const;
+            Common::Logs::Level PPULogLevel() const;
+            Common::Logs::Level serialLogLevel() const;
+            bool shouldTraceLogs() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
