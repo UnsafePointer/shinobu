@@ -54,7 +54,7 @@ namespace Core {
             /*0+*/RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  RLC,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*1+*/RL,   RL,   RL,   RL,   RL,   RL,   RL,   RL,   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*2+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, SRA,  SRA,  SRA,  SRA,  SRA,  SRA,  SRA,  SRA,
-            /*3+*/NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+            /*3+*/SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, SWAP, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
             /*4+*/BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,
             /*5+*/BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,
             /*6+*/BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,  BIT,

@@ -365,3 +365,10 @@ std::string Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("SRA %s", R.c_str());
 }
+
+template<>
+std::string Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("SWAP %s", R.c_str());
+}

@@ -683,3 +683,36 @@ uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return cycles;
 }
+
+template<>
+uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.code.z];
+    uint8_t cycles;
+    if (R != 0xFF) {
+        uint8_t lsb = (processor->registers._value8[R] & 0x00FF);
+        lsb <<= 4;
+        uint8_t msb = (processor->registers._value8[R] & 0xFF00);
+        msb >>= 4;
+        processor->registers._value8[R] = msb | lsb;
+        processor->registers.flag.calculateZero(processor->registers._value8[R]);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = 0;
+        cycles = 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t lsb = (value & 0x00FF);
+        lsb <<= 4;
+        uint8_t msb = (value & 0xFF00);
+        msb >>= 4;
+        value = msb | lsb;
+        processor->memory->store(processor->registers.hl, value);
+        processor->registers.flag.calculateZero(value);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = 0;
+        cycles = 16;
+    }
+    processor->advanceProgramCounter(instruction);
+    return cycles;
+}
