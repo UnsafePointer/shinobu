@@ -379,3 +379,11 @@ std::string Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instru
     uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     return Common::Formatter::format("JP %s,$%04x", compare.c_str(), destination);
 }
+
+template<>
+std::string Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    uint16_t result = processor->registers.sp + value;
+    return Common::Formatter::format("LD HL,$%04x", result);
+}

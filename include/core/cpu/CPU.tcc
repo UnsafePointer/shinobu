@@ -728,3 +728,11 @@ uint8_t Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instructio
     }
     return 12;
 }
+
+template<>
+uint8_t Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    processor->advanceProgramCounter(instruction);
+    processor->registers.hl = processor->registers.sp + value;
+    return 12;
+}

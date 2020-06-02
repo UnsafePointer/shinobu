@@ -198,6 +198,8 @@ namespace Core {
             friend T CPU::Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             friend T CPU::Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            friend T CPU::Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory);
             ~Processor();
