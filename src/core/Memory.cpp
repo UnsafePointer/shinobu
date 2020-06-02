@@ -1,6 +1,6 @@
 #include "core/Memory.hpp"
 #include <iostream>
-#include "core/device/SerialCommunicationController.hpp"
+#include "core/device/SerialDataTransfer.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 #include "core/ROM.hpp"
 #include "shinobu/Configuration.hpp"
@@ -26,7 +26,7 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
 
 BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), PPU(PPU), HRAM() {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
-    serialCommController = std::make_unique<Device::SerialCommunication::Controller>(configurationManager->serialLogLevel());
+    serialCommController = std::make_unique<Device::SerialDataTransfer::Controller>(configurationManager->serialLogLevel());
 }
 
 BankController::~BankController() {
@@ -58,7 +58,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = I_ORegisters.contains(address);
     if (offset) {
-        offset = Device::SerialCommunication::AddressRange.contains(address);
+        offset = Device::SerialDataTransfer::AddressRange.contains(address);
         if (offset) {
             return serialCommController->load(*offset);
         }
@@ -104,7 +104,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     }
     offset = I_ORegisters.contains(address);
     if (offset) {
-        offset = Device::SerialCommunication::AddressRange.contains(address);
+        offset = Device::SerialDataTransfer::AddressRange.contains(address);
         if (offset) {
             serialCommController->store(*offset, value);
             return;

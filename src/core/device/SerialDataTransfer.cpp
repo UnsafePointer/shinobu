@@ -1,7 +1,7 @@
-#include "core/device/SerialCommunicationController.hpp"
+#include "core/device/SerialDataTransfer.hpp"
 #include <iostream>
 
-using namespace Core::Device::SerialCommunication;
+using namespace Core::Device::SerialDataTransfer;
 
 Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Serial]: ") {
 

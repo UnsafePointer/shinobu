@@ -7,7 +7,7 @@
 
 namespace Core {
     namespace Device {
-        namespace SerialCommunication {
+        namespace SerialDataTransfer {
             class Controller;
         };
         namespace PictureProcessingUnit {
@@ -53,7 +53,7 @@ namespace Core {
             std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM;
             std::array<uint8_t, 0x1000> WRAMBank00;
             std::array<uint8_t, 0x1000> WRAMBank01_N;
-            std::unique_ptr<Core::Device::SerialCommunication::Controller> serialCommController;
+            std::unique_ptr<Core::Device::SerialDataTransfer::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::array<uint8_t, 0x7F> HRAM;
 

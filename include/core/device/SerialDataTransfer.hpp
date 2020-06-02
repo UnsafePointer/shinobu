@@ -5,7 +5,7 @@
 
 namespace Core {
     namespace Device {
-        namespace SerialCommunication {
+        namespace SerialDataTransfer {
             union ControlRegister {
                 uint8_t _value;
                 struct {
