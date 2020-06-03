@@ -443,3 +443,10 @@ std::string Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction
     (void)instruction;
     return "CPL";
 }
+
+template<>
+std::string Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "CPL";
+}
