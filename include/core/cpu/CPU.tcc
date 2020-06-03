@@ -893,3 +893,12 @@ uint8_t Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return 4;
 }
+
+template<>
+uint8_t Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = 0;
+    processor->registers.flag.carry = !processor->registers.flag.carry;
+    processor->advanceProgramCounter(instruction);
+    return 4;
+}
