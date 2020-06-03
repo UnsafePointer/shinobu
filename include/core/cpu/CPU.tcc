@@ -851,3 +851,27 @@ uint8_t Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction in
     // TODO: Interrupt handling
     return 16;
 }
+
+template<>
+uint8_t Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    if (!processor->registers.flag.n) {
+        if (processor->registers.flag.carry || processor->registers.a > 0x99) {
+            processor->registers.a += 0x60;
+            processor->registers.flag.carry = 1;
+        }
+        if (processor->registers.flag.halfcarry || (processor->registers.a & 0x0f) > 0x09) {
+            processor->registers.a += 0x6;
+        }
+    } else {
+        if (processor->registers.flag.carry) {
+            processor->registers.a -= 0x60;
+        }
+        if (processor->registers.flag.halfcarry) {
+            processor->registers.a -= 0x6;
+        }
+    }
+    processor->registers.flag.calculateZero(processor->registers.a);
+    processor->registers.flag.halfcarry = 0;
+    processor->advanceProgramCounter(instruction);
+    return 4;
+}

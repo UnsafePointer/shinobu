@@ -429,3 +429,10 @@ std::string Instructions::RETI(std::unique_ptr<Processor> &processor, Instructio
     (void)instruction;
     return "RETI";
 }
+
+template<>
+std::string Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "DAA";
+}

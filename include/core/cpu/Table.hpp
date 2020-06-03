@@ -12,7 +12,7 @@ namespace Core {
             //    +0         +1        +2           +3      +4          +5       +6      +7      +8           +9         +A           +B      +C          +D          +E      +F
             /*0+*/ NOP,      LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  RLCA,   LD_NN_SP,    ADD_HL_RR, LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*1+*/ STOP,     LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  RLA,    JR_I8,       ADD_HL_RR, LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  RRA,
-            /*2+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_CC_I8,    ADD_HL_RR, LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
+            /*2+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  DAA,    JR_CC_I8,    ADD_HL_RR, LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*3+*/ JR_CC_I8, LD_RR_NN, LD_INDIRECT, INC_RR, INC_R,      DEC_R,   LD_U8,  NULL,   JR_CC_I8,    ADD_HL_RR, LD_INDIRECT, DEC_RR, INC_R,      DEC_R,      LD_U8,  NULL,
             /*4+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*5+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
