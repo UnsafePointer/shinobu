@@ -902,3 +902,17 @@ uint8_t Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return 4;
 }
+
+template<>
+uint8_t Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t lastBit = processor->registers.a & 0x1;
+    uint8_t lastBitMask = lastBit << 7;
+    processor->registers.a >>= 1;
+    processor->registers.a |= lastBitMask;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    processor->registers.flag.halfcarry = 0;
+    processor->registers.flag.carry = lastBit;
+    processor->advanceProgramCounter(instruction);
+    return 4;
+}

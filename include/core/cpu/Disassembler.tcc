@@ -457,3 +457,10 @@ std::string Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction
     (void)instruction;
     return "CCF";
 }
+
+template<>
+std::string Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "RRCA";
+}
