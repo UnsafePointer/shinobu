@@ -500,7 +500,7 @@ uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction ins
     if (R != 0xFF) {
         std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
         bool isSet = bits.test(instruction.code.y);
-        processor->registers.flag.zero = isSet ? 1 : 0;
+        processor->registers.flag.zero = isSet ? 0 : 1;
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 1;
         cycles = 8;
@@ -508,7 +508,7 @@ uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction ins
         uint8_t value = processor->memory->load(processor->registers.hl);
         std::bitset<8> bits = std::bitset<8>(value);
         bool isSet = bits.test(instruction.code.y);
-        processor->registers.flag.zero = isSet ? 1 : 0;
+        processor->registers.flag.zero = isSet ? 0 : 1;
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 1;
         cycles = 12;
