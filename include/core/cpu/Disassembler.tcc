@@ -436,3 +436,10 @@ std::string Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction
     (void)instruction;
     return "DAA";
 }
+
+template<>
+std::string Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "CPL";
+}

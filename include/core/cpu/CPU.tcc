@@ -875,3 +875,12 @@ uint8_t Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return 4;
 }
+
+template<>
+uint8_t Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->registers.a = ~processor->registers.a;
+    processor->registers.flag.n = 1;
+    processor->registers.flag.halfcarry = 1;
+    processor->advanceProgramCounter(instruction);
+    return 4;
+}
