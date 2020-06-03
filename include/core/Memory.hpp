@@ -68,7 +68,7 @@ namespace Core {
         };
 
         namespace ROM {
-            const Range ROMRange = Range(0x0, 8000);
+            const Range ROMRange = Range(0x0, 0x8000);
             class Controller : public BankController {
             public:
                 Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : BankController(logLevel, cartridge, bootROM, PPU) {};
