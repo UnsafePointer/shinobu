@@ -147,7 +147,8 @@ namespace Core {
             Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
             ~Controller();
 
-            void initialize();
+            void initialize(bool skipBootROM);
+            bool hasBootROM() const;
             uint8_t load(uint16_t address) const;
             void store(uint16_t address, uint8_t value);
             uint16_t loadDoubleWord(uint16_t address) const;

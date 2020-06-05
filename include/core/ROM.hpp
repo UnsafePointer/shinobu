@@ -33,13 +33,15 @@ namespace Core {
 
                 Lock lockRegister;
                 std::array<uint8_t, BOOT_ROM_SIZE> data;
+                bool initialized;
             public:
                 ROM(Common::Logs::Level logLevel);
                 ~ROM();
 
-                void initialize();
+                void initialize(bool skip);
                 uint8_t load(uint16_t offset) const;
                 bool isLocked() const;
+                bool hasBootROM() const;
                 uint8_t loadLockRegister() const;
                 void storeLockRegister(uint8_t value);
             };

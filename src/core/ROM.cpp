@@ -4,7 +4,7 @@
 
 using namespace Core::ROM;
 
-BOOT::ROM::ROM(Common::Logs::Level logLevel) : logger(logLevel, "  [BOOTROM]: "), lockRegister(), data() {
+BOOT::ROM::ROM(Common::Logs::Level logLevel) : logger(logLevel, "  [BOOTROM]: "), lockRegister(), data(), initialized(false) {
 
 }
 
@@ -12,7 +12,11 @@ BOOT::ROM::~ROM() {
 
 }
 
-void BOOT::ROM::initialize() {
+void BOOT::ROM::initialize(bool skip) {
+    if (skip) {
+        logger.logDebug("Skipping boot ROM");
+        return;
+    }
     if (!std::filesystem::exists(DEFAULT_BOOT_ROM_FILE_PATH)) {
         logger.logWarning("Couldn't find BOOT_ROM at path: %s", DEFAULT_BOOT_ROM_FILE_PATH.string().c_str());
         return;
@@ -27,6 +31,7 @@ void BOOT::ROM::initialize() {
     bootROMFile.seekg(0, bootROMFile.beg);
     bootROMFile.read(reinterpret_cast<char *>(&data[0]), fileSize);
     bootROMFile.close();
+    initialized = true;
 }
 
 uint8_t BOOT::ROM::load(uint16_t offset) const {
@@ -34,7 +39,11 @@ uint8_t BOOT::ROM::load(uint16_t offset) const {
 }
 
 bool BOOT::ROM::isLocked() const {
-    return lockRegister.BOOT_OFF == 0x0;
+    return hasBootROM() && lockRegister.BOOT_OFF == 0x0;
+}
+
+bool BOOT::ROM::hasBootROM() const {
+    return initialized;
 }
 
 uint8_t BOOT::ROM::loadLockRegister() const {

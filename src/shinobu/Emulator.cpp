@@ -6,7 +6,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator(Common::Logs::Level logLevel) : logger(logLevel, "  [Disassembler]: ") {
+Emulator::Emulator(Common::Logs::Level logLevel) : logger(logLevel, "  [Disassembler]: "), shouldSkipBootROM(false) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
@@ -23,9 +23,13 @@ void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
 }
 
+void Emulator::setShouldSkipBootROM(bool skipBootROM) {
+    shouldSkipBootROM = skipBootROM;
+}
+
 void Emulator::powerUp() {
     // TODO: implement power up sequence: https://gbdev.io/pandocs/#power-up-sequence
-    memoryController->initialize();
+    memoryController->initialize(shouldSkipBootROM);
     processor->initialize();
 }
 

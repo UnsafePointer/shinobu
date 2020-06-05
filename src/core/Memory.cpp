@@ -208,8 +208,8 @@ Controller::~Controller() {
 
 }
 
-void Controller::initialize() {
-    bootROM->initialize();
+void Controller::initialize(bool skipBootROM) {
+    bootROM->initialize(skipBootROM);
     if (!cartridge->isOpen()) {
         logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
@@ -228,6 +228,10 @@ void Controller::initialize() {
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
         break;
     }
+}
+
+bool Controller::hasBootROM() const {
+    return bootROM->hasBootROM();
 }
 
 uint8_t Controller::load(uint16_t address) const {

@@ -4,7 +4,7 @@
 
 using namespace Shinobu;
 
-Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath() {
+Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath(), skipBootROM(false) {
 
 }
 
@@ -40,6 +40,10 @@ void Runner::configure(int argc, char* argv[]) {
         }
         argumentFound = true;
     }
+    if (checkOption(argv, argv + argc, "--skip-boot")) {
+        skipBootROM = true;
+        argumentFound = true;
+    }
     if (!argumentFound) {
         logger.logError("Incorrect arguments passed. See README.md for usage.");
     }
@@ -47,4 +51,5 @@ void Runner::configure(int argc, char* argv[]) {
 
 void Runner::configureEmulator(Emulator &emulator) {
     emulator.setROMFilePath(ROMFilePath);
+    emulator.setShouldSkipBootROM(skipBootROM);
 }

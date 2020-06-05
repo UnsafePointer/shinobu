@@ -8,6 +8,7 @@ namespace Shinobu {
     class Runner {
         Common::Logs::Logger logger;
         std::filesystem::path ROMFilePath;
+        bool skipBootROM;
 
         bool checkOption(char** begin, char** end, const std::string &option) const;
         char* getOptionValue(char** begin, char** end, const std::string &option) const;

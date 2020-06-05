@@ -79,7 +79,11 @@ void Processor::initialize() {
     registers.bc = 0x0013;
     registers.de = 0x00D8;
     registers.hl = 0x014D;
-    registers.pc = 0x0000;
+    if (memory->hasBootROM()) {
+        registers.pc = 0x0000;
+    } else {
+        registers.pc = 0x0100;
+    }
     registers.sp = 0xFFFE;
     memory->store(0xFF05, 0x00);
     memory->store(0xFF06, 0x00);

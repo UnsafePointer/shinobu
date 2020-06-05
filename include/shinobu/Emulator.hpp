@@ -15,11 +15,14 @@ namespace Shinobu {
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
         std::unique_ptr<Core::Memory::Controller> memoryController;
         std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
+
+        bool shouldSkipBootROM;
     public:
         Emulator(Common::Logs::Level logLevel);
         ~Emulator();
 
         void setROMFilePath(std::filesystem::path &filePath);
+        void setShouldSkipBootROM(bool skipBootROM);
         void powerUp();
         void start();
     };
