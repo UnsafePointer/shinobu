@@ -464,3 +464,10 @@ std::string Instructions::RRCA(std::unique_ptr<Processor> &processor, Instructio
     (void)instruction;
     return "RRCA";
 }
+
+template<>
+std::string Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    std::string R = Disassembler::RTable[instruction.code.z];
+    return Common::Formatter::format("SRL %s", R.c_str());
+}

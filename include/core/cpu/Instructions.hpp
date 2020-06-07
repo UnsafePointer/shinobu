@@ -159,6 +159,8 @@ namespace Core {
             T CCF(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             T RRCA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            T SRL(std::unique_ptr<Processor> &processor, Instruction instruction);
 
             template<typename T>
             using InstructionHandler = T (*) (std::unique_ptr<Core::CPU::Processor> &processor, Core::CPU::Instructions::Instruction instruction);

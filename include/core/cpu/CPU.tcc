@@ -916,3 +916,30 @@ uint8_t Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction in
     processor->advanceProgramCounter(instruction);
     return 4;
 }
+
+template<>
+uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    uint8_t R = Instructions::RTable[instruction.code.z];
+    uint8_t cycles;
+    if (R != 0xFF) {
+        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        processor->registers._value8[R] >>= 1;
+        processor->registers.flag.calculateZero(processor->registers._value8[R]);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = firstBit;
+        cycles = 8;
+    } else {
+        uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        value >>= 1;
+        processor->memory->store(processor->registers.hl, value);
+        processor->registers.flag.calculateZero(value);
+        processor->registers.flag.n = 0;
+        processor->registers.flag.halfcarry = 0;
+        processor->registers.flag.carry = firstBit;
+        cycles = 16;
+    }
+    processor->advanceProgramCounter(instruction);
+    return cycles;
+}
