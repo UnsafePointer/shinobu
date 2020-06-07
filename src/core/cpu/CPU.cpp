@@ -124,7 +124,7 @@ uint8_t Processor::fetchInstruction() const {
 }
 
 uint8_t Processor::fetchPrefixedInstruction() const {
-    uint8_t immediateAddress = registers.pc + 1;
+    uint16_t immediateAddress = registers.pc + 1;
     return memory->load(immediateAddress);
 }
 
