@@ -51,7 +51,7 @@ void Emulator::start() {
         }
         std::string disassembledInstruction = disassemblerHandler(processor, instruction);
         std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
-        disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->programCounter());
+        disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
         uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
     }

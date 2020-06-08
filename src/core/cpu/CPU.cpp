@@ -128,10 +128,6 @@ uint8_t Processor::fetchPrefixedInstruction() const {
     return memory->load(immediateAddress);
 }
 
-uint16_t Processor::programCounter() const {
-    return registers.pc;
-}
-
 template<typename T>
 Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  bool isPrefixed) const {
     // TODO: Remove these checks once table is complete

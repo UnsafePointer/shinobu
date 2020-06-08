@@ -8,6 +8,10 @@
 #include "core/cpu/Instructions.hpp"
 #include "common/Logger.hpp"
 
+namespace Shinobu {
+    class Emulator;
+};
+
 namespace Core {
     namespace CPU {
         /*
@@ -87,6 +91,8 @@ namespace Core {
         };
 
         class Processor {
+            friend class Shinobu::Emulator;
+
             Common::Logs::Logger logger;
 
             Registers registers;
@@ -231,7 +237,6 @@ namespace Core {
             void initialize();
             uint8_t fetchInstruction() const;
             uint8_t fetchPrefixedInstruction() const;
-            uint16_t programCounter() const;
 
             template<typename T>
             Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;
