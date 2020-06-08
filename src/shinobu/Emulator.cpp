@@ -6,7 +6,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator(Common::Logs::Level logLevel) : logger(logLevel, "  [Disassembler]: "), shouldSkipBootROM(false) {
+Emulator::Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level tracerLogLevel) : disassembler(disassemblerLogLevel, "  [Disassembler]: "), tracer(tracerLogLevel, ""), shouldSkipBootROM(false) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
@@ -51,7 +51,7 @@ void Emulator::start() {
         }
         std::string disassembledInstruction = disassemblerHandler(processor, instruction);
         std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
-        logger.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->programCounter());
+        disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->programCounter());
         uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
     }

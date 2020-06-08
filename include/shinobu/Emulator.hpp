@@ -9,7 +9,8 @@
 
 namespace Shinobu {
     class Emulator {
-        Common::Logs::Logger logger;
+        Common::Logs::Logger disassembler;
+        Common::Logs::Logger tracer;
 
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
@@ -18,7 +19,7 @@ namespace Shinobu {
 
         bool shouldSkipBootROM;
     public:
-        Emulator(Common::Logs::Level logLevel);
+        Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level tracerLogLevel);
         ~Emulator();
 
         void setROMFilePath(std::filesystem::path &filePath);
