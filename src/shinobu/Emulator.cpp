@@ -52,6 +52,18 @@ void Emulator::start() {
         std::string disassembledInstruction = disassemblerHandler(processor, instruction);
         std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
         disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
+        tracer.logMessage("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
+            processor->registers.a,
+            processor->registers.f,
+            processor->registers.b,
+            processor->registers.c,
+            processor->registers.d,
+            processor->registers.e,
+            processor->registers.h,
+            processor->registers.l,
+            processor->registers.sp,
+            processor->registers.pc,
+            disassembledInstruction.c_str());
         uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
     }
