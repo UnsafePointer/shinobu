@@ -61,13 +61,16 @@ void Processor::store(uint16_t offset, uint8_t value) {
 }
 
 void Processor::step(uint8_t cycles) {
+    if (!control.LCDDisplayEnable) {
+        return;
+    }
     steps += cycles;
     if (steps >= CyclesPerScanline) {
         LY++;
         if (LY >= TotalScanlines) {
             LY = 0;
         }
-        steps = 0;
+        steps %= CyclesPerScanline;
     }
     return;
 }
