@@ -2,6 +2,10 @@
 #include "core/Memory.hpp"
 #include "common/Logger.hpp"
 
+namespace Shinobu {
+    class Emulator;
+};
+
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
@@ -64,6 +68,8 @@ namespace Core {
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x6);
 
             class Processor {
+                friend class Shinobu::Emulator;
+
                 Common::Logs::Logger logger;
                 LCDControl control;
                 LCDStatus status;
