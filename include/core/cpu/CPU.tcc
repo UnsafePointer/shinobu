@@ -143,7 +143,7 @@ uint8_t Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction 
             cycles = 8;
         }
     } else {
-        uint8_t value = processor->registers._value8[R];
+        uint8_t value = processor->registers._value8[R2];
         processor->memory->store(processor->registers.hl, value);
         cycles = 8;
     }
