@@ -269,7 +269,7 @@ uint8_t Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instructio
 template<>
 uint8_t Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->advanceProgramCounter(instruction);
-    return 0;
+    return 4;
 }
 
 template<>
