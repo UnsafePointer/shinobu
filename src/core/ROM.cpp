@@ -14,7 +14,7 @@ BOOT::ROM::~ROM() {
 
 void BOOT::ROM::initialize(bool skip) {
     if (skip) {
-        logger.logDebug("Skipping boot ROM");
+        logger.logWarning("Skipping boot ROM");
         return;
     }
     if (!std::filesystem::exists(DEFAULT_BOOT_ROM_FILE_PATH)) {
