@@ -58,7 +58,7 @@ uint8_t Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction i
     result = augend + addend;
     processor->registers.flag.calculateZero(result);
     processor->registers.flag.n = 0;
-    processor->registers.flag.calculateAdditionHalfCarry(augend, addend);
+    processor->registers.flag.calculateAdditionHalfCarry(augend, addend, 0x0);
     if (R != 0xFF) {
         processor->registers._value8[R] = result;
         cycles = 4;
@@ -292,8 +292,8 @@ uint8_t Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction ins
         Flag flags = Flag();
         flags.calculateZero(result);
         flags.n = 0;
-        flags.calculateAdditionHalfCarry(operand1, operand2);
-        flags.calculateAdditionCarry(operand1, operand2);
+        flags.calculateAdditionHalfCarry(operand1, operand2, 0x0);
+        flags.calculateAdditionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     });
     return cycles;
@@ -334,15 +334,12 @@ template<>
 uint8_t Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t carry = processor->registers.flag.carry;
     uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t minuend, uint8_t subtrahend) {
-        if (carry) {
-            subtrahend++;
-        }
-        uint8_t result = minuend - subtrahend;
+        uint8_t result = minuend - (subtrahend + carry);
         Flag flags = Flag();
         flags.calculateZero(result);
         flags.n = 1;
-        flags.calculateSubtractionHalfCarry(minuend, subtrahend);
-        flags.calculateSubtractionCarry(minuend, subtrahend);
+        flags.calculateSubtractionHalfCarry(minuend, subtrahend, carry);
+        flags.calculateSubtractionCarry(minuend, subtrahend, carry);
         return std::tuple(result, flags);
     });
     return cycles;
@@ -363,7 +360,7 @@ uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction i
     result = minuend - subtrahend;
     processor->registers.flag.calculateZero(result);
     processor->registers.flag.n = 1;
-    processor->registers.flag.calculateSubtractionHalfCarry(minuend, subtrahend);
+    processor->registers.flag.calculateSubtractionHalfCarry(minuend, subtrahend, 0x0);
     if (R != 0xFF) {
         processor->registers._value8[R] = result;
         cycles = 4;
@@ -393,15 +390,12 @@ template<>
 uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t carry = processor->registers.flag.carry;
     uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t operand1, uint8_t operand2) {
-        if (carry) {
-            operand2++;
-        }
-        uint8_t result = operand1 + operand2;
+        uint8_t result = operand1 + operand2 + carry;
         Flag flags = Flag();
         flags.calculateZero(result);
         flags.n = 0;
-        flags.calculateAdditionHalfCarry(operand1, operand2);
-        flags.calculateAdditionCarry(operand1, operand2);
+        flags.calculateAdditionHalfCarry(operand1, operand2, carry);
+        flags.calculateAdditionCarry(operand1, operand2, carry);
         return std::tuple(result, flags);
     });
     return cycles;
@@ -477,8 +471,8 @@ uint8_t Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction in
         Flag flags = Flag();
         flags.calculateZero(result);
         flags.n = 1;
-        flags.calculateSubtractionHalfCarry(operand1, operand2);
-        flags.calculateSubtractionCarry(operand1, operand2);
+        flags.calculateSubtractionHalfCarry(operand1, operand2, 0x0);
+        flags.calculateSubtractionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     }, false);
     return cycles;
@@ -585,8 +579,8 @@ uint8_t Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction ins
         Flag flags = Flag();
         flags.calculateZero(result);
         flags.n = 1;
-        flags.calculateSubtractionHalfCarry(operand1, operand2);
-        flags.calculateSubtractionCarry(operand1, operand2);
+        flags.calculateSubtractionHalfCarry(operand1, operand2, 0x0);
+        flags.calculateSubtractionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     });
     return cycles;
