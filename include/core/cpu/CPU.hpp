@@ -102,6 +102,7 @@ namespace Core {
             uint16_t popFromStack();
             void advanceProgramCounter(Instructions::Instruction instruction);
 
+            std::string disassembleArithmetic(Instructions::Instruction instruction, std::string operation);
             uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator = true);
 
             template<typename T>

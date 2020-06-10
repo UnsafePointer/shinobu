@@ -31,6 +31,16 @@ void Processor::advanceProgramCounter(Instructions::Instruction instruction) {
     }
 }
 
+std::string Processor::disassembleArithmetic(Instructions::Instruction instruction, std::string operation) {
+    if (instruction.code.x == 2) {
+        std::string R = Instructions::Disassembler::RTable[instruction.code.z];
+        return Common::Formatter::format("%s A,%s", operation.c_str(), R.c_str());
+    } else {
+        uint8_t value = memory->load(registers.pc + 1);
+        return Common::Formatter::format("%s A,$%02x", operation.c_str(), value);
+    }
+}
+
 uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator) {
     advanceProgramCounter(instruction);
     uint8_t cycles;

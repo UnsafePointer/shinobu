@@ -5,11 +5,6 @@
 
 using namespace Core::CPU;
 
-std::string disassembleArithmetic(Instructions::Instruction instruction, std::string operation) {
-    std::string R = Instructions::Disassembler::RTable[instruction.code.z];
-    return Common::Formatter::format("%s A,%s", operation.c_str(), R.c_str());
-}
-
 template<>
 std::string Instructions::NOP(std::unique_ptr<Core::CPU::Processor> &processor, Instruction instruction) {
     (void)instruction;
@@ -172,8 +167,7 @@ std::string Instructions::EI(std::unique_ptr<Processor> &processor, Instruction 
 
 template<>
 std::string Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "OR");
+    return processor->disassembleArithmetic(instruction, "OR");
 }
 
 template<>
@@ -200,8 +194,7 @@ std::string Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Inst
 
 template<>
 std::string Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "ADD");
+    return processor->disassembleArithmetic(instruction, "ADD");
 }
 
 template<>
@@ -227,8 +220,7 @@ std::string Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruc
 
 template<>
 std::string Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "SBC");
+    return processor->disassembleArithmetic(instruction, "SBC");
 }
 
 template<>
@@ -241,14 +233,12 @@ std::string Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instructi
 
 template<>
 std::string Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "XOR");
+    return processor->disassembleArithmetic(instruction, "XOR");
 }
 
 template<>
 std::string Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "ADC");
+    return processor->disassembleArithmetic(instruction, "ADC");
 }
 
 template<>
@@ -280,8 +270,7 @@ std::string Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction
 
 template<>
 std::string Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "CP");
+    return processor->disassembleArithmetic(instruction, "CP");
 }
 
 template<>
@@ -328,14 +317,12 @@ std::string Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction
 
 template<>
 std::string Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "SUB");
+    return processor->disassembleArithmetic(instruction, "SUB");
 }
 
 template<>
 std::string Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    (void)processor;
-    return disassembleArithmetic(instruction, "AND");
+    return processor->disassembleArithmetic(instruction, "AND");
 }
 
 template<>
