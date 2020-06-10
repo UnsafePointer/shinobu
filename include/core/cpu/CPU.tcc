@@ -733,7 +733,17 @@ template<>
 uint8_t Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     int8_t value = processor->memory->load(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
-    processor->registers.hl = processor->registers.sp + value;
+    uint16_t result = processor->registers.sp + value;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    if (value >= 0) {
+        processor->registers.flag.calculateAdditionHalfCarry(processor->registers.sp, value, 0x0);
+        processor->registers.flag.calculateAdditionCarry(processor->registers.sp, value, 0x0);
+    } else {
+        processor->registers.flag.calculateSubtractionHalfCarry(result, processor->registers.sp, 0x0);
+        processor->registers.flag.calculateSubtractionCarry(result, processor->registers.sp, 0x0);
+    }
+    processor->registers.hl = result;
     return 12;
 }
 
@@ -837,7 +847,17 @@ template<>
 uint8_t Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     int8_t value = processor->memory->load(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
-    processor->registers.sp += value;
+    uint16_t result = processor->registers.sp + value;
+    processor->registers.flag.zero = 0;
+    processor->registers.flag.n = 0;
+    if (value >= 0) {
+        processor->registers.flag.calculateAdditionHalfCarry(processor->registers.sp, value, 0x0);
+        processor->registers.flag.calculateAdditionCarry(processor->registers.sp, value, 0x0);
+    } else {
+        processor->registers.flag.calculateSubtractionHalfCarry(result, processor->registers.sp, 0x0);
+        processor->registers.flag.calculateSubtractionCarry(result, processor->registers.sp, 0x0);
+    }
+    processor->registers.sp = result;
     return 16;
 }
 
