@@ -435,7 +435,7 @@ template<>
 std::string Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)processor;
     (void)instruction;
-    return "CPL";
+    return "SCF";
 }
 
 template<>
