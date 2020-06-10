@@ -66,7 +66,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return PPU->load(*offset);;
         }
-        offset = Core::ROM::BOOT::AddressRange.contains(address);
+        offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
         if (offset) {
             return bootROM->loadLockRegister();
         }
@@ -114,7 +114,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             PPU->store(*offset, value);
             return;
         }
-        offset = Core::ROM::BOOT::AddressRange.contains(address);
+        offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
         if (offset) {
             bootROM->storeLockRegister(value);
             return;
