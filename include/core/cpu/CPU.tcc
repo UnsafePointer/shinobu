@@ -689,9 +689,9 @@ uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction in
     uint8_t R = Instructions::RTable[instruction.code.z];
     uint8_t cycles;
     if (R != 0xFF) {
-        uint8_t lsb = (processor->registers._value8[R] & 0x00FF);
+        uint8_t lsb = (processor->registers._value8[R] & 0x0F);
         lsb <<= 4;
-        uint8_t msb = (processor->registers._value8[R] & 0xFF00);
+        uint8_t msb = (processor->registers._value8[R] & 0xF0);
         msb >>= 4;
         processor->registers._value8[R] = msb | lsb;
         processor->registers.flag.calculateZero(processor->registers._value8[R]);
@@ -701,9 +701,9 @@ uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction in
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
-        uint8_t lsb = (value & 0x00FF);
+        uint8_t lsb = (value & 0x0F);
         lsb <<= 4;
-        uint8_t msb = (value & 0xFF00);
+        uint8_t msb = (value & 0xF0);
         msb >>= 4;
         value = msb | lsb;
         processor->memory->store(processor->registers.hl, value);
