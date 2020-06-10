@@ -22,7 +22,7 @@ namespace Core {
                 Lock() : _value() {}
             };
 
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0x0, 0xFF);
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0x0, 0x100);
             const Core::Memory::Range BootROMRegisterRange = Core::Memory::Range(0xFF50, 0x1);
 
             const uint16_t BOOT_ROM_SIZE = 0x100;
