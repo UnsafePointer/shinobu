@@ -658,8 +658,10 @@ uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction ins
     uint8_t R = Instructions::RTable[instruction.code.z];
     uint8_t cycles;
     if (R != 0xFF) {
+        uint8_t lastBitMask = processor->registers._value8[R] & 0x80;
         uint8_t firstBit = (processor->registers._value8[R] & 0x1);
         processor->registers._value8[R] >>= 1;
+        processor->registers._value8[R] |= lastBitMask;
         processor->registers.flag.calculateZero(processor->registers._value8[R]);
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
@@ -667,8 +669,10 @@ uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction ins
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
+        uint8_t lastBitMask = value & 0x80;
         uint8_t firstBit = (value & 0x1);
         value >>= 1;
+        value |= lastBitMask;
         processor->memory->store(processor->registers.hl, value);
         processor->registers.flag.calculateZero(value);
         processor->registers.flag.n = 0;
@@ -747,7 +751,7 @@ uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction ins
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
-        uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
+        uint8_t lastBit = (value & 0x80) >> 7;
         value <<= 1;
         processor->memory->store(processor->registers.hl, value);
         processor->registers.flag.calculateZero(value);
@@ -776,7 +780,7 @@ uint8_t Instructions::RR(std::unique_ptr<Processor> &processor, Instruction inst
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
-        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        uint8_t firstBit = (value & 0x1);
         uint8_t carryMask = processor->registers.flag.carry << 7;
         value >>= 1;
         value |= carryMask;
@@ -807,7 +811,7 @@ uint8_t Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction ins
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
-        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        uint8_t firstBit = (value & 0x1);
         uint8_t firstBitMask = firstBit << 7;
         value >>= 1;
         value |= firstBitMask;
@@ -883,7 +887,7 @@ template<>
 uint8_t Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->registers.flag.n = 0;
     processor->registers.flag.halfcarry = 0;
-    processor->registers.flag.carry = 0;
+    processor->registers.flag.carry = 1;
     processor->advanceProgramCounter(instruction);
     return 4;
 }
@@ -925,7 +929,7 @@ uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction ins
         cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
-        uint8_t firstBit = (processor->registers._value8[R] & 0x1);
+        uint8_t firstBit = (value & 0x1);
         value >>= 1;
         processor->memory->store(processor->registers.hl, value);
         processor->registers.flag.calculateZero(value);
