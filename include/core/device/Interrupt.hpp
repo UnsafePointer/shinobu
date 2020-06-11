@@ -72,9 +72,9 @@ namespace Core {
                 void updateIME(bool value);
                 void requestInterrupt(Interrupt interrupt);
                 void serveInterrupts();
-                uint8_t loadEnable();
+                uint8_t loadEnable() const;
                 void storeEnable(uint8_t value);
-                uint8_t loadFlag();
+                uint8_t loadFlag() const;
                 void storeFlag(uint8_t value);
             };
         };

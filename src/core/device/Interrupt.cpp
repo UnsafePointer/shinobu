@@ -51,7 +51,7 @@ void Controller::executeInterrupt(Interrupt interrupt) {
     clearInterrupt(interrupt);
 }
 
-uint8_t Controller::loadEnable() {
+uint8_t Controller::loadEnable() const {
     return enable._value;
 }
 
@@ -59,7 +59,7 @@ void Controller::storeEnable(uint8_t value) {
     enable._value = value;
 }
 
-uint8_t Controller::loadFlag() {
+uint8_t Controller::loadFlag() const {
     return flag._value;
 }
 
