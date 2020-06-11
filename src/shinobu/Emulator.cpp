@@ -38,36 +38,42 @@ void Emulator::powerUp() {
 
 void Emulator::start() {
     while (true) {
-        uint8_t code = processor->fetchInstruction();
-        Core::CPU::Instructions::InstructionHandler<uint8_t> handler;
-        Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler;
+        uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
-        if (code == Core::CPU::Instructions::InstructionPrefix) {
-            uint8_t prefixedCode = processor->fetchPrefixedInstruction();
-            handler = processor->decodeInstruction<uint8_t>(prefixedCode, true);
-            disassemblerHandler = processor->decodeInstruction<std::string>(prefixedCode, true);
-            instruction = Core::CPU::Instructions::Instruction(prefixedCode, true);
+        if (!processor->halted) {
+            uint8_t code = processor->fetchInstruction();
+            Core::CPU::Instructions::InstructionHandler<uint8_t> handler;
+            Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler;
+            if (code == Core::CPU::Instructions::InstructionPrefix) {
+                uint8_t prefixedCode = processor->fetchPrefixedInstruction();
+                handler = processor->decodeInstruction<uint8_t>(prefixedCode, true);
+                disassemblerHandler = processor->decodeInstruction<std::string>(prefixedCode, true);
+                instruction = Core::CPU::Instructions::Instruction(prefixedCode, true);
+            } else {
+                instruction = Core::CPU::Instructions::Instruction(code, false);
+                handler = processor->decodeInstruction<uint8_t>(code, false);
+                disassemblerHandler = processor->decodeInstruction<std::string>(code, false);
+            }
+            std::string disassembledInstruction = disassemblerHandler(processor, instruction);
+            std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
+            disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
+            tracer.logMessage("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
+                processor->registers.a,
+                processor->registers.f,
+                processor->registers.b,
+                processor->registers.c,
+                processor->registers.d,
+                processor->registers.e,
+                processor->registers.h,
+                processor->registers.l,
+                processor->registers.sp,
+                processor->registers.pc,
+                disassembledInstruction.c_str());
+            cycles = handler(processor, instruction);
         } else {
-            instruction = Core::CPU::Instructions::Instruction(code, false);
-            handler = processor->decodeInstruction<uint8_t>(code, false);
-            disassemblerHandler = processor->decodeInstruction<std::string>(code, false);
+            cycles = 4;
+            instruction = Core::CPU::Instructions::Instruction(0x76, false);
         }
-        std::string disassembledInstruction = disassemblerHandler(processor, instruction);
-        std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
-        disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
-        tracer.logMessage("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
-            processor->registers.a,
-            processor->registers.f,
-            processor->registers.b,
-            processor->registers.c,
-            processor->registers.d,
-            processor->registers.e,
-            processor->registers.h,
-            processor->registers.l,
-            processor->registers.sp,
-            processor->registers.pc,
-            disassembledInstruction.c_str());
-        uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
         timer->step(cycles);
         processor->checkPendingInterrupts(instruction);

@@ -25,6 +25,7 @@ void Controller::clearInterrupt(Interrupt interrupt) {
 }
 
 void Controller::requestInterrupt(Interrupt interrupt) {
+    processor->unhalt();
     uint8_t interruptMask = 0x1 << interrupt;
     flag._value |= interruptMask;
 }

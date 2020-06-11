@@ -458,3 +458,10 @@ std::string Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction
     std::string R = Disassembler::RTable[instruction.code.z];
     return Common::Formatter::format("SRL %s", R.c_str());
 }
+
+template<>
+std::string Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "HALT";
+}

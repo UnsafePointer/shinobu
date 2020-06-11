@@ -5,7 +5,7 @@
 
 using namespace Core::CPU;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt) {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt), shouldSetIME(false), shouldClearIME(false), halted(false) {
 }
 
 Processor::~Processor() {
@@ -150,9 +150,14 @@ void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction
 }
 
 void Processor::executeInterrupt(Device::Interrupt::Interrupt interrupt) {
+    halted = false;
     uint16_t address = Device::Interrupt::VECTOR[interrupt];
     pushIntoStack(registers.pc);
     registers.pc = address;
+}
+
+void Processor::unhalt() {
+    halted = false;
 }
 
 template<typename T>

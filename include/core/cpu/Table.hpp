@@ -17,7 +17,7 @@ namespace Core {
             /*4+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*5+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*6+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  LD_R_R, LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
-            /*7+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  NULL,   LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
+            /*7+*/ LD_R_R,   LD_R_R,   LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,  HALT,   LD_R_R, LD_R_R,      LD_R_R,    LD_R_R,      LD_R_R, LD_R_R,     LD_R_R,     LD_R_R, LD_R_R,
             /*8+*/ ADD,      ADD,      ADD,         ADD,    ADD,        ADD,     ADD,    ADD,    ADC_A,       ADC_A,     ADC_A,       ADC_A,  ADC_A,      ADC_A,      ADC_A,  ADC_A,
             /*9+*/ SUB,      SUB,      SUB,         SUB,    SUB,        SUB,     SUB,    SUB,    SBC_A,       SBC_A,     SBC_A,       SBC_A,  SBC_A,      SBC_A,      SBC_A,  SBC_A,
             /*A+*/ AND,      AND,      AND,         AND,    AND,        AND,     AND,    AND,    XOR_A,       XOR_A,     XOR_A,       XOR_A,  XOR_A,      XOR_A,      XOR_A,  XOR_A,

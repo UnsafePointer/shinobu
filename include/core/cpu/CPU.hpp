@@ -102,6 +102,7 @@ namespace Core {
 
             bool shouldSetIME;
             bool shouldClearIME;
+            bool halted;
 
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
@@ -236,6 +237,8 @@ namespace Core {
             friend T CPU::Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             friend T CPU::Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            friend T CPU::Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt);
             ~Processor();
@@ -245,6 +248,7 @@ namespace Core {
             uint8_t fetchPrefixedInstruction() const;
             void checkPendingInterrupts(Instructions::Instruction lastInstruction);
             void executeInterrupt(Device::Interrupt::Interrupt interrupt);
+            void unhalt();
 
             template<typename T>
             Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;

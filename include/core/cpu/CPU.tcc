@@ -961,3 +961,10 @@ uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction ins
     processor->advanceProgramCounter(instruction);
     return cycles;
 }
+
+template<>
+uint8_t Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->halted = true;
+    processor->advanceProgramCounter(instruction);
+    return 4;
+}
