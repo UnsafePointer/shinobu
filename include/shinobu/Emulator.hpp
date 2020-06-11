@@ -7,6 +7,7 @@
 #include "core/device/PictureProcessingUnit.hpp"
 #include "common/Logger.hpp"
 #include "core/device/Interrupt.hpp"
+#include "core/device/Timer.hpp"
 
 namespace Shinobu {
     class Emulator {
@@ -18,6 +19,7 @@ namespace Shinobu {
         std::unique_ptr<Core::Memory::Controller> memoryController;
         std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
         std::unique_ptr<Core::Device::Interrupt::Controller> interrupt;
+        std::unique_ptr<Core::Device::Timer::Controller> timer;
 
         bool shouldSkipBootROM;
     public:

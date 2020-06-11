@@ -20,6 +20,7 @@ namespace Shinobu {
             Common::Logs::Level disassembler;
             Common::Logs::Level tracer;
             Common::Logs::Level interrupt;
+            Common::Logs::Level timer;
             bool trace;
 
             Manager();
@@ -34,6 +35,7 @@ namespace Shinobu {
             Common::Logs::Level disassemblerLogLevel() const;
             Common::Logs::Level tracerLogLevel() const;
             Common::Logs::Level interruptLogLevel() const;
+            Common::Logs::Level timerLogLevel() const;
             bool shouldTraceLogs() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
