@@ -25,15 +25,19 @@ namespace Core {
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
 
                 uint8_t divider;
+                uint32_t dividerSteps;
                 uint8_t counter;
                 uint8_t modulo;
                 Control control;
+
+                void updateDivider(uint8_t cycles);
             public:
                 Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Controller();
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
+                void step(uint8_t cycles);
             };
         };
     };

@@ -69,6 +69,7 @@ void Emulator::start() {
             disassembledInstruction.c_str());
         uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
+        timer->step(cycles);
         processor->checkPendingInterrupts(instruction);
     }
 }

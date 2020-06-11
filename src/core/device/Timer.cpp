@@ -1,8 +1,9 @@
 #include "core/device/Timer.hpp"
+#include "common/Timing.hpp"
 
 using namespace Core::Device::Timer;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt) {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), dividerSteps(), counter(), modulo(), control() {
 
 }
 
@@ -44,4 +45,16 @@ void Controller::store(uint16_t offset, uint8_t value) {
         logger.logWarning("Unhandled Timer store at offset: %04x with value %02x", offset, value);
         return;
     }
+}
+
+void Controller::updateDivider(uint8_t cycles) {
+    dividerSteps += cycles;
+    if (dividerSteps >= DividerCycleStep) {
+        dividerSteps %= DividerCycleStep;
+        divider++;
+    }
+}
+
+void Controller::step(uint8_t cycles) {
+    updateDivider(cycles);
 }
