@@ -13,6 +13,9 @@ namespace Core {
         namespace PictureProcessingUnit {
             class Processor;
         };
+        namespace Interrupt {
+            class Controller;
+        };
     }
     namespace ROM {
         class Cartridge;
@@ -43,7 +46,6 @@ namespace Core {
         const Range NotUsable = Range(0xFEA0, 0x60);
         const Range I_ORegisters = Range(0xFF00, 0x80);
         const Range HighRAM = Range(0xFF80, 0x7F);
-        const Range InterruptsEnableRegister = Range(0xFFFF, 0x1);
 
         class BankController {
         protected:
@@ -56,11 +58,12 @@ namespace Core {
             std::unique_ptr<Core::Device::SerialDataTransfer::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::array<uint8_t, 0x7F> HRAM;
+            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
 
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:
-            BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
+            BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
             ~BankController();
 
             virtual uint8_t load(uint16_t address) const = 0;
@@ -71,7 +74,7 @@ namespace Core {
             const Range ROMRange = Range(0x0, 0x8000);
             class Controller : public BankController {
             public:
-                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : BankController(logLevel, cartridge, bootROM, PPU) {};
+                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : BankController(logLevel, cartridge, bootROM, PPU, interrupt) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -130,7 +133,7 @@ namespace Core {
                 BANK2 _BANK2;
                 Mode mode;
             public:
-                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : BankController(logLevel, cartridge, bootROM, PPU) {};
+                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : BankController(logLevel, cartridge, bootROM, PPU, interrupt) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -143,8 +146,9 @@ namespace Core {
             std::unique_ptr<BankController> bankController;
             std::unique_ptr<Core::ROM::BOOT::ROM> bootROM;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
+            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
         public:
-            Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
+            Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
             ~Controller();
 
             void initialize(bool skipBootROM);

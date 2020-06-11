@@ -124,8 +124,7 @@ void Processor::initialize() {
         memory->store(0xFF49, 0xFF);
         memory->store(0xFF4A, 0x00);
         memory->store(0xFF4B, 0x00);
-        // TODO: Interrupt Enable Register
-        // memory->store(0xFFFF, 0x00);
+        memory->store(0xFFFF, 0x00);
     }
 }
 

@@ -50,3 +50,19 @@ void Controller::executeInterrupt(Interrupt interrupt) {
     IME = false;
     clearInterrupt(interrupt);
 }
+
+uint8_t Controller::loadEnable() {
+    return enable._value;
+}
+
+void Controller::storeEnable(uint8_t value) {
+    enable._value = value;
+}
+
+uint8_t Controller::loadFlag() {
+    return flag._value;
+}
+
+void Controller::storeFlag(uint8_t value) {
+    flag._value = value;
+}

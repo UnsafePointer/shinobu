@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "common/Logger.hpp"
 #include <memory>
+#include "core/Memory.hpp"
 
 namespace Core {
     namespace CPU {
@@ -21,6 +22,8 @@ namespace Core {
             static const Interrupt ALL[] = { VBLANK, LCDSTAT, TIMER, SERIAL, JOYPAD };
             static const uint16_t VECTOR[] = { 0x40, 0x48, 0x50, 0x58, 0x60 };
 
+            const Core::Memory::Range EnableAddressRange = Core::Memory::Range(0xFFFF, 0x1);
+
             union Enable {
                 uint8_t _value;
                 struct {
@@ -34,6 +37,8 @@ namespace Core {
 
                 Enable() : _value(0x0) {}
             };
+
+            const Core::Memory::Range FlagAddressRange = Core::Memory::Range(0xFF0F, 0x1);
 
             union Flag {
                 uint8_t _value;
@@ -67,6 +72,10 @@ namespace Core {
                 void updateIME(bool value);
                 void requestInterrupt(Interrupt interrupt);
                 void serveInterrupts();
+                uint8_t loadEnable();
+                void storeEnable(uint8_t value);
+                uint8_t loadFlag();
+                void storeFlag(uint8_t value);
             };
         };
     };
