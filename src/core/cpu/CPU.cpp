@@ -141,10 +141,13 @@ uint8_t Processor::fetchPrefixedInstruction() const {
 void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction) {
     if (shouldSetIME && lastInstruction.code._value != 0xFB) {
         interrupt->updateIME(true);
+        shouldSetIME = false;
     }
     if (shouldClearIME && lastInstruction.code._value != 0xF3) {
         interrupt->updateIME(false);
+        shouldClearIME = false;
     }
+    interrupt->serveInterrupts();
 }
 
 template<typename T>

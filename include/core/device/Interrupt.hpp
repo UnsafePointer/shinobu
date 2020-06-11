@@ -5,6 +5,16 @@
 namespace Core {
     namespace Device {
         namespace Interrupt {
+            enum Interrupt {
+                VBLANK = 0,
+                LCDSTAT = 1,
+                TIMER = 2,
+                SERIAL = 3,
+                JOYPAD = 4
+            };
+
+            static const Interrupt ALL[] = { VBLANK, LCDSTAT, TIMER, SERIAL, JOYPAD };
+
             union Enable {
                 uint8_t _value;
                 struct {
@@ -36,14 +46,20 @@ namespace Core {
             class Controller {
                 Common::Logs::Logger logger;
 
+
                 bool IME;
                 Enable enable;
                 Flag flag;
+
+                void clearInterrupt(Interrupt interrupt);
+                void executeInterrupt(Interrupt interrupt);
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
                 void updateIME(bool value);
+                void requestInterrupt(Interrupt interrupt);
+                void serveInterrupts();
             };
         };
     };
