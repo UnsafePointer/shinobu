@@ -3,7 +3,7 @@
 
 using namespace Core::Device::Timer;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), dividerSteps(), counter(), modulo(), control() {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), dividerSteps(), counter(), counterSteps(), modulo(), control() {
 
 }
 
@@ -30,7 +30,7 @@ uint8_t Controller::load(uint16_t offset) const {
 void Controller::store(uint16_t offset, uint8_t value) {
     switch (offset) {
     case 0x0:
-        divider = value;
+        divider = 0;
         return;
     case 0x1:
         counter = value;
@@ -57,4 +57,20 @@ void Controller::updateDivider(uint8_t cycles) {
 
 void Controller::step(uint8_t cycles) {
     updateDivider(cycles);
+
+    if (!control.enable) {
+        return;
+    }
+
+    counterSteps += cycles;
+    uint32_t currentClockCycleStep = clocks[control._clock];
+    while (counterSteps >= currentClockCycleStep) {
+        counterSteps -= currentClockCycleStep;
+        counter++;
+
+        if (counter == 0) {
+            counter = modulo;
+            interrupt->requestInterrupt(Interrupt::TIMER);
+        }
+    }
 }

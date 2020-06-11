@@ -3,6 +3,7 @@
 #include <memory>
 #include "core/device/Interrupt.hpp"
 #include "core/Memory.hpp"
+#include "common/Timing.hpp"
 
 namespace Core {
     namespace Device {
@@ -27,6 +28,7 @@ namespace Core {
                 uint8_t divider;
                 uint32_t dividerSteps;
                 uint8_t counter;
+                uint32_t counterSteps;
                 uint8_t modulo;
                 Control control;
 
