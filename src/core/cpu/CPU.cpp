@@ -5,7 +5,7 @@
 
 using namespace Core::CPU;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory) : logger(logLevel, "  [CPU]: "), registers(), memory(memory) {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt) {
 }
 
 Processor::~Processor() {
@@ -136,6 +136,15 @@ uint8_t Processor::fetchInstruction() const {
 uint8_t Processor::fetchPrefixedInstruction() const {
     uint16_t immediateAddress = registers.pc + 1;
     return memory->load(immediateAddress);
+}
+
+void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction) {
+    if (shouldSetIME && lastInstruction.code._value != 0xFB) {
+        interrupt->updateIME(true);
+    }
+    if (shouldClearIME && lastInstruction.code._value != 0xF3) {
+        interrupt->updateIME(false);
+    }
 }
 
 template<typename T>

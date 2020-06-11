@@ -9,10 +9,11 @@ using namespace Shinobu;
 Emulator::Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level tracerLogLevel) : disassembler(disassemblerLogLevel, "  [Disassembler]: "), tracer(tracerLogLevel, ""), shouldSkipBootROM(false) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
+    interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU);
-    processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController);
+    processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
 }
 
 Emulator::~Emulator() {
@@ -66,5 +67,6 @@ void Emulator::start() {
             disassembledInstruction.c_str());
         uint8_t cycles = handler(processor, instruction);
         PPU->step(cycles);
+        processor->checkPendingInterrupts(instruction);
     }
 }

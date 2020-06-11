@@ -7,6 +7,7 @@
 #include "core/Memory.hpp"
 #include "core/cpu/Instructions.hpp"
 #include "common/Logger.hpp"
+#include "core/device/Interrupt.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -97,6 +98,10 @@ namespace Core {
 
             Registers registers;
             std::unique_ptr<Memory::Controller> &memory;
+            std::unique_ptr<Device::Interrupt::Controller> &interrupt;
+
+            bool shouldSetIME;
+            bool shouldClearIME;
 
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
@@ -232,12 +237,13 @@ namespace Core {
             template<typename T>
             friend T CPU::Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
-            Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory);
+            Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt);
             ~Processor();
 
             void initialize();
             uint8_t fetchInstruction() const;
             uint8_t fetchPrefixedInstruction() const;
+            void checkPendingInterrupts(Instructions::Instruction lastInstruction);
 
             template<typename T>
             Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;

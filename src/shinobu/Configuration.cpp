@@ -10,7 +10,8 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     PPU(Common::Logs::Level::NoLog),
     serial(Common::Logs::Level::NoLog),
     disassembler(Common::Logs::Level::NoLog),
-    tracer(Common::Logs::Level::NoLog)
+    tracer(Common::Logs::Level::NoLog),
+    interrupt(Common::Logs::Level::NoLog)
 {
 
 }
@@ -52,6 +53,10 @@ Common::Logs::Level Configuration::Manager::tracerLogLevel() const {
     return tracer;
 }
 
+Common::Logs::Level Configuration::Manager::interruptLogLevel() const {
+    return interrupt;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -72,6 +77,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["disassembler"] = "NOLOG";
     logConfigurationRef["tracer"] = "NOLOG";
     logConfigurationRef["trace"] = "false";
+    logConfigurationRef["interrupt"] = "NOLOG";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -88,6 +94,7 @@ void Configuration::Manager::loadConfiguration() {
     serial = Common::Logs::levelWithValue(configuration["log"]["serial"].As<std::string>());
     disassembler = Common::Logs::levelWithValue(configuration["log"]["disassembler"].As<std::string>());
     tracer = Common::Logs::levelWithValue(configuration["log"]["tracer"].As<std::string>());
+    interrupt = Common::Logs::levelWithValue(configuration["log"]["interrupt"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);

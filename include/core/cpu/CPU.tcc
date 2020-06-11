@@ -21,7 +21,7 @@ uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction 
 
 template<>
 uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    // TODO: Interrupt handling
+    processor->shouldClearIME = false;
     processor->advanceProgramCounter(instruction);
     return 4;
 }
@@ -235,7 +235,7 @@ uint8_t Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction 
 
 template<>
 uint8_t Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    // TODO: Interrupt handling
+    processor->shouldSetIME = true;
     processor->advanceProgramCounter(instruction);
     return 4;
 }
@@ -866,7 +866,7 @@ uint8_t Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction in
     (void)instruction;
     uint16_t address = processor->popFromStack();
     processor->registers.pc = address;
-    // TODO: Interrupt handling
+    processor->interrupt->updateIME(true);
     return 16;
 }
 
