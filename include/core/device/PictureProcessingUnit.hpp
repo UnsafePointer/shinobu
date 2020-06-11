@@ -82,7 +82,7 @@ namespace Core {
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();
 
-                uint8_t load(uint16_t offset);
+                uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
             };

@@ -12,7 +12,7 @@ Processor::~Processor() {
 
 }
 
-uint8_t Processor::load(uint16_t offset) {
+uint8_t Processor::load(uint16_t offset) const {
     switch (offset) {
     case 0x0:
         return control._value;

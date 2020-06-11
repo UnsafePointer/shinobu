@@ -16,6 +16,9 @@ namespace Core {
         namespace Interrupt {
             class Controller;
         };
+        namespace Timer {
+            class Controller;
+        };
     }
     namespace ROM {
         class Cartridge;
@@ -59,11 +62,17 @@ namespace Core {
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::array<uint8_t, 0x7F> HRAM;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
+            std::unique_ptr<Core::Device::Timer::Controller> &timer;
 
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:
-            BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
+            BankController(Common::Logs::Level logLevel,
+                           std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                           std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                           std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer);
             ~BankController();
 
             virtual uint8_t load(uint16_t address) const = 0;
@@ -74,7 +83,12 @@ namespace Core {
             const Range ROMRange = Range(0x0, 0x8000);
             class Controller : public BankController {
             public:
-                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : BankController(logLevel, cartridge, bootROM, PPU, interrupt) {};
+                Controller(Common::Logs::Level logLevel,
+                           std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                           std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                           std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -133,7 +147,12 @@ namespace Core {
                 BANK2 _BANK2;
                 Mode mode;
             public:
-                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : BankController(logLevel, cartridge, bootROM, PPU, interrupt) {};
+                Controller(Common::Logs::Level logLevel,
+                           std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                           std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                           std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -147,8 +166,13 @@ namespace Core {
             std::unique_ptr<Core::ROM::BOOT::ROM> bootROM;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
+            std::unique_ptr<Core::Device::Timer::Controller> &timer;
         public:
-            Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
+            Controller(Common::Logs::Level logLevel,
+                       std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                       std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                       std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                       std::unique_ptr<Core::Device::Timer::Controller> &timer);
             ~Controller();
 
             void initialize(bool skipBootROM);

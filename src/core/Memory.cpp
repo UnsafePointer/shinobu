@@ -5,6 +5,7 @@
 #include "core/ROM.hpp"
 #include "shinobu/Configuration.hpp"
 #include "core/device/Interrupt.hpp"
+#include "core/device/Timer.hpp"
 
 using namespace Core::Memory;
 
@@ -25,7 +26,20 @@ std::optional<uint32_t> Range::contains(uint32_t address) const {
     }
  }
 
-BankController::BankController(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), bootROM(bootROM), WRAMBank00(), WRAMBank01_N(), PPU(PPU), HRAM(), interrupt(interrupt) {
+BankController::BankController(Common::Logs::Level logLevel,
+                               std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                               std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                               std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                               std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                               std::unique_ptr<Core::Device::Timer::Controller> &timer) : logger(logLevel, "  [Memory]: "),
+                                                                                          cartridge(cartridge),
+                                                                                          bootROM(bootROM),
+                                                                                          WRAMBank00(),
+                                                                                          WRAMBank01_N(),
+                                                                                          PPU(PPU),
+                                                                                          HRAM(),
+                                                                                          interrupt(interrupt),
+                                                                                          timer(timer) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialDataTransfer::Controller>(configurationManager->serialLogLevel());
 }
@@ -74,6 +88,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         offset = Core::Device::Interrupt::FlagAddressRange.contains(address);
         if (offset) {
             return interrupt->loadFlag();
+        }
+        offset = Core::Device::Timer::AddressRange.contains(address);
+        if (offset) {
+            return timer->load(*offset);
         }
         logger.logWarning("Unhandled I/O Register load at address: %04x", address);
         return 0;
@@ -131,6 +149,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         offset = Core::Device::Interrupt::FlagAddressRange.contains(address);
         if (offset) {
             interrupt->storeFlag(value);
+            return;
+        }
+        offset = Device::Timer::AddressRange.contains(address);
+        if (offset) {
+            timer->store(*offset, value);
             return;
         }
         logger.logWarning("Unhandled I/O Register write at address: %04x with value: %02x", address, value);
@@ -213,7 +236,15 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::ROM::Cartridge> &cartridge, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Memory]: "), cartridge(cartridge), PPU(PPU), interrupt(interrupt) {
+Controller::Controller(Common::Logs::Level logLevel,
+                       std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                       std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                       std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                       std::unique_ptr<Core::Device::Timer::Controller> &timer) : logger(logLevel, "  [Memory]: "),
+                                                                                  cartridge(cartridge),
+                                                                                  PPU(PPU),
+                                                                                  interrupt(interrupt),
+                                                                                  timer(timer) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
@@ -231,12 +262,12 @@ void Controller::initialize(bool skipBootROM) {
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt);
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
