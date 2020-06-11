@@ -14,6 +14,7 @@ Emulator::Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
+    interrupt->setProcessor(processor);
 }
 
 Emulator::~Emulator() {

@@ -244,6 +244,7 @@ namespace Core {
             uint8_t fetchInstruction() const;
             uint8_t fetchPrefixedInstruction() const;
             void checkPendingInterrupts(Instructions::Instruction lastInstruction);
+            void executeInterrupt(Device::Interrupt::Interrupt interrupt);
 
             template<typename T>
             Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;

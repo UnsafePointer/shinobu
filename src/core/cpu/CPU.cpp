@@ -150,6 +150,12 @@ void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction
     interrupt->serveInterrupts();
 }
 
+void Processor::executeInterrupt(Device::Interrupt::Interrupt interrupt) {
+    uint16_t address = Device::Interrupt::VECTOR[interrupt];
+    pushIntoStack(registers.pc);
+    registers.pc = address;
+}
+
 template<typename T>
 Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  bool isPrefixed) const {
     // TODO: Remove these checks once table is complete

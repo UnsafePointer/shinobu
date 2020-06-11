@@ -1,13 +1,18 @@
 #include "core/device/Interrupt.hpp"
+#include "core/cpu/CPU.hpp"
 
 using namespace Core::Device::Interrupt;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Interrupt]: "), IME(), enable(), flag() {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Interrupt]: "), processor(nullptr), IME(), enable(), flag() {
 
 }
 
 Controller::~Controller() {
 
+}
+
+void Controller::setProcessor(std::unique_ptr<Core::CPU::Processor> &processor) {
+    this->processor = processor.get();
 }
 
 void Controller::updateIME(bool value) {
@@ -41,5 +46,7 @@ void Controller::serveInterrupts() {
 }
 
 void Controller::executeInterrupt(Interrupt interrupt) {
-    (void)interrupt;
+    processor->executeInterrupt(interrupt);
+    IME = false;
+    clearInterrupt(interrupt);
 }

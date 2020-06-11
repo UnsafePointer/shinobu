@@ -1,8 +1,13 @@
 #pragma once
 #include <cstdint>
 #include "common/Logger.hpp"
+#include <memory>
 
 namespace Core {
+    namespace CPU {
+        class Processor;
+    };
+
     namespace Device {
         namespace Interrupt {
             enum Interrupt {
@@ -14,6 +19,7 @@ namespace Core {
             };
 
             static const Interrupt ALL[] = { VBLANK, LCDSTAT, TIMER, SERIAL, JOYPAD };
+            static const uint16_t VECTOR[] = { 0x40, 0x48, 0x50, 0x58, 0x60 };
 
             union Enable {
                 uint8_t _value;
@@ -45,7 +51,7 @@ namespace Core {
 
             class Controller {
                 Common::Logs::Logger logger;
-
+                Core::CPU::Processor *processor;
 
                 bool IME;
                 Enable enable;
@@ -57,6 +63,7 @@ namespace Core {
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
+                void setProcessor(std::unique_ptr<Core::CPU::Processor> &processor);
                 void updateIME(bool value);
                 void requestInterrupt(Interrupt interrupt);
                 void serveInterrupts();
