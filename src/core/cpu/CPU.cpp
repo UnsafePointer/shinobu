@@ -157,6 +157,10 @@ void Processor::executeInterrupt(Device::Interrupt::Interrupt interrupt) {
     registers.pc = address;
 }
 
+bool Processor::isHalted() const {
+    return halted;
+}
+
 void Processor::unhalt() {
     halted = false;
 }

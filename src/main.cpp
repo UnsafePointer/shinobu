@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     configurationManager->setupConfigurationFile();
     configurationManager->loadConfiguration();
-    Emulator emulator = Emulator(configurationManager->disassemblerLogLevel(), configurationManager->tracerLogLevel());
+    Emulator emulator = Emulator();
     runner.configureEmulator(emulator);
     emulator.powerUp();
     emulator.start();

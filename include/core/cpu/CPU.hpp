@@ -9,12 +9,11 @@
 #include "common/Logger.hpp"
 #include "core/device/Interrupt.hpp"
 
-namespace Shinobu {
-    class Emulator;
-};
-
 namespace Core {
     namespace CPU {
+        namespace Disassembler {
+            class Disassembler;
+        };
         /*
         Bit  Name  Set Clr  Expl.
         3-0  -     -   -    Not used (always zero)
@@ -92,7 +91,7 @@ namespace Core {
         };
 
         class Processor {
-            friend class Shinobu::Emulator;
+            friend class Disassembler::Disassembler;
 
             Common::Logs::Logger logger;
 
@@ -247,6 +246,7 @@ namespace Core {
             Instructions::Instruction fetchInstruction() const;
             void checkPendingInterrupts(Instructions::Instruction lastInstruction);
             void executeInterrupt(Device::Interrupt::Interrupt interrupt);
+            bool isHalted() const;
             void unhalt();
 
             template<typename T>

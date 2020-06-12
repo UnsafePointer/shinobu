@@ -6,7 +6,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level tracerLogLevel) : disassembler(disassemblerLogLevel, "  [Disassembler]: "), tracer(tracerLogLevel, ""), shouldSkipBootROM(false) {
+Emulator::Emulator() : shouldSkipBootROM(false) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
@@ -15,6 +15,7 @@ Emulator::Emulator(Common::Logs::Level disassemblerLogLevel, Common::Logs::Level
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, interrupt, timer);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
+    disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
 }
 
@@ -31,7 +32,6 @@ void Emulator::setShouldSkipBootROM(bool skipBootROM) {
 }
 
 void Emulator::powerUp() {
-    // TODO: implement power up sequence: https://gbdev.io/pandocs/#power-up-sequence
     memoryController->initialize(shouldSkipBootROM);
     processor->initialize();
 }
@@ -40,29 +40,14 @@ void Emulator::start() {
     while (true) {
         uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
-        if (!processor->halted) {
+        if (!processor->isHalted()) {
             instruction = processor->fetchInstruction();
+            disassembler->disassemble(instruction);
             Core::CPU::Instructions::InstructionHandler<uint8_t> handler = processor->decodeInstruction<uint8_t>(instruction);
-            Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler = processor->decodeInstruction<std::string>(instruction);
-            std::string disassembledInstruction = disassemblerHandler(processor, instruction);
-            std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
-            disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
-            tracer.logMessage("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
-                processor->registers.a,
-                processor->registers.f,
-                processor->registers.b,
-                processor->registers.c,
-                processor->registers.d,
-                processor->registers.e,
-                processor->registers.h,
-                processor->registers.l,
-                processor->registers.sp,
-                processor->registers.pc,
-                disassembledInstruction.c_str());
             cycles = handler(processor, instruction);
         } else {
-            cycles = 4;
             instruction = Core::CPU::Instructions::Instruction(0x76, false);
+            cycles = 4;
         }
         PPU->step(cycles);
         timer->step(cycles);

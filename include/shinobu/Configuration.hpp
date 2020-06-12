@@ -18,7 +18,6 @@ namespace Shinobu {
             Common::Logs::Level PPU;
             Common::Logs::Level serial;
             Common::Logs::Level disassembler;
-            Common::Logs::Level tracer;
             Common::Logs::Level interrupt;
             Common::Logs::Level timer;
             bool trace;
@@ -33,7 +32,6 @@ namespace Shinobu {
             Common::Logs::Level PPULogLevel() const;
             Common::Logs::Level serialLogLevel() const;
             Common::Logs::Level disassemblerLogLevel() const;
-            Common::Logs::Level tracerLogLevel() const;
             Common::Logs::Level interruptLogLevel() const;
             Common::Logs::Level timerLogLevel() const;
             bool shouldTraceLogs() const;
