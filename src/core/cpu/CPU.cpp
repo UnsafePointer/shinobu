@@ -128,13 +128,14 @@ void Processor::initialize() {
     }
 }
 
-uint8_t Processor::fetchInstruction() const {
-    return memory->load(registers.pc);
-}
-
-uint8_t Processor::fetchPrefixedInstruction() const {
-    uint16_t immediateAddress = registers.pc + 1;
-    return memory->load(immediateAddress);
+Instructions::Instruction Processor::fetchInstruction() const {
+    uint8_t code = memory->load(registers.pc);
+    if (code == Instructions::InstructionPrefix) {
+        uint16_t immediateAddress = registers.pc + 1;
+        code = memory->load(immediateAddress);
+        return Instructions::Instruction(code, true);
+    }
+    return Instructions::Instruction(code, false);
 }
 
 void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction) {
@@ -161,27 +162,22 @@ void Processor::unhalt() {
 }
 
 template<typename T>
-Instructions::InstructionHandler<T> Processor::decodeInstruction(uint8_t code,  bool isPrefixed) const {
-    // TODO: Remove these checks once table is complete
-    std::string prefixed = "";
-    if (isPrefixed) {
-        prefixed = "prefixed ";
-    }
+Instructions::InstructionHandler<T> Processor::decodeInstruction(Instructions::Instruction instruction) const {
     std::vector<Instructions::InstructionHandler<T>> table;
-    if (isPrefixed) {
+    if (instruction.isPrefixed) {
         table = Instructions::PrefixedInstructionHandlerTable<T>;
     } else {
         table = Instructions::InstructionHandlerTable<T>;
     }
-    if (code > table.size()) {
-        logger.logError("Unhandled %sinstruction with code: %02x", prefixed.c_str(), code);
+    if (instruction.code._value > table.size()) {
+        logger.logError("Unhandled instruction with code: %02x", instruction.code._value);
     }
-    Instructions::InstructionHandler<T> handler = table[code];
+    Instructions::InstructionHandler<T> handler = table[instruction.code._value];
     if (handler == nullptr) {
-        logger.logError("Unhandled %sinstruction with code: %02x", prefixed.c_str(), code);
+        logger.logError("Unhandled instruction with code: %02x", instruction.code._value);
     }
     return handler;
 }
 
-template Instructions::InstructionHandler<uint8_t> Processor::decodeInstruction<uint8_t>(uint8_t code,  bool isPrefixed) const;
-template Instructions::InstructionHandler<std::string> Processor::decodeInstruction<std::string>(uint8_t code,  bool isPrefixed) const;
+template Instructions::InstructionHandler<uint8_t> Processor::decodeInstruction<uint8_t>(Instructions::Instruction instruction) const;
+template Instructions::InstructionHandler<std::string> Processor::decodeInstruction<std::string>(Instructions::Instruction instruction) const;

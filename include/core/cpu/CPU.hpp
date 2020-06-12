@@ -244,14 +244,13 @@ namespace Core {
             ~Processor();
 
             void initialize();
-            uint8_t fetchInstruction() const;
-            uint8_t fetchPrefixedInstruction() const;
+            Instructions::Instruction fetchInstruction() const;
             void checkPendingInterrupts(Instructions::Instruction lastInstruction);
             void executeInterrupt(Device::Interrupt::Interrupt interrupt);
             void unhalt();
 
             template<typename T>
-            Instructions::InstructionHandler<T> decodeInstruction(uint8_t code, bool isPrefixed) const;
+            Instructions::InstructionHandler<T> decodeInstruction(Instructions::Instruction instruction) const;
         };
     };
 };

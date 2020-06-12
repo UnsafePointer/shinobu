@@ -41,19 +41,9 @@ void Emulator::start() {
         uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
         if (!processor->halted) {
-            uint8_t code = processor->fetchInstruction();
-            Core::CPU::Instructions::InstructionHandler<uint8_t> handler;
-            Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler;
-            if (code == Core::CPU::Instructions::InstructionPrefix) {
-                uint8_t prefixedCode = processor->fetchPrefixedInstruction();
-                handler = processor->decodeInstruction<uint8_t>(prefixedCode, true);
-                disassemblerHandler = processor->decodeInstruction<std::string>(prefixedCode, true);
-                instruction = Core::CPU::Instructions::Instruction(prefixedCode, true);
-            } else {
-                instruction = Core::CPU::Instructions::Instruction(code, false);
-                handler = processor->decodeInstruction<uint8_t>(code, false);
-                disassemblerHandler = processor->decodeInstruction<std::string>(code, false);
-            }
+            instruction = processor->fetchInstruction();
+            Core::CPU::Instructions::InstructionHandler<uint8_t> handler = processor->decodeInstruction<uint8_t>(instruction);
+            Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler = processor->decodeInstruction<std::string>(instruction);
             std::string disassembledInstruction = disassemblerHandler(processor, instruction);
             std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
             disassembler.logMessage("%s%s; $%04x", disassembledInstruction.c_str(), separator.c_str(), processor->registers.pc);
