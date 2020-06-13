@@ -129,6 +129,16 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         WRAMBank00[*offset] = value;
         return;
     }
+    offset = SpriteAttributeTable.contains(address);
+    if (offset) {
+        logger.logWarning("Unhandled Sprite attribute table store at address: %04x with value %02x", address, value);
+        return;
+    }
+    offset = NotUsable.contains(address);
+    if (offset) {
+        logger.logWarning("Unhandled Not Usable store at address: %04x with value %02x", address, value);
+        return;
+    }
     offset = I_ORegisters.contains(address);
     if (offset) {
         offset = Device::SerialDataTransfer::AddressRange.contains(address);
@@ -182,6 +192,10 @@ uint8_t ROM::Controller::load(uint16_t address) const {
 }
 
 void ROM::Controller::store(uint16_t address, uint8_t value) {
+    std::optional<uint32_t> offset = Core::Memory::MBC1::BANK1Range.contains(address);
+    if (offset) {
+        return;
+    }
     storeInternal(address, value);
     return;
 }
