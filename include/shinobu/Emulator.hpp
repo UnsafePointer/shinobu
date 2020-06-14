@@ -8,9 +8,14 @@
 #include "core/device/Interrupt.hpp"
 #include "core/device/Timer.hpp"
 #include "core/cpu/Disassembler.hpp"
+#include "shinobu/frontend/sdl2/Window.hpp"
+#include "shinobu/frontend/imgui/Renderer.hpp"
 
 namespace Shinobu {
     class Emulator {
+        std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
+        std::unique_ptr<Shinobu::Frontend::Imgui::Renderer> renderer;
+
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
         std::unique_ptr<Core::Memory::Controller> memoryController;
@@ -20,6 +25,9 @@ namespace Shinobu {
         std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
 
         bool shouldSkipBootROM;
+
+        void setupSDL() const;
+        void setupOpenGL() const;
     public:
         Emulator();
         ~Emulator();
@@ -27,6 +35,7 @@ namespace Shinobu {
         void setROMFilePath(std::filesystem::path &filePath);
         void setShouldSkipBootROM(bool skipBootROM);
         void powerUp();
-        void start();
+        void emulateFrame();
+        void handleSDLEvent(SDL_Event event);
     };
 };

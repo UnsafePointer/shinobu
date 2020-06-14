@@ -3,10 +3,16 @@
 #include "common/Formatter.hpp"
 #include "shinobu/Configuration.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
+#include <glad/glad.h>
 
 using namespace Shinobu;
 
 Emulator::Emulator() : shouldSkipBootROM(false) {
+    setupSDL();
+    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", 1024, 1024);
+    setupOpenGL();
+    renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window);
+
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
@@ -23,6 +29,23 @@ Emulator::~Emulator() {
 
 }
 
+void Emulator::setupSDL() const {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
+        // TODO: Add proper emulator logger
+        exit(1);
+    }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+}
+
+void Emulator::setupOpenGL() const {
+    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
+        // TODO: Add proper emulator logger
+        exit(1);
+    }
+}
+
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
 }
@@ -36,8 +59,9 @@ void Emulator::powerUp() {
     processor->initialize();
 }
 
-void Emulator::start() {
-    while (true) {
+void Emulator::emulateFrame() {
+    uint32_t currentCycles = 0;
+    while (currentCycles < CyclesPerFrame) {
         uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
         if (!processor->isHalted()) {
@@ -52,5 +76,12 @@ void Emulator::start() {
         PPU->step(cycles);
         timer->step(cycles);
         processor->checkPendingInterrupts(instruction);
+        currentCycles += cycles;
     }
+    renderer->update();
+}
+
+void Emulator::handleSDLEvent(SDL_Event event) {
+    window->handleSDLEvent(event);
+    renderer->handleSDLEvent(event);
 }
