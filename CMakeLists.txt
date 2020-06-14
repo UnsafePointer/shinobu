@@ -5,9 +5,11 @@ file(GLOB_RECURSE SHINOBU_SOURCES src/*.cpp)
 
 include_directories(include)
 
+add_subdirectory(imgui)
 add_subdirectory(mini-yaml)
 
 add_executable(shinobu ${SHINOBU_SOURCES})
+target_link_libraries(shinobu imgui)
 target_link_libraries(shinobu yaml)
 
 set_property(TARGET shinobu PROPERTY CXX_STANDARD 17)
