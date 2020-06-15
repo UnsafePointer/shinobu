@@ -4,8 +4,8 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps() {
-
+Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps() {
+    memory.resize(0x2000);
 }
 
 Processor::~Processor() {
@@ -73,4 +73,8 @@ void Processor::step(uint8_t cycles) {
         steps %= CyclesPerScanline;
     }
     return;
+}
+
+void Processor::VRAMStore(uint16_t offset, uint8_t value) {
+    memory[offset] = value;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/Memory.hpp"
 #include "common/Logger.hpp"
+#include <vector>
 
 namespace Shinobu {
     class Emulator;
@@ -71,6 +72,7 @@ namespace Core {
                 friend class Shinobu::Emulator;
 
                 Common::Logs::Logger logger;
+                std::vector<uint8_t> memory;
                 LCDControl control;
                 LCDStatus status;
                 uint8_t scrollY;
@@ -84,6 +86,7 @@ namespace Core {
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
+                void VRAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
             };
         };

@@ -111,7 +111,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
 void BankController::storeInternal(uint16_t address, uint8_t value) {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
-        logger.logWarning("Unhandled Video RAM write at address: %04x with value: %02x", address, value);
+        PPU->VRAMStore(*offset, value);
         return;
     }
     offset = WorkRAMBank00.contains(address);
