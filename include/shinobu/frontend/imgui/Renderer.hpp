@@ -5,12 +5,14 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include <string>
+#include "shinobu/frontend/opengl/Renderer.hpp"
 
 namespace Shinobu {
     namespace Frontend {
         namespace Imgui {
             class Renderer {
                 std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window;
+                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> renderer;
                 ImGuiIO *io;
                 ImVec4 backgroundColor;
             public:

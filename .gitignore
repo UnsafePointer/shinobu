@@ -87,3 +87,7 @@ build
 *.BIN
 *.yaml
 *.log
+
+# Dear ImGui
+
+imgui.ini
