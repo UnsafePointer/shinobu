@@ -17,7 +17,8 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
     ImGui_ImplSDL2_InitForOpenGL(window->windowRef(), window->GLContext());
     ImGui_ImplOpenGL3_Init();
-    renderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, 3);
+    tileDataRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, PixelScale);
+    backgroundMapRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileBackgroundMapSide * VRAMTileDataSide, VRAMTileBackgroundMapSide * VRAMTileDataSide, PixelScale);
 }
 
 Renderer::~Renderer() {
@@ -27,23 +28,34 @@ Renderer::~Renderer() {
 }
 
 void Renderer::update() {
-    renderer->addPixels(PPU->getTileDataPixels());
-    renderer->render();
+    tileDataRenderer->addPixels(PPU->getTileDataPixels());
+    tileDataRenderer->render();
+    backgroundMapRenderer->addPixels(PPU->getBackgroundMap01Pixels());
+    backgroundMapRenderer->render();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window->windowRef());
-    uint32_t width, height = 0;
-    std::tie(width, height) = window->dimensions();
-    ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * 3), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * 3));
+    ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
+    ImVec2 VRAMBackgroundMap = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
     ImGui::NewFrame();
     {
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(VRAMTileDataWindowSize, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(VRAMTileDataWindowSize.x, VRAMTileDataWindowSize.y + 5), ImGuiCond_Always);
         ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize);
         ImGui::GetWindowDrawList()->AddImage(
-            reinterpret_cast<ImTextureID>(renderer->framebufferTextureObject()),
-            ImVec2(ImGui::GetCursorScreenPos()),
-            VRAMTileDataWindowSize,
+            reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()),
+            ImVec2(10, 10),
+            ImVec2(10 + VRAMTileDataWindowSize.x, 10 + VRAMTileDataWindowSize.y),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+        ImGui::End();
+        ImGui::SetNextWindowPos(ImVec2(30 + VRAMTileDataWindowSize.x, 10), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(VRAMBackgroundMap.x, VRAMBackgroundMap.y + 5), ImGuiCond_Always);
+        ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize);
+        ImGui::GetWindowDrawList()->AddImage(
+            reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()),
+            ImVec2(30 + VRAMTileDataWindowSize.x, 10),
+            ImVec2(30 + VRAMTileDataWindowSize.x + VRAMBackgroundMap.x, 10 + VRAMBackgroundMap.y),
             ImVec2(0, 1),
             ImVec2(1, 0));
         ImGui::End();

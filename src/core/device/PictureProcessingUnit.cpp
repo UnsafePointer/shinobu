@@ -35,7 +35,7 @@ uint8_t Processor::load(uint16_t offset) const {
     case 0x9:
         return object1Palette._value;
     default:
-        logger.logError("Unhandled Picture Processing Unit load at offset: %04x", offset);
+        logger.logWarning("Unhandled Picture Processing Unit load at offset: %04x", offset);
         return 0;
     }
 }
@@ -72,7 +72,7 @@ void Processor::store(uint16_t offset, uint8_t value) {
         object1Palette._value = value;
         return;
     default:
-        logger.logError("Unhandled Picture Processing Unit at offset: %04x with value: %04x", offset, value);
+        logger.logWarning("Unhandled Picture Processing Unit at offset: %04x with value: %04x", offset, value);
         return;
     }
 }
@@ -138,6 +138,17 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordi
     return pixels;
 }
 
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    for (const auto& tilePixel : tile) {
+        uint16_t x = tilePixel.position.x + (tileX * VRAMTileDataSide);
+        uint16_t y = tilePixel.position.y + (tileY * VRAMTileDataSide);
+        Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
+        pixels.push_back(pixel);
+    }
+    return pixels;
+}
+
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
@@ -145,6 +156,38 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() co
         for (int x = 0; x < VRAMTileDataViewerWidth; x++) {
             std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(index);
             tile = translateTileOwnCoordinatesToTileDataViewerCoordinates(tile, x, y);
+            pixels.insert(pixels.end(), tile.begin(), tile.end());
+            index++;
+        }
+    }
+    return pixels;
+}
+
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixels() const {
+    Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
+    uint32_t backgroundMapAddressStart;
+    switch (backgroundMapLocation) {
+    case _9800_9BFF:
+        backgroundMapAddressStart = 0x9800 - 0x8000;
+        break;
+    case _9C00_9FFF:
+        backgroundMapAddressStart = 0x9C00 - 0x8000;
+        break;
+    }
+    Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    uint16_t index = 0;
+    for (int y = (VRAMTileBackgroundMapSide - 1); y >= 0; y--) {
+        for (int x = 0; x < VRAMTileBackgroundMapSide; x++) {
+            std::vector<Shinobu::Frontend::OpenGL::Vertex> tile;
+            if (tileDataLocation == _8000_8FFF) {
+                uint8_t tileIndex = memory[backgroundMapAddressStart + index];
+                tile = getTileByIndex(tileIndex);
+            } else {
+                int8_t tileIndex = memory[backgroundMapAddressStart + index];
+                tile = getTileByIndex(256 + tileIndex);
+            }
+            tile = translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(tile, x, y);
             pixels.insert(pixels.end(), tile.begin(), tile.end());
             index++;
         }

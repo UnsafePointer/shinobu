@@ -17,7 +17,8 @@ namespace Shinobu {
             class Renderer {
                 std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window;
                 std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> renderer;
+                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> tileDataRenderer;
+                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> backgroundMapRenderer;
                 ImGuiIO *io;
                 ImVec4 backgroundColor;
             public:

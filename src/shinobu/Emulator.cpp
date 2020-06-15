@@ -4,12 +4,13 @@
 #include "shinobu/Configuration.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 #include <glad/glad.h>
+#include "common/System.hpp"
 
 using namespace Shinobu;
 
 Emulator::Emulator() : shouldSkipBootROM(false) {
     setupSDL();
-    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", 1024, 1024);
+    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, WindowHeight);
     setupOpenGL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();

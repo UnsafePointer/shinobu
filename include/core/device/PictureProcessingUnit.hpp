@@ -40,9 +40,9 @@ namespace Core {
                 LCDControl() : _value() {}
 
                 SpriteSize spriteSize() { return SpriteSize(_spriteSize); }
-                Background_WindowTileMapLocation backgroundTileMapDisplaySelect() { return Background_WindowTileMapLocation(_backgroundTileMapDisplaySelect); }
-                Background_WindowTileDataLocation background_WindowTileDataSelect() { return Background_WindowTileDataLocation(_background_WindowTileDataSelect); }
-                Background_WindowTileMapLocation windowTimeMapDisplaySelect() { return Background_WindowTileMapLocation(_windowTimeMapDisplaySelect); }
+                Background_WindowTileMapLocation backgroundTileMapDisplaySelect() const { return Background_WindowTileMapLocation(_backgroundTileMapDisplaySelect); }
+                Background_WindowTileDataLocation background_WindowTileDataSelect() const { return Background_WindowTileDataLocation(_background_WindowTileDataSelect); }
+                Background_WindowTileMapLocation windowTimeMapDisplaySelect() const { return Background_WindowTileMapLocation(_windowTimeMapDisplaySelect); }
             };
 
             enum LCDCMode : uint8_t {
@@ -109,6 +109,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Color> getTileRowPixelsWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
             public:
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();
@@ -118,6 +119,7 @@ namespace Core {
                 void VRAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
             };
         };
     };
