@@ -23,12 +23,14 @@ namespace Shinobu {
 
                 std::unique_ptr<Texture> framebufferTexture;
                 std::vector<Vertex> verticesForPixel(Vertex pixel) const;
+
+                void checkForceDraw(uint32_t verticesToRender);
             public:
                 Renderer(uint32_t width, uint32_t height, uint32_t scale);
                 ~Renderer();
 
                 void render();
-                void addPixels(std::vector<Vertex> pixels) const;
+                void addPixels(std::vector<Vertex> pixels);
                 GLuint framebufferTextureObject() const;
             };
         };

@@ -33,13 +33,19 @@ std::vector<Vertex> Renderer::verticesForPixel(Vertex pixel) const {
     return {v1, v2, v3, v4, v5, v6};
 }
 
-void Renderer::addPixels(std::vector<Vertex> pixels) const {
-    std::vector<Vertex> vertices = {};
+void Renderer::addPixels(std::vector<Vertex> pixels) {
     for (const auto& pixel : pixels) {
         std::vector<Vertex> verticesForPixel = this->verticesForPixel(pixel);
-        vertices.insert(vertices.end(), verticesForPixel.begin(), verticesForPixel.end());
+        checkForceDraw(verticesForPixel.size());
+        buffer->addData(verticesForPixel);
     }
-    buffer->addData(vertices);
+}
+
+void Renderer::checkForceDraw(uint32_t verticesToRender) {
+    if (buffer->remainingCapacity() < verticesToRender) {
+        render();
+    }
+    return;
 }
 
 void Renderer::render() {

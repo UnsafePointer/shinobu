@@ -2,6 +2,7 @@
 #include "core/Memory.hpp"
 #include "common/Logger.hpp"
 #include <vector>
+#include "shinobu/frontend/opengl/Vertex.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -66,7 +67,28 @@ namespace Core {
                 LCDCMode mode() { return LCDCMode(_mode); }
              };
 
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x6);
+            union Palette {
+                uint8_t _value;
+                struct {
+                    uint8_t color0 : 2;
+                    uint8_t color1 : 2;
+                    uint8_t color2 : 2;
+                    uint8_t color3 : 2;
+                };
+
+                Palette() : _value(0) {}
+                Shinobu::Frontend::OpenGL::Color colorWithIndex(uint8_t index) const {
+                    const std::vector<Shinobu::Frontend::OpenGL::Color> colors = {
+                        { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
+                        { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
+                        { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
+                        { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
+                     };
+                     return colors[index];
+                }
+            };
+
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x9);
 
             class Processor {
                 friend class Shinobu::Emulator;
@@ -79,7 +101,14 @@ namespace Core {
                 uint8_t scrollX;
                 uint8_t LY;
                 uint8_t LYC;
+                Palette backgroundPalette;
+                Palette object0Palette;
+                Palette object1Palette;
                 uint32_t steps;
+
+                std::vector<Shinobu::Frontend::OpenGL::Color> getTileRowPixelsWithData(uint8_t lower, uint8_t upper) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
             public:
                 Processor(Common::Logs::Level logLevel);
                 ~Processor();
@@ -88,6 +117,7 @@ namespace Core {
                 void store(uint16_t offset, uint8_t value);
                 void VRAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
             };
         };
     };

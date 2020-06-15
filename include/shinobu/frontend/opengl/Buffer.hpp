@@ -25,6 +25,7 @@ namespace Shinobu {
                 void bind() const;
                 void clean();
                 void addData(std::vector<T> data);
+                uint32_t remainingCapacity() const;
                 void draw();
             };
         };

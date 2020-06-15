@@ -55,6 +55,12 @@ void Buffer<T>::addData(std::vector<T> data) {
 }
 
 template <class T>
+uint32_t Buffer<T>::remainingCapacity() const {
+    int remainingCapacity = capacity - size;
+    return remainingCapacity;
+}
+
+template <class T>
 void Buffer<T>::draw() {
     vao->bind();
     program->useProgram();

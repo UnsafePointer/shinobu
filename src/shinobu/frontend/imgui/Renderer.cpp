@@ -4,17 +4,20 @@
 #include <imgui/opengl3/imgui_impl_opengl3.h>
 #include <iostream>
 #include "shinobu/frontend/opengl/Vertex.hpp"
+#include "shinobu/frontend/opengl/Framebuffer.hpp"
+#include "core/device/PictureProcessingUnit.hpp"
+#include "common/System.hpp"
 
 using namespace Shinobu::Frontend::Imgui;
 
-Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window) : window(window), backgroundColor(ImVec4(121/255.0f, 97/255.0f, 177/255.0f, 1.00f)) {
+Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : window(window), PPU(PPU), backgroundColor(ImVec4(121/255.0f, 97/255.0f, 177/255.0f, 1.00f)) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO(); (void)io;
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
     ImGui_ImplSDL2_InitForOpenGL(window->windowRef(), window->GLContext());
     ImGui_ImplOpenGL3_Init();
-    renderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(3, 3, 200);
+    renderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, 3);
 }
 
 Renderer::~Renderer() {
@@ -24,21 +27,14 @@ Renderer::~Renderer() {
 }
 
 void Renderer::update() {
-    // TODO: Remove test data
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {
-        Shinobu::Frontend::OpenGL::Vertex({0, 0,  255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f}),
-        Shinobu::Frontend::OpenGL::Vertex({0, 1,  170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f}),
-        Shinobu::Frontend::OpenGL::Vertex({1, 0,  85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f}),
-        Shinobu::Frontend::OpenGL::Vertex({1, 1,  0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f}),
-    };
-    renderer->addPixels(pixels);
+    renderer->addPixels(PPU->getTileDataPixels());
     renderer->render();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window->windowRef());
     uint32_t width, height = 0;
     std::tie(width, height) = window->dimensions();
-    ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(((width / 3) * 2) - 20), static_cast<float>(height - 20));
+    ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * 3), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * 3));
     ImGui::NewFrame();
     {
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
