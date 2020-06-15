@@ -1,5 +1,6 @@
 #include "shinobu/frontend/opengl/Program.hpp"
 #include <fstream>
+#include "shinobu/frontend/opengl/debug/Debugger.hpp"
 
 using namespace Shinobu::Frontend::OpenGL;
 
@@ -37,6 +38,12 @@ GLuint Program::compileShader(std::string filePath, GLenum shaderType) const {
     const GLchar *src = source.c_str();
     glShaderSource(shader, 1, &src, NULL);
     glCompileShader(shader);
+    GLint status = GL_FALSE;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (status == GL_FALSE) {
+        Debug::Debugger *debugger = Debug::Debugger::getInstance();
+        debugger->checkForOpenGLErrors();
+    }
     return shader;
 }
 
@@ -46,17 +53,27 @@ GLuint Program::linkProgram(std::vector<GLuint> shaders) const {
         glAttachShader(program, *it);
     }
     glLinkProgram(program);
+    GLint status = GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE) {
+        Debug::Debugger *debugger = Debug::Debugger::getInstance();
+        debugger->checkForOpenGLErrors();
+    }
     return program;
 }
 
 GLuint Program::findProgramAttribute(std::string attribute) const {
     const GLchar *attrib = attribute.c_str();
     GLint index = glGetAttribLocation(program, attrib);
+    Debug::Debugger *debugger = Debug::Debugger::getInstance();
+    debugger->checkForOpenGLErrors();
     return index;
 }
 
 GLuint Program::findProgramUniform(std::string uniform) const {
     const GLchar *attrib = uniform.c_str();
     GLint index = glGetUniformLocation(program, attrib);
+    Debug::Debugger *debugger = Debug::Debugger::getInstance();
+    debugger->checkForOpenGLErrors();
     return index;
 }

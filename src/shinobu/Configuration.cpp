@@ -56,6 +56,10 @@ Common::Logs::Level Configuration::Manager::timerLogLevel() const {
     return timer;
 }
 
+Common::Logs::Level Configuration::Manager::openGLLogLevel() const {
+    return openGL;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -77,6 +81,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["trace"] = "false";
     logConfigurationRef["interrupt"] = "NOLOG";
     logConfigurationRef["timer"] = "NOLOG";
+    logConfigurationRef["openGL"] = "NOLOG";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -94,6 +99,7 @@ void Configuration::Manager::loadConfiguration() {
     disassembler = Common::Logs::levelWithValue(configuration["log"]["disassembler"].As<std::string>());
     interrupt = Common::Logs::levelWithValue(configuration["log"]["interrupt"].As<std::string>());
     interrupt = Common::Logs::levelWithValue(configuration["log"]["timer"].As<std::string>());
+    interrupt = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
