@@ -27,7 +27,7 @@ Emulator::Emulator() : shouldSkipBootROM(false) {
 }
 
 Emulator::~Emulator() {
-
+    SDL_Quit();
 }
 
 void Emulator::setupSDL() const {
