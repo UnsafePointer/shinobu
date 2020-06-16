@@ -6,7 +6,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel) : logger(logLevel, "  [PPU]: "), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps() {
     memory.resize(0x2000);
 }
 
@@ -46,8 +46,8 @@ void Processor::store(uint16_t offset, uint8_t value) {
         control._value = value;
         return;
     case 0x1: {
-        status._value = value;
-        // TODO: update status mode and coincidence
+        status._value &= ~0xF8;
+        status._value |= value & 0xF8;
         return;
     }
     case 0x2:
@@ -84,6 +84,13 @@ void Processor::step(uint8_t cycles) {
     steps += cycles;
     if (steps >= CyclesPerScanline) {
         LY++;
+        if (LY == 144) {
+            interrupt->requestInterrupt(Interrupt::VBLANK);
+        }
+        status.coincidence = LY == LYC;
+        if (status.coincidence) {
+            interrupt->requestInterrupt(Interrupt::LCDSTAT);
+        }
         if (LY >= TotalScanlines) {
             LY = 0;
         }

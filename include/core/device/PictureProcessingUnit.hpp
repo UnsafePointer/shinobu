@@ -3,6 +3,7 @@
 #include "common/Logger.hpp"
 #include <vector>
 #include "shinobu/frontend/opengl/Vertex.hpp"
+#include "core/device/Interrupt.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -94,6 +95,7 @@ namespace Core {
                 friend class Shinobu::Emulator;
 
                 Common::Logs::Logger logger;
+                std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
                 std::vector<uint8_t> memory;
                 LCDControl control;
                 LCDStatus status;
@@ -111,7 +113,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
             public:
-                Processor(Common::Logs::Level logLevel);
+                Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Processor();
 
                 uint8_t load(uint16_t offset) const;

@@ -14,11 +14,11 @@ Emulator::Emulator() : shouldSkipBootROM(false) {
     setupOpenGL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
-    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel());
+    interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
+    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
     renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
 
-    interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, interrupt, timer);
