@@ -4,6 +4,7 @@
 #include <vector>
 #include "shinobu/frontend/opengl/Vertex.hpp"
 #include "core/device/Interrupt.hpp"
+#include <unordered_map>
 
 namespace Shinobu {
     class Emulator;
@@ -64,8 +65,9 @@ namespace Core {
                     uint8_t coincidenceInterruptEnable : 1;
                 };
 
-                LCDStatus() : _value(0) {}
+                LCDStatus() : _value(0x3) {}
                 LCDCMode mode() { return LCDCMode(_mode); }
+                void setMode(LCDCMode mode) { _mode = mode; }
              };
 
             union Palette {
@@ -91,6 +93,13 @@ namespace Core {
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x9);
 
+            enum LCDCSTATInterruptCondition {
+                Mode2 = 0,
+                Mode1 = 1,
+                Mode0 = 2,
+                Coincidence = 3,
+            };
+
             class Processor {
                 friend class Shinobu::Emulator;
 
@@ -107,6 +116,9 @@ namespace Core {
                 Palette object0Palette;
                 Palette object1Palette;
                 uint32_t steps;
+                std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
+
+                bool isAnyConditionMet();
 
                 std::vector<Shinobu::Frontend::OpenGL::Color> getTileRowPixelsWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
