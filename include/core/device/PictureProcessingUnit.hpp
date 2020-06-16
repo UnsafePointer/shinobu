@@ -120,6 +120,7 @@ namespace Core {
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
             };
         };
     };

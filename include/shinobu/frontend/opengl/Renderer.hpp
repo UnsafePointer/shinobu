@@ -13,6 +13,7 @@ namespace Shinobu {
             class Renderer {
                 SDL_GLContext glContext;
                 SDL_Window *window;
+                GLenum mode;
 
                 uint32_t width;
                 uint32_t height;
@@ -24,13 +25,14 @@ namespace Shinobu {
                 std::unique_ptr<Texture> framebufferTexture;
                 std::vector<Vertex> verticesForPixel(Vertex pixel) const;
 
-                void checkForceDraw(uint32_t verticesToRender);
+                void checkForceDraw(uint32_t verticesToRender, GLenum mode);
             public:
                 Renderer(uint32_t width, uint32_t height, uint32_t scale);
                 ~Renderer();
 
                 void render();
                 void addPixels(std::vector<Vertex> pixels);
+                void addViewPort(std::vector<Vertex> vertices);
                 GLuint framebufferTextureObject() const;
             };
         };

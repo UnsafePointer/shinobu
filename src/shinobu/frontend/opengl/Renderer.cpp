@@ -4,7 +4,7 @@
 
 using namespace Shinobu::Frontend::OpenGL;
 
-Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale) : width(width), height(height), scale(scale) {
+Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale) : mode(GL_TRIANGLES), width(width), height(height), scale(scale) {
     program = std::make_unique<Program>("glsl/vertex.glsl", "glsl/fragment.glsl");
     program->useProgram();
 
@@ -36,13 +36,23 @@ std::vector<Vertex> Renderer::verticesForPixel(Vertex pixel) const {
 void Renderer::addPixels(std::vector<Vertex> pixels) {
     for (const auto& pixel : pixels) {
         std::vector<Vertex> verticesForPixel = this->verticesForPixel(pixel);
-        checkForceDraw(verticesForPixel.size());
+        checkForceDraw(verticesForPixel.size(), GL_TRIANGLES);
+        mode = GL_TRIANGLES;
         buffer->addData(verticesForPixel);
     }
 }
 
-void Renderer::checkForceDraw(uint32_t verticesToRender) {
-    if (buffer->remainingCapacity() < verticesToRender) {
+void Renderer::addViewPort(std::vector<Vertex> vertices) {
+    checkForceDraw(vertices.size(), GL_LINE_LOOP);
+    mode = GL_LINE_LOOP;
+    glLineWidth(scale);
+    buffer->addData(vertices);
+}
+
+void Renderer::checkForceDraw(uint32_t verticesToRender, GLenum mode) {
+    if (this->mode != mode) {
+        render();
+    } else if (buffer->remainingCapacity() < verticesToRender) {
         render();
     }
     return;
@@ -50,7 +60,7 @@ void Renderer::checkForceDraw(uint32_t verticesToRender) {
 
 void Renderer::render() {
     Framebuffer framebuffer = Framebuffer(framebufferTexture);
-    buffer->draw();
+    buffer->draw(mode);
 }
 
 GLuint Renderer::framebufferTextureObject() const {

@@ -61,10 +61,10 @@ uint32_t Buffer<T>::remainingCapacity() const {
 }
 
 template <class T>
-void Buffer<T>::draw() {
+void Buffer<T>::draw(GLenum mode) {
     vao->bind();
     program->useProgram();
-    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)size);
+    glDrawArrays(mode, 0, (GLsizei)size);
     clean();
 }
 

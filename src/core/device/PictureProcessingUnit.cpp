@@ -194,3 +194,14 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
     }
     return pixels;
 }
+
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort() const {
+    Shinobu::Frontend::OpenGL::Color color = { 1.0, 0.0, 0.0 };
+    Shinobu::Frontend::OpenGL::Point upperLeft = { (GLfloat)scrollX, (GLfloat)scrollY };
+    Shinobu::Frontend::OpenGL::Point upperLeftTranslated = { upperLeft.x, 256 - upperLeft.y };
+    Shinobu::Frontend::OpenGL::Vertex v1 = { upperLeftTranslated, color };
+    Shinobu::Frontend::OpenGL::Vertex v2 = { { upperLeftTranslated.x + 160, upperLeftTranslated.y }, color };
+    Shinobu::Frontend::OpenGL::Vertex v3 = { { upperLeftTranslated.x + 160, upperLeftTranslated.y - 144 }, color };
+    Shinobu::Frontend::OpenGL::Vertex v4 = { { upperLeftTranslated.x, upperLeftTranslated.y - 144 }, color };
+    return { v1, v2, v3, v4 };
+}
