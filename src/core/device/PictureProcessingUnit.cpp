@@ -142,7 +142,7 @@ void Processor::VRAMStore(uint16_t offset, uint8_t value) {
 
 void Processor::renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
-    uint16_t y = (LY + scrollY) % 256;
+    uint16_t y = (LY + scrollY) % TileMapResolution;
     Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
     uint32_t backgroundMapAddressStart;
     switch (backgroundMapLocation) {
@@ -154,9 +154,9 @@ void Processor::renderScanline() {
         break;
     }
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
-    for (int i = 0; i < 160; i++) {
-        uint16_t x = (scrollX + i) % 256;
-        uint16_t tileIndexInMap = (x / 8) + (y / 8) * 32;
+    for (int i = 0; i < HorizontalResolution; i++) {
+        uint16_t x = (scrollX + i) % TileMapResolution;
+        uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
         uint16_t tileIndex;
         if (tileDataLocation == _8000_8FFF) {
             uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
@@ -166,13 +166,13 @@ void Processor::renderScanline() {
             tileIndex = 256 + indexOffset;
         }
         uint16_t offset = (0x10 * tileIndex);
-        uint16_t yInTile = y % 8;
+        uint16_t yInTile = y % VRAMTileDataSide;
         uint16_t lowAddress = yInTile * 2 + offset;
         uint16_t highAddress = (yInTile * 2 + 1) + offset;
         uint8_t low = memory[lowAddress];
         uint8_t high = memory[highAddress];
         std::vector<Shinobu::Frontend::OpenGL::Color> colorData = getTileRowPixelsWithData(low, high);
-        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)143-LY }, colorData[x % 8] };
+        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)(VerticalResolution - 1 - LY) }, colorData[x % 8] };
         scanline.push_back(vertex);
     }
     scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
@@ -280,11 +280,11 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort() const {
     Shinobu::Frontend::OpenGL::Color color = { 1.0, 0.0, 0.0 };
     Shinobu::Frontend::OpenGL::Point upperLeft = { (GLfloat)scrollX, (GLfloat)scrollY };
-    Shinobu::Frontend::OpenGL::Point upperLeftTranslated = { upperLeft.x, 256 - upperLeft.y };
+    Shinobu::Frontend::OpenGL::Point upperLeftTranslated = { upperLeft.x, TileMapResolution - upperLeft.y };
     Shinobu::Frontend::OpenGL::Vertex v1 = { upperLeftTranslated, color };
-    Shinobu::Frontend::OpenGL::Vertex v2 = { { upperLeftTranslated.x + 160, upperLeftTranslated.y }, color };
-    Shinobu::Frontend::OpenGL::Vertex v3 = { { upperLeftTranslated.x + 160, upperLeftTranslated.y - 144 }, color };
-    Shinobu::Frontend::OpenGL::Vertex v4 = { { upperLeftTranslated.x, upperLeftTranslated.y - 144 }, color };
+    Shinobu::Frontend::OpenGL::Vertex v2 = { { upperLeftTranslated.x + HorizontalResolution, upperLeftTranslated.y }, color };
+    Shinobu::Frontend::OpenGL::Vertex v3 = { { upperLeftTranslated.x + HorizontalResolution, upperLeftTranslated.y - VerticalResolution }, color };
+    Shinobu::Frontend::OpenGL::Vertex v4 = { { upperLeftTranslated.x, upperLeftTranslated.y - VerticalResolution }, color };
     return { v1, v2, v3, v4 };
 }
 

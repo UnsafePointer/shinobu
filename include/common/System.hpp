@@ -9,3 +9,6 @@ const int VRAMTileDataSide = 8;
 const int VRAMTileDataViewerWidth = 16;
 const int VRAMTileDataViewerHeight = NumberOfVRAMTileDataTiles / VRAMTileDataViewerWidth;
 const int VRAMTileBackgroundMapSide = 32;
+const int TileMapResolution = VRAMTileDataSide * VRAMTileBackgroundMapSide;
+const int HorizontalResolution = 160;
+const int VerticalResolution = 144;
