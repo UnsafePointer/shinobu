@@ -16,6 +16,29 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
+            union SpriteAttributes {
+                uint8_t _value;
+                struct {
+                    uint8_t CGBPalette : 3;
+                    uint8_t tileVRAMBank : 1;
+                    uint8_t DMGPalette : 1;
+                    uint8_t xFlip : 1;
+                    uint8_t yFlip : 1;
+                    uint8_t _priority : 1;
+                };
+                SpriteAttributes(uint8_t value) : _value(value) {}
+            };
+
+            struct Sprite {
+                uint8_t y;
+                uint8_t x;
+                uint8_t tileNumber;
+                SpriteAttributes attributes;
+
+                Sprite() : y(0), x(0), tileNumber(0), attributes(0) {}
+                Sprite(uint8_t y, uint8_t x, uint8_t tileNumber, SpriteAttributes attributes) : y(y), x(x), tileNumber(tileNumber), attributes(attributes) {}
+            };
+
             enum Background_WindowTileMapLocation : uint8_t {
                 _9800_9BFF = 0,
                 _9C00_9FFF = 1,
@@ -109,6 +132,7 @@ namespace Core {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
                 std::vector<uint8_t> memory;
+                std::vector<uint8_t> spriteAttributeTable;
                 LCDControl control;
                 LCDStatus status;
                 uint8_t scrollY;
@@ -130,6 +154,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
 
                 void renderScanline();
             public:
@@ -141,11 +166,13 @@ namespace Core {
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
                 void VRAMStore(uint16_t offset, uint8_t value);
+                void OAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getLCDOutput() const;
+                std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
             };
         };
     };

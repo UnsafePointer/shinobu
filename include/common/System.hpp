@@ -12,3 +12,4 @@ const int VRAMTileBackgroundMapSide = 32;
 const int TileMapResolution = VRAMTileDataSide * VRAMTileBackgroundMapSide;
 const int HorizontalResolution = 160;
 const int VerticalResolution = 144;
+const int NumberOfSpritesInOAM = 40;

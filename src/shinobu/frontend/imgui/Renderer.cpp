@@ -19,7 +19,8 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     ImGui_ImplOpenGL3_Init();
     tileDataRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, PixelScale);
     backgroundMapRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileBackgroundMapSide * VRAMTileDataSide, VRAMTileBackgroundMapSide * VRAMTileDataSide, PixelScale);
-    LCDOutputRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(160, 144, PixelScale);
+    LCDOutputRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(HorizontalResolution, VerticalResolution, PixelScale);
+    spriteRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataSide, VRAMTileDataSide * NumberOfSpritesInOAM, PixelScale);
 }
 
 Renderer::~Renderer() {
@@ -36,23 +37,43 @@ void Renderer::update() {
         if (ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize)) {
             tileDataRenderer->addPixels(PPU->getTileDataPixels());
             tileDataRenderer->render();
-            ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
-            ImGui::Image(reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()), VRAMTileDataWindowSize, ImVec2(0, 1), ImVec2(1, 0));
+            ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));
         }
         ImGui::End();
         if (ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize)) {
             backgroundMapRenderer->addPixels(PPU->getBackgroundMap01Pixels());
             backgroundMapRenderer->addViewPort(PPU->getScrollingViewPort());
             backgroundMapRenderer->render();
-            ImVec2 VRAMBackgroundMapSize = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
-            ImGui::Image(reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()), VRAMBackgroundMapSize, ImVec2(0, 1), ImVec2(1, 0));
+            ImVec2 size = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));
         }
         ImGui::End();
         if (ImGui::Begin("LCD Output", NULL, ImGuiWindowFlags_NoResize)) {
             LCDOutputRenderer->addPixels(PPU->getLCDOutput());
             LCDOutputRenderer->render();
-            ImVec2 LCDOutputSize = ImVec2(static_cast<float>(160 * PixelScale), static_cast<float>(144 * PixelScale));
-            ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), LCDOutputSize, ImVec2(0, 1), ImVec2(1, 0));
+            ImVec2 size = ImVec2(static_cast<float>(HorizontalResolution * PixelScale), static_cast<float>(VerticalResolution * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));
+        }
+        ImGui::End();
+        if (ImGui::Begin("Sprites", NULL, ImGuiWindowFlags_NoResize)) {
+            std::vector<Core::Device::PictureProcessingUnit::Sprite> sprites;
+            std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices;
+            std::tie(sprites, vertices) = PPU->getSprites();
+            spriteRenderer->addPixels(vertices);
+            spriteRenderer->render();
+            ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataSide * NumberOfSpritesInOAM * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(spriteRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::SameLine(40);
+            ImGui::BeginGroup();
+            for (int i = 0; i < 40; i++) {
+                ImGui::Text("X = %04d", (int16_t)sprites[i].x - 8);
+                ImGui::SameLine(70);
+                ImGui::Text("Y = %04d", (int16_t)sprites[i].y - 16);
+                ImGui::Dummy(ImVec2(0.0f, 3.5f));
+            }
+            ImGui::EndGroup();
+
         }
         ImGui::End();
     }

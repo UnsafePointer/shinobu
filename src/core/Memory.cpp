@@ -131,7 +131,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     }
     offset = SpriteAttributeTable.contains(address);
     if (offset) {
-        logger.logWarning("Unhandled Sprite attribute table store at address: %04x with value %02x", address, value);
+        PPU->OAMStore(*offset, value);
         return;
     }
     offset = NotUsable.contains(address);

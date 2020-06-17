@@ -13,6 +13,7 @@ Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device:
     interruptConditions[Mode0] = false;
     interruptConditions[Coincidence] = false;
     memory.resize(0x2000);
+    spriteAttributeTable.resize(0xA0);
 }
 
 Processor::~Processor() {
@@ -140,6 +141,10 @@ void Processor::VRAMStore(uint16_t offset, uint8_t value) {
     memory[offset] = value;
 }
 
+void Processor::OAMStore(uint16_t offset, uint8_t value) {
+    spriteAttributeTable[offset] = value;
+}
+
 void Processor::renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     uint16_t y = (LY + scrollY) % TileMapResolution;
@@ -231,6 +236,17 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordi
     return pixels;
 }
 
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    for (const auto& tilePixel : tile) {
+        uint16_t x = tilePixel.position.x;
+        uint16_t y = tilePixel.position.y + ((39 - position) * VRAMTileDataSide);
+        Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
+        pixels.push_back(pixel);
+    }
+    return pixels;
+}
+
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
@@ -290,4 +306,18 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
 
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getLCDOutput() const {
     return scanlines;
+}
+
+std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
+    std::vector<Sprite> sprites = {};
+    for (int i = 0; i < NumberOfSpritesInOAM; i++) {
+        uint16_t offset = i * 4;
+        Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]));
+        sprites.push_back(sprite);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(sprite.tileNumber);
+        tile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(tile, i);
+        vertices.insert(vertices.end(), tile.begin(), tile.end());
+    }
+    return {sprites, vertices};
 }
