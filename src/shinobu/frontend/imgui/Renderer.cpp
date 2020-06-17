@@ -29,29 +29,31 @@ Renderer::~Renderer() {
 }
 
 void Renderer::update() {
-    tileDataRenderer->addPixels(PPU->getTileDataPixels());
-    tileDataRenderer->render();
-    backgroundMapRenderer->addPixels(PPU->getBackgroundMap01Pixels());
-    backgroundMapRenderer->addViewPort(PPU->getScrollingViewPort());
-    backgroundMapRenderer->render();
-    LCDOutputRenderer->addPixels(PPU->getLCDOutput());
-    LCDOutputRenderer->render();
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window->windowRef());
-    ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
-    ImVec2 VRAMBackgroundMapSize = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
-    ImVec2 LCDOutputSize = ImVec2(static_cast<float>(160 * PixelScale), static_cast<float>(144 * PixelScale));
     ImGui::NewFrame();
     {
-        ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize);
-        ImGui::Image(reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()), VRAMTileDataWindowSize, ImVec2(0, 1), ImVec2(1, 0));
+        if (ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize)) {
+            tileDataRenderer->addPixels(PPU->getTileDataPixels());
+            tileDataRenderer->render();
+            ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()), VRAMTileDataWindowSize, ImVec2(0, 1), ImVec2(1, 0));
+        }
         ImGui::End();
-        ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize);
-        ImGui::Image(reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()), VRAMBackgroundMapSize, ImVec2(0, 1), ImVec2(1, 0));
+        if (ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize)) {
+            backgroundMapRenderer->addPixels(PPU->getBackgroundMap01Pixels());
+            backgroundMapRenderer->addViewPort(PPU->getScrollingViewPort());
+            backgroundMapRenderer->render();
+            ImVec2 VRAMBackgroundMapSize = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()), VRAMBackgroundMapSize, ImVec2(0, 1), ImVec2(1, 0));
+        }
         ImGui::End();
-        ImGui::Begin("LCD Output", NULL, ImGuiWindowFlags_NoResize);
-        ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), LCDOutputSize, ImVec2(0, 1), ImVec2(1, 0));
+        if (ImGui::Begin("LCD Output", NULL, ImGuiWindowFlags_NoResize)) {
+            LCDOutputRenderer->addPixels(PPU->getLCDOutput());
+            LCDOutputRenderer->render();
+            ImVec2 LCDOutputSize = ImVec2(static_cast<float>(160 * PixelScale), static_cast<float>(144 * PixelScale));
+            ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), LCDOutputSize, ImVec2(0, 1), ImVec2(1, 0));
+        }
         ImGui::End();
     }
     ImGui::Render();
