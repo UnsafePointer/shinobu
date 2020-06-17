@@ -18,6 +18,7 @@ Emulator::Emulator() : shouldSkipBootROM(false) {
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
     renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
+    PPU->setRenderer(renderer.get());
 
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
@@ -80,7 +81,6 @@ void Emulator::emulateFrame() {
         processor->checkPendingInterrupts(instruction);
         currentCycles += cycles;
     }
-    renderer->update();
 }
 
 void Emulator::handleSDLEvent(SDL_Event event) {

@@ -3,10 +3,11 @@
 #include "common/Timing.hpp"
 #include <bitset>
 #include "common/System.hpp"
+#include "shinobu/frontend/imgui/Renderer.hpp"
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps(), interruptConditions() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
     interruptConditions[Mode2] = false;
     interruptConditions[Mode1] = false;
     interruptConditions[Mode0] = false;
@@ -16,6 +17,10 @@ Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device:
 
 Processor::~Processor() {
 
+}
+
+void Processor::setRenderer(Shinobu::Frontend::Imgui::Renderer *renderer) {
+    this->renderer = renderer;
 }
 
 uint8_t Processor::load(uint16_t offset) const {
@@ -108,9 +113,14 @@ void Processor::step(uint8_t cycles) {
     }
 
     if (steps >= CyclesPerScanline) {
+        if (LY <= 143) {
+            renderScanline();
+        }
         LY++;
         if (LY == 144) {
             interrupt->requestInterrupt(Interrupt::VBLANK);
+            renderer->update();
+            scanlines.clear();
         }
         status.coincidence = LY == LYC;
         interruptConditions[Coincidence] = status.coincidence;
@@ -128,6 +138,44 @@ void Processor::step(uint8_t cycles) {
 
 void Processor::VRAMStore(uint16_t offset, uint8_t value) {
     memory[offset] = value;
+}
+
+void Processor::renderScanline() {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+    uint16_t y = (LY + scrollY) % 256;
+    Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
+    uint32_t backgroundMapAddressStart;
+    switch (backgroundMapLocation) {
+    case _9800_9BFF:
+        backgroundMapAddressStart = 0x9800 - 0x8000;
+        break;
+    case _9C00_9FFF:
+        backgroundMapAddressStart = 0x9C00 - 0x8000;
+        break;
+    }
+    Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
+    for (int i = 0; i < 160; i++) {
+        uint16_t x = (scrollX + i) % 256;
+        uint16_t tileIndexInMap = (x / 8) + (y / 8) * 32;
+        uint16_t tileIndex;
+        if (tileDataLocation == _8000_8FFF) {
+            uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+            tileIndex = indexOffset;
+        } else {
+            int8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+            tileIndex = 256 + indexOffset;
+        }
+        uint16_t offset = (0x10 * tileIndex);
+        uint16_t yInTile = y % 8;
+        uint16_t lowAddress = yInTile * 2 + offset;
+        uint16_t highAddress = (yInTile * 2 + 1) + offset;
+        uint8_t low = memory[lowAddress];
+        uint8_t high = memory[highAddress];
+        std::vector<Shinobu::Frontend::OpenGL::Color> colorData = getTileRowPixelsWithData(low, high);
+        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)143-LY }, colorData[x % 8] };
+        scanline.push_back(vertex);
+    }
+    scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
 }
 
 std::vector<Shinobu::Frontend::OpenGL::Color> Processor::getTileRowPixelsWithData(uint8_t low, uint8_t high) const {
@@ -238,4 +286,8 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
     Shinobu::Frontend::OpenGL::Vertex v3 = { { upperLeftTranslated.x + 160, upperLeftTranslated.y - 144 }, color };
     Shinobu::Frontend::OpenGL::Vertex v4 = { { upperLeftTranslated.x, upperLeftTranslated.y - 144 }, color };
     return { v1, v2, v3, v4 };
+}
+
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getLCDOutput() const {
+    return scanlines;
 }

@@ -8,6 +8,9 @@
 
 namespace Shinobu {
     class Emulator;
+    namespace Frontend::Imgui {
+        class Renderer;
+    };
 };
 
 namespace Core {
@@ -118,15 +121,22 @@ namespace Core {
                 uint32_t steps;
                 std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
 
+                Shinobu::Frontend::Imgui::Renderer *renderer;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> scanlines;
+
                 bool isAnyConditionMet();
 
                 std::vector<Shinobu::Frontend::OpenGL::Color> getTileRowPixelsWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
+
+                void renderScanline();
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Processor();
+
+                void setRenderer(Shinobu::Frontend::Imgui::Renderer *renderer);
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
@@ -135,6 +145,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getLCDOutput() const;
             };
         };
     };

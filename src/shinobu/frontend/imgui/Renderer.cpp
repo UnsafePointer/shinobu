@@ -19,6 +19,7 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     ImGui_ImplOpenGL3_Init();
     tileDataRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, PixelScale);
     backgroundMapRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileBackgroundMapSide * VRAMTileDataSide, VRAMTileBackgroundMapSide * VRAMTileDataSide, PixelScale);
+    LCDOutputRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(160, 144, PixelScale);
 }
 
 Renderer::~Renderer() {
@@ -33,11 +34,14 @@ void Renderer::update() {
     backgroundMapRenderer->addPixels(PPU->getBackgroundMap01Pixels());
     backgroundMapRenderer->addViewPort(PPU->getScrollingViewPort());
     backgroundMapRenderer->render();
+    LCDOutputRenderer->addPixels(PPU->getLCDOutput());
+    LCDOutputRenderer->render();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame(window->windowRef());
     ImVec2 VRAMTileDataWindowSize = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
     ImVec2 VRAMBackgroundMapSize = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));
+    ImVec2 LCDOutputSize = ImVec2(static_cast<float>(160 * PixelScale), static_cast<float>(144 * PixelScale));
     ImGui::NewFrame();
     {
         ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize);
@@ -45,6 +49,9 @@ void Renderer::update() {
         ImGui::End();
         ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize);
         ImGui::Image(reinterpret_cast<ImTextureID>(backgroundMapRenderer->framebufferTextureObject()), VRAMBackgroundMapSize, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::End();
+        ImGui::Begin("LCD Output", NULL, ImGuiWindowFlags_NoResize);
+        ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), LCDOutputSize, ImVec2(0, 1), ImVec2(1, 0));
         ImGui::End();
     }
     ImGui::Render();
