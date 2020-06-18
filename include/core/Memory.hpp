@@ -64,6 +64,7 @@ namespace Core {
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
 
+            void executeDMA(uint8_t value);
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:

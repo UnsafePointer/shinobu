@@ -118,6 +118,7 @@ namespace Core {
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x9);
+            const Core::Memory::Range DMATransferRange = Core::Memory::Range(0xFF46, 0x1);
 
             enum LCDCSTATInterruptCondition {
                 Mode2 = 0,

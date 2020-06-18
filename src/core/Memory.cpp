@@ -48,6 +48,19 @@ BankController::~BankController() {
 
 }
 
+void BankController::executeDMA(uint8_t value) {
+    uint16_t source = value;
+    source <<= 8;
+    uint16_t sourceEnd = source + 0x9F;
+    uint16_t destination = 0xFE00;
+    while (source < sourceEnd) {
+        uint8_t value = load(source);
+        store(destination, value);
+        source++;
+        destination++;
+    }
+}
+
 uint8_t BankController::loadInternal(uint16_t address) const {
     std::optional<uint32_t> offset = WorkRAMBank00.contains(address);
     if (offset) {
@@ -148,8 +161,13 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         }
         offset = Device::PictureProcessingUnit::AddressRange.contains(address);
         if (offset) {
-            PPU->store(*offset, value);
-            return;
+            if (Device::PictureProcessingUnit::DMATransferRange.contains(address)) {
+                executeDMA(value);
+                return;
+            } else {
+                PPU->store(*offset, value);
+                return;
+            }
         }
         offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
         if (offset) {
