@@ -157,6 +157,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
 
+                std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);

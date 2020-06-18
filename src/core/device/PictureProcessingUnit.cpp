@@ -159,16 +159,42 @@ void Processor::renderScanline() {
         break;
     }
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
+    std::vector<Sprite> visibleSprites = {};
+    std::vector<Sprite> sprites = getSpriteData();
+    for (auto const& sprite : sprites) {
+        int16_t spriteY = sprite.y;
+        spriteY -= 16;
+        int16_t spriteX = sprite.x;
+        spriteX -= 8;
+        if ((y >= spriteY && y <= (spriteY + 8)) && spriteX >= scrollX) {
+            visibleSprites.push_back(sprite);
+        }
+    }
     for (int i = 0; i < HorizontalResolution; i++) {
         uint16_t x = (scrollX + i) % TileMapResolution;
-        uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+        Sprite spriteToDraw;
+        bool drawSprite = false;
+        for (auto const& sprite : visibleSprites) {
+            int16_t spriteX = sprite.x;
+            spriteX -= 8;
+            if (x >= spriteX && x <= spriteX + 8) {
+                spriteToDraw = sprite;
+                drawSprite = true;
+                break;
+            }
+        }
         uint16_t tileIndex;
-        if (tileDataLocation == _8000_8FFF) {
-            uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
-            tileIndex = indexOffset;
+        if (drawSprite) {
+            tileIndex = spriteToDraw.tileNumber;
         } else {
-            int8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
-            tileIndex = 256 + indexOffset;
+            uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            if (tileDataLocation == _8000_8FFF) {
+                uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+                tileIndex = indexOffset;
+            } else {
+                int8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+                tileIndex = 256 + indexOffset;
+            }
         }
         uint16_t offset = (0x10 * tileIndex);
         uint16_t yInTile = y % VRAMTileDataSide;
@@ -308,13 +334,21 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getLCDOutput() const {
     return scanlines;
 }
 
-std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
+std::vector<Sprite> Processor::getSpriteData() const {
     std::vector<Sprite> sprites = {};
     for (int i = 0; i < NumberOfSpritesInOAM; i++) {
         uint16_t offset = i * 4;
         Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]));
         sprites.push_back(sprite);
+    }
+    return sprites;
+}
+
+std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
+    std::vector<Sprite> sprites = getSpriteData();
+    for (int i = 0; i < NumberOfSpritesInOAM; i++) {
+        Sprite sprite = sprites[i];
         std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(sprite.tileNumber);
         tile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(tile, i);
         vertices.insert(vertices.end(), tile.begin(), tile.end());
