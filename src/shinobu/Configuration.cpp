@@ -98,8 +98,8 @@ void Configuration::Manager::loadConfiguration() {
     serial = Common::Logs::levelWithValue(configuration["log"]["serial"].As<std::string>());
     disassembler = Common::Logs::levelWithValue(configuration["log"]["disassembler"].As<std::string>());
     interrupt = Common::Logs::levelWithValue(configuration["log"]["interrupt"].As<std::string>());
-    interrupt = Common::Logs::levelWithValue(configuration["log"]["timer"].As<std::string>());
-    interrupt = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
+    timer = Common::Logs::levelWithValue(configuration["log"]["timer"].As<std::string>());
+    openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
