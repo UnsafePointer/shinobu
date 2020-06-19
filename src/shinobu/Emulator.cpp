@@ -79,6 +79,7 @@ void Emulator::emulateFrame() {
         }
         PPU->step(cycles);
         timer->step(cycles);
+        joypad->updateJoypad();
         processor->checkPendingInterrupts(instruction);
         currentCycles += cycles;
     }
