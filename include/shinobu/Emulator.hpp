@@ -10,6 +10,7 @@
 #include "core/cpu/Disassembler.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include "shinobu/frontend/imgui/Renderer.hpp"
+#include "core/device/JoypadInput.hpp"
 
 namespace Shinobu {
     class Emulator {
@@ -22,6 +23,7 @@ namespace Shinobu {
         std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
         std::unique_ptr<Core::Device::Interrupt::Controller> interrupt;
         std::unique_ptr<Core::Device::Timer::Controller> timer;
+        std::unique_ptr<Core::Device::JoypadInput::Controller> joypad;
         std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
 
         bool shouldSkipBootROM;

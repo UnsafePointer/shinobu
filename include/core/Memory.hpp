@@ -19,6 +19,9 @@ namespace Core {
         namespace Timer {
             class Controller;
         };
+        namespace JoypadInput {
+            class Controller;
+        };
     }
     namespace ROM {
         class Cartridge;
@@ -63,6 +66,7 @@ namespace Core {
             std::array<uint8_t, 0x7F> HRAM;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
+            std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
 
             void executeDMA(uint8_t value);
             uint8_t loadInternal(uint16_t address) const;
@@ -73,7 +77,8 @@ namespace Core {
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                           std::unique_ptr<Core::Device::Timer::Controller> &timer);
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
             ~BankController();
 
             virtual uint8_t load(uint16_t address) const = 0;
@@ -89,7 +94,8 @@ namespace Core {
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                           std::unique_ptr<Core::Device::Timer::Controller> &timer) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer) {};
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -153,7 +159,8 @@ namespace Core {
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                           std::unique_ptr<Core::Device::Timer::Controller> &timer) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer) {};
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -168,12 +175,14 @@ namespace Core {
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
+            std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
         public:
             Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                       std::unique_ptr<Core::Device::Timer::Controller> &timer);
+                       std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
             ~Controller();
 
             void initialize(bool skipBootROM);

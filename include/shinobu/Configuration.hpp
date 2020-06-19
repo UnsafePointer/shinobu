@@ -21,6 +21,7 @@ namespace Shinobu {
             Common::Logs::Level interrupt;
             Common::Logs::Level timer;
             Common::Logs::Level openGL;
+            Common::Logs::Level joypad;
             bool trace;
 
             Manager();
@@ -36,6 +37,7 @@ namespace Shinobu {
             Common::Logs::Level interruptLogLevel() const;
             Common::Logs::Level timerLogLevel() const;
             Common::Logs::Level openGLLogLevel() const;
+            Common::Logs::Level joypadLogLevel() const;
             bool shouldTraceLogs() const;
             void setupConfigurationFile() const;
             void loadConfiguration();

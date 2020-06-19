@@ -6,6 +6,7 @@
 #include "shinobu/Configuration.hpp"
 #include "core/device/Interrupt.hpp"
 #include "core/device/Timer.hpp"
+#include "core/device/JoypadInput.hpp"
 
 using namespace Core::Memory;
 
@@ -31,15 +32,17 @@ BankController::BankController(Common::Logs::Level logLevel,
                                std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                                std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                                std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                               std::unique_ptr<Core::Device::Timer::Controller> &timer) : logger(logLevel, "  [Memory]: "),
-                                                                                          cartridge(cartridge),
-                                                                                          bootROM(bootROM),
-                                                                                          WRAMBank00(),
-                                                                                          WRAMBank01_N(),
-                                                                                          PPU(PPU),
-                                                                                          HRAM(),
-                                                                                          interrupt(interrupt),
-                                                                                          timer(timer) {
+                               std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                               std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
+                                                                                                 cartridge(cartridge),
+                                                                                                 bootROM(bootROM),
+                                                                                                 WRAMBank00(),
+                                                                                                 WRAMBank01_N(),
+                                                                                                 PPU(PPU),
+                                                                                                 HRAM(),
+                                                                                                 interrupt(interrupt),
+                                                                                                 timer(timer),
+                                                                                                 joypad(joypad) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialDataTransfer::Controller>(configurationManager->serialLogLevel());
 }
@@ -86,6 +89,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = I_ORegisters.contains(address);
     if (offset) {
+        offset = Device::JoypadInput::AddressRange.contains(address);
+        if (offset) {
+            return joypad->load();
+        }
         offset = Device::SerialDataTransfer::AddressRange.contains(address);
         if (offset) {
             return serialCommController->load(*offset);
@@ -154,6 +161,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     }
     offset = I_ORegisters.contains(address);
     if (offset) {
+        offset = Device::JoypadInput::AddressRange.contains(address);
+        if (offset) {
+            joypad->store(value);
+            return;
+        }
         offset = Device::SerialDataTransfer::AddressRange.contains(address);
         if (offset) {
             serialCommController->store(*offset, value);
@@ -272,11 +284,13 @@ Controller::Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
-                       std::unique_ptr<Core::Device::Timer::Controller> &timer) : logger(logLevel, "  [Memory]: "),
-                                                                                  cartridge(cartridge),
-                                                                                  PPU(PPU),
-                                                                                  interrupt(interrupt),
-                                                                                  timer(timer) {
+                       std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
+                                                                                         cartridge(cartridge),
+                                                                                         PPU(PPU),
+                                                                                         interrupt(interrupt),
+                                                                                         timer(timer),
+                                                                                         joypad(joypad) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
@@ -294,12 +308,12 @@ void Controller::initialize(bool skipBootROM) {
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer);
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);

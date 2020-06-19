@@ -60,6 +60,10 @@ Common::Logs::Level Configuration::Manager::openGLLogLevel() const {
     return openGL;
 }
 
+Common::Logs::Level Configuration::Manager::joypadLogLevel() const {
+    return joypad;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -82,6 +86,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["interrupt"] = "NOLOG";
     logConfigurationRef["timer"] = "NOLOG";
     logConfigurationRef["openGL"] = "NOLOG";
+    logConfigurationRef["joypad"] = "NOLOG";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -100,6 +105,7 @@ void Configuration::Manager::loadConfiguration() {
     interrupt = Common::Logs::levelWithValue(configuration["log"]["interrupt"].As<std::string>());
     timer = Common::Logs::levelWithValue(configuration["log"]["timer"].As<std::string>());
     openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
+    joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
