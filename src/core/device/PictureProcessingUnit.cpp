@@ -7,13 +7,11 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
     interruptConditions[Mode2] = false;
     interruptConditions[Mode1] = false;
     interruptConditions[Mode0] = false;
     interruptConditions[Coincidence] = false;
-    memory.resize(0x2000);
-    spriteAttributeTable.resize(0xA0);
 }
 
 Processor::~Processor() {

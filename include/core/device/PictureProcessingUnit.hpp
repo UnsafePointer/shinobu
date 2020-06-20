@@ -134,8 +134,8 @@ namespace Core {
 
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
-                std::vector<uint8_t> memory;
-                std::vector<uint8_t> spriteAttributeTable;
+                std::array<uint8_t, 0x2000> memory;
+                std::array<uint8_t, 0xA0> spriteAttributeTable;
                 LCDControl control;
                 LCDStatus status;
                 uint8_t scrollY;
