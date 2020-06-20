@@ -202,15 +202,15 @@ void Processor::renderScanline() {
         uint16_t highAddress = (yInTile * 2 + 1) + offset;
         uint8_t low = memory[lowAddress];
         uint8_t high = memory[highAddress];
-        std::vector<Shinobu::Frontend::OpenGL::Color> colorData = getTileRowPixelsWithData(low, high);
+        auto colorData = getTileRowPixelsWithData(low, high);
         Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)(VerticalResolution - 1 - LY) }, colorData[x % 8] };
         scanline.push_back(vertex);
     }
     scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Color> Processor::getTileRowPixelsWithData(uint8_t low, uint8_t high) const {
-    std::vector<Shinobu::Frontend::OpenGL::Color> tileRowPixels = {};
+std::array<Shinobu::Frontend::OpenGL::Color, 8> Processor::getTileRowPixelsWithData(uint8_t low, uint8_t high) const {
+    std::array<Shinobu::Frontend::OpenGL::Color, 8> tileRowPixels = {};
     std::bitset<8> lowBits = std::bitset<8>(low);
     std::bitset<8> highBits = std::bitset<8>(high);
     for (int i = 7; i >= 0; i--) {
@@ -218,7 +218,7 @@ std::vector<Shinobu::Frontend::OpenGL::Color> Processor::getTileRowPixelsWithDat
         uint8_t low = lowBits.test(i);
         uint8_t index = highMask | low;
         Shinobu::Frontend::OpenGL::Color color = backgroundPalette.colorWithIndex(index);
-        tileRowPixels.push_back(color);
+        tileRowPixels[7-i] = color;
     }
     return tileRowPixels;
 }
@@ -231,7 +231,7 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_
         uint16_t highAddress = (i * 2 + 1) + offset;
         uint8_t low = memory[lowAddress];
         uint8_t high = memory[highAddress];
-        std::vector<Shinobu::Frontend::OpenGL::Color> colorData = getTileRowPixelsWithData(low, high);
+        auto colorData = getTileRowPixelsWithData(low, high);
         for (int j = 0; j < VRAMTileDataSide; j++) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)j, (GLfloat)(7 - i) }, colorData[j] };
             tile.push_back(vertex);
