@@ -18,6 +18,7 @@ namespace Shinobu {
                 uint32_t width;
                 uint32_t height;
                 uint32_t scale;
+                bool renderToFramebuffer;
 
                 std::unique_ptr<Program> program;
                 std::unique_ptr<Buffer<Vertex>> buffer;
@@ -27,7 +28,7 @@ namespace Shinobu {
 
                 void checkForceDraw(uint32_t verticesToRender, GLenum mode);
             public:
-                Renderer(uint32_t width, uint32_t height, uint32_t scale);
+                Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderToFramebuffer = true);
                 ~Renderer();
 
                 void render();

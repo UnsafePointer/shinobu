@@ -4,7 +4,7 @@
 
 using namespace Shinobu::Frontend::OpenGL;
 
-Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale) : mode(GL_TRIANGLES), width(width), height(height), scale(scale) {
+Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderToFramebuffer) : mode(GL_TRIANGLES), width(width), height(height), scale(scale), renderToFramebuffer(renderToFramebuffer) {
     program = std::make_unique<Program>("glsl/vertex.glsl", "glsl/fragment.glsl");
     program->useProgram();
 
@@ -59,8 +59,13 @@ void Renderer::checkForceDraw(uint32_t verticesToRender, GLenum mode) {
 }
 
 void Renderer::render() {
-    Framebuffer framebuffer = Framebuffer(framebufferTexture);
-    buffer->draw(mode);
+    // TODO: Force the framebuffer stay alive outside the if scope
+    if (renderToFramebuffer) {
+        Framebuffer framebuffer = Framebuffer(framebufferTexture);
+        buffer->draw(mode);
+    } else {
+        buffer->draw(mode);
+    }
 }
 
 GLuint Renderer::framebufferTextureObject() const {
