@@ -5,6 +5,7 @@
 #include "core/device/PictureProcessingUnit.hpp"
 #include <glad/glad.h>
 #include "common/System.hpp"
+#include "shinobu/frontend/sdl2/Renderer.hpp"
 
 using namespace Shinobu;
 

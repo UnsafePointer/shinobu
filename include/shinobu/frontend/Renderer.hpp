@@ -16,6 +16,7 @@ namespace Shinobu {
             Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
             ~Renderer();
             virtual void update() = 0;
+            virtual void handleSDLEvent(SDL_Event event) = 0;
         };
     };
 };

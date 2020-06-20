@@ -15,7 +15,7 @@
 namespace Shinobu {
     class Emulator {
         std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
-        std::unique_ptr<Shinobu::Frontend::Imgui::Renderer> renderer;
+        std::unique_ptr<Shinobu::Frontend::Renderer> renderer;
 
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
