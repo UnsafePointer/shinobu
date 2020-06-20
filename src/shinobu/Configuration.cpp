@@ -68,12 +68,19 @@ bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
 
+bool Configuration::Manager::shouldUseImGuiFrontend() const {
+    return useImGuiFrontend;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
         return;
     }
     logger.logWarning("Local configuration file not found");
+    Yaml::Node PPUConfiguration = Yaml::Node();
+    Yaml::Node &PPUConfigurationRef = PPUConfiguration;
+    PPUConfigurationRef["debugger"] = "false";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -90,6 +97,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
+    configurationRef["PPU"] = PPUConfiguration;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -107,6 +115,7 @@ void Configuration::Manager::loadConfiguration() {
     openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
+    useImGuiFrontend = configuration["PPU"]["debugger"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

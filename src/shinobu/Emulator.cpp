@@ -18,7 +18,11 @@ Emulator::Emulator() : shouldSkipBootROM(false) {
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
-    renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
+    if (configurationManager->shouldUseImGuiFrontend()) {
+        renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
+    } else {
+        renderer = std::make_unique<Shinobu::Frontend::SDL2::Renderer>(window, PPU);
+    }
     PPU->setRenderer(renderer.get());
 
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);

@@ -23,6 +23,7 @@ namespace Shinobu {
             Common::Logs::Level openGL;
             Common::Logs::Level joypad;
             bool trace;
+            bool useImGuiFrontend;
 
             Manager();
         public:
@@ -39,6 +40,7 @@ namespace Shinobu {
             Common::Logs::Level openGLLogLevel() const;
             Common::Logs::Level joypadLogLevel() const;
             bool shouldTraceLogs() const;
+            bool shouldUseImGuiFrontend() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
