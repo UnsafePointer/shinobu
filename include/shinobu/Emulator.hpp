@@ -27,6 +27,8 @@ namespace Shinobu {
         std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
 
         bool shouldSkipBootROM;
+        uint32_t frameCounter;
+        uint32_t frameTimes;
 
         void setupSDL() const;
         void setupOpenGL() const;

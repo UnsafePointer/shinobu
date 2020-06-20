@@ -24,6 +24,7 @@ namespace Shinobu {
                 SDL_Window* windowRef() const;
                 SDL_GLContext GLContext() const;
                 void handleSDLEvent(SDL_Event event) const;
+                void updateWindowTitleWithSuffix(std::string suffix) const;
             };
         };
     };

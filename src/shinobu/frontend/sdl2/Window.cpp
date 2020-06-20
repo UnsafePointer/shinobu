@@ -37,3 +37,8 @@ void Window::handleSDLEvent(SDL_Event event) const {
         }
     }
 }
+
+void Window::updateWindowTitleWithSuffix(std::string suffix) const {
+    std::string titleCopy = title;
+    SDL_SetWindowTitle(window, titleCopy.append(suffix).c_str());
+}

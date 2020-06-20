@@ -6,10 +6,11 @@
 #include <glad/glad.h>
 #include "common/System.hpp"
 #include "shinobu/frontend/sdl2/Renderer.hpp"
+#include "common/Formatter.hpp"
 
 using namespace Shinobu;
 
-Emulator::Emulator() : shouldSkipBootROM(false) {
+Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes() {
     setupSDL();
     window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, WindowHeight);
     setupOpenGL();
@@ -70,6 +71,7 @@ void Emulator::powerUp() {
 
 void Emulator::emulateFrame() {
     uint32_t currentCycles = 0;
+    uint32_t frameTime = SDL_GetTicks();
     while (currentCycles < CyclesPerFrame) {
         uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
@@ -87,6 +89,14 @@ void Emulator::emulateFrame() {
         joypad->updateJoypad();
         processor->checkPendingInterrupts(instruction);
         currentCycles += cycles;
+    }
+    frameTimes += SDL_GetTicks() - frameTime;
+    frameCounter++;
+    if (frameCounter >= 5) {
+        frameCounter = 0;
+        uint32_t averageFrameTime = frameTimes / 5;
+        frameTimes = 0;
+        window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms", averageFrameTime));
     }
 }
 
