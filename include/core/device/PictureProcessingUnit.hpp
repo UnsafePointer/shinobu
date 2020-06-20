@@ -107,11 +107,13 @@ namespace Core {
 
                 Palette() : _value(0) {}
                 Shinobu::Frontend::OpenGL::Color colorWithIndex(uint8_t index) const {
-                    const std::vector<Shinobu::Frontend::OpenGL::Color> colors = {
-                        { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
-                        { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
-                        { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
-                        { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
+                    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = {
+                        {
+                            { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
+                            { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
+                            { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
+                            { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
+                        }
                      };
                      return colors[index];
                 }
