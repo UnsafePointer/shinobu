@@ -8,7 +8,7 @@
 
 namespace Shinobu {
     class Emulator;
-    namespace Frontend::Imgui {
+    namespace Frontend {
         class Renderer;
     };
 };
@@ -146,7 +146,7 @@ namespace Core {
                 uint32_t steps;
                 std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
 
-                Shinobu::Frontend::Imgui::Renderer *renderer;
+                Shinobu::Frontend::Renderer *renderer;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> scanlines;
 
                 bool isAnyConditionMet();
@@ -163,7 +163,7 @@ namespace Core {
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Processor();
 
-                void setRenderer(Shinobu::Frontend::Imgui::Renderer *renderer);
+                void setRenderer(Shinobu::Frontend::Renderer *renderer);
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);

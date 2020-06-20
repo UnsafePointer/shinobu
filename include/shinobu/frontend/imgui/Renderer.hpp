@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include "shinobu/frontend/opengl/Renderer.hpp"
+#include "shinobu/frontend/Renderer.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -14,9 +15,7 @@ namespace Core::Device::PictureProcessingUnit {
 namespace Shinobu {
     namespace Frontend {
         namespace Imgui {
-            class Renderer {
-                std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window;
-                std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
+            class Renderer : public Shinobu::Frontend::Renderer {
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> tileDataRenderer;
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> backgroundMapRenderer;
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> LCDOutputRenderer;
@@ -27,7 +26,7 @@ namespace Shinobu {
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();
 
-                void update();
+                void update() override;
                 void handleSDLEvent(SDL_Event event);
             };
         };

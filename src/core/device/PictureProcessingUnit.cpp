@@ -3,7 +3,7 @@
 #include "common/Timing.hpp"
 #include <bitset>
 #include "common/System.hpp"
-#include "shinobu/frontend/imgui/Renderer.hpp"
+#include "shinobu/frontend/Renderer.hpp"
 
 using namespace Core::Device::PictureProcessingUnit;
 
@@ -20,7 +20,7 @@ Processor::~Processor() {
 
 }
 
-void Processor::setRenderer(Shinobu::Frontend::Imgui::Renderer *renderer) {
+void Processor::setRenderer(Shinobu::Frontend::Renderer *renderer) {
     this->renderer = renderer;
 }
 
