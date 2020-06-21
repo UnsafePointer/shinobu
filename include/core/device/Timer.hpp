@@ -31,6 +31,7 @@ namespace Core {
                 Control control;
 
                 bool lastResult;
+                bool overflown;
             public:
                 Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Controller();

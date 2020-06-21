@@ -4,7 +4,7 @@
 
 using namespace Core::Device::Timer;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), counter(), modulo(), control(), lastResult() {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), counter(), modulo(), control(), lastResult(), overflown() {
 
 }
 
@@ -54,14 +54,19 @@ void Controller::step(uint8_t cycles) {
         divider += 4;
         steps--;
 
+        if (overflown) {
+            overflown = false;
+            counter = modulo;
+            interrupt->requestInterrupt(Interrupt::TIMER);
+        }
+
         uint8_t bitPositionForCurrentClock = clocks[control._clock];
         std::bitset<16> dividerBits = std::bitset<16>(divider);
         bool result = dividerBits.test(bitPositionForCurrentClock) & control.enable;
         if (lastResult && !result) {
             counter++;
             if (counter == 0) {
-                counter = modulo;
-                interrupt->requestInterrupt(Interrupt::TIMER);
+                overflown = true;
             }
         }
         lastResult = result;
