@@ -25,14 +25,12 @@ namespace Core {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
 
-                uint8_t divider;
-                uint32_t dividerSteps;
+                uint16_t divider;
                 uint8_t counter;
-                uint32_t counterSteps;
                 uint8_t modulo;
                 Control control;
 
-                void updateDivider(uint8_t cycles);
+                bool lastResult;
             public:
                 Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Controller();

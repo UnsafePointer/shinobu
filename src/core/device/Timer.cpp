@@ -1,9 +1,10 @@
 #include "core/device/Timer.hpp"
 #include "common/Timing.hpp"
+#include <bitset>
 
 using namespace Core::Device::Timer;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), dividerSteps(), counter(), counterSteps(), modulo(), control() {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), divider(), counter(), modulo(), control(), lastResult() {
 
 }
 
@@ -14,7 +15,7 @@ Controller::~Controller() {
 uint8_t Controller::load(uint16_t offset) const {
     switch (offset) {
     case 0x0:
-        return divider;
+        return (divider & 0xFF00) >> 8;
     case 0x1:
         return counter;
     case 0x2:
@@ -47,30 +48,22 @@ void Controller::store(uint16_t offset, uint8_t value) {
     }
 }
 
-void Controller::updateDivider(uint8_t cycles) {
-    dividerSteps += cycles;
-    if (dividerSteps >= DividerCycleStep) {
-        dividerSteps %= DividerCycleStep;
-        divider++;
-    }
-}
-
 void Controller::step(uint8_t cycles) {
-    updateDivider(cycles);
+    uint8_t steps = cycles / 4;
+    while (steps > 0) {
+        divider += 4;
+        steps--;
 
-    if (!control.enable) {
-        return;
-    }
-
-    counterSteps += cycles;
-    uint32_t currentClockCycleStep = clocks[control._clock];
-    while (counterSteps >= currentClockCycleStep) {
-        counterSteps -= currentClockCycleStep;
-        counter++;
-
-        if (counter == 0) {
-            counter = modulo;
-            interrupt->requestInterrupt(Interrupt::TIMER);
+        uint8_t bitPositionForCurrentClock = clocks[control._clock];
+        std::bitset<16> dividerBits = std::bitset<16>(divider);
+        bool result = dividerBits.test(bitPositionForCurrentClock) & control.enable;
+        if (lastResult && !result) {
+            counter++;
+            if (counter == 0) {
+                counter = modulo;
+                interrupt->requestInterrupt(Interrupt::TIMER);
+            }
         }
+        lastResult = result;
     }
 }
