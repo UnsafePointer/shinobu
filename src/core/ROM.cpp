@@ -94,7 +94,7 @@ bool Cartridge::isOpen() const {
     return !memory.empty();
 }
 
-uint8_t Cartridge::load(uint16_t address) const {
+uint8_t Cartridge::load(uint32_t address) const {
     if (address > memory.size()) {
         logger.logError("ROM load out of bounds with address: %04x", address);
     }
@@ -118,4 +118,8 @@ uint32_t Cartridge::RAMSize() const {
     default:
         return 0;
     }
+}
+
+uint32_t Cartridge::ROMSize() const {
+    return memory.size();
 }

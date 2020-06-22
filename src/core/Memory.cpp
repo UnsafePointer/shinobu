@@ -236,13 +236,13 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
     std::optional<uint32_t> offset = ROMBank00.contains(address);
     if (offset) {
         uint32_t upperMask = mode.mode ? _BANK2.bank2 << 5 : 0x0;
-        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        uint32_t physicalAddress = ((upperMask << 14) % cartridge->ROMSize()) | (address & 0x3FFF);
         return cartridge->load(physicalAddress);
     }
     offset = ROMBank01_N.contains(address);
     if (offset) {
         uint32_t upperMask = _BANK2.bank2 << 5 | _BANK1.bank1;
-        uint32_t physicalAddress = (upperMask << 14) | (address & 0x1FFF);
+        uint32_t physicalAddress = ((upperMask << 14) % cartridge->ROMSize()) | (address & 0x3FFF);
         return cartridge->load(physicalAddress);
     }
     offset = ExternalRAM.contains(address);
