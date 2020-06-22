@@ -124,7 +124,7 @@ namespace Core {
                 uint8_t _value;
                 struct {
                     uint8_t bank1 : 5;
-                    uint8_t unused : 4;
+                    uint8_t unused : 3;
                 };
 
                 BANK1() : _value(0x1) {}
