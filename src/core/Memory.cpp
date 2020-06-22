@@ -264,7 +264,7 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     if (offset) {
         _BANK1._value = value;
         if (_BANK1.bank1 == 0) {
-            _BANK1.bank1 = 0;
+            _BANK1.bank1 = 1;
         }
         return;
     }
