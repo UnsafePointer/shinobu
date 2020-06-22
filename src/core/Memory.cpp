@@ -40,9 +40,11 @@ BankController::BankController(Common::Logs::Level logLevel,
                                                                                                  WRAMBank01_N(),
                                                                                                  PPU(PPU),
                                                                                                  HRAM(),
+                                                                                                 externalRAM(),
                                                                                                  interrupt(interrupt),
                                                                                                  timer(timer),
                                                                                                  joypad(joypad) {
+    externalRAM.resize(cartridge->RAMSize());
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialDataTransfer::Controller>(configurationManager->serialLogLevel());
 }
@@ -274,6 +276,15 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     offset = ModeRange.contains(address);
     if (offset) {
         mode._value = value;
+        return;
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        if (_RAMG.enableAccess == 0b1010) {
+            uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            externalRAM[physicalAddress] = value;
+        }
         return;
     }
     storeInternal(address, value);

@@ -100,3 +100,22 @@ uint8_t Cartridge::load(uint16_t address) const {
     }
     return memory[address];
 }
+
+uint32_t Cartridge::RAMSize() const {
+    switch (header._RAMSize) {
+    case RAMSize::Size::_0KB:
+        return 0;
+    case RAMSize::Size::_2KB:
+        return 1024 * 2;
+    case RAMSize::Size::_8KB:
+        return 1024 * 8;
+    case RAMSize::Size::_32KB:
+        return 1024 * 32;
+    case RAMSize::Size::_128KB:
+        return 1024 * 128;
+    case RAMSize::Size::_64KB:
+        return 1024 * 64;
+    default:
+        return 0;
+    }
+}

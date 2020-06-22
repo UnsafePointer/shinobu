@@ -3,6 +3,7 @@
 #include <memory>
 #include <filesystem>
 #include <optional>
+#include <vector>
 #include <common/Logger.hpp>
 
 namespace Core {
@@ -64,6 +65,7 @@ namespace Core {
             std::unique_ptr<Core::Device::SerialDataTransfer::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::array<uint8_t, 0x7F> HRAM;
+            std::vector<uint8_t> externalRAM;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
