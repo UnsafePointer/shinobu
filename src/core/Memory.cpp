@@ -247,9 +247,13 @@ uint8_t MBC1::Controller::load(uint16_t address) const {
     }
     offset = ExternalRAM.contains(address);
     if (offset) {
-        uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
-        uint32_t physicalAddress = (upperMask << 13) | (address & 0xFFF);
-        return cartridge->load(physicalAddress);
+        if (_RAMG.enableAccess == 0b1010) {
+            uint32_t upperMask = mode.mode ? _BANK2.bank2 : 0x0;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            return externalRAM[physicalAddress];
+        } else {
+            return 0xFF;
+        }
     }
     return loadInternal(address);
 }
