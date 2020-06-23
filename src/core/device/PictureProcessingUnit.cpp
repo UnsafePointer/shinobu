@@ -168,7 +168,9 @@ void Processor::renderScanline() {
             visibleSprites.push_back(sprite);
         }
     }
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
     for (int i = 0; i < HorizontalResolution; i++) {
         uint16_t x = (scrollX + i) % TileMapResolution;
         Sprite spriteToDraw;
@@ -186,6 +188,7 @@ void Processor::renderScanline() {
         if (drawSprite) {
             tileIndex = spriteToDraw.tileNumber;
         } else {
+TILE_LOOKUP:
             uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             if (tileDataLocation == _8000_8FFF) {
                 uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
@@ -202,7 +205,23 @@ void Processor::renderScanline() {
         uint8_t low = memory[lowAddress];
         uint8_t high = memory[highAddress];
         auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
-        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)(VerticalResolution - 1 - LY) }, paletteColors[colorData[x % 8]] };
+        Shinobu::Frontend::OpenGL::Color color;
+        if (drawSprite) {
+            uint8_t colorIndex = colorData[x % 8];
+            if (colorIndex == 0) {
+                drawSprite = false;
+                goto TILE_LOOKUP;
+            } else {
+                if (spriteToDraw.attributes.DMGPalette == 0) {
+                    color = object0PaletteColors[colorIndex];
+                } else {
+                    color = object1PaletteColors[colorIndex];
+                }
+            }
+        } else {
+            color = backgroundPaletteColors[colorData[x % 8]];
+        }
+        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)x, (GLfloat)(VerticalResolution - 1 - LY) }, color};
         scanline.push_back(vertex);
     }
     scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
