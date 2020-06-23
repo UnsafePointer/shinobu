@@ -168,7 +168,7 @@ void Processor::renderScanline() {
         spriteY -= 16;
         int16_t spriteX = sprite.x;
         spriteX -= 8;
-        if ((y >= spriteY && y <= (spriteY + 8)) && spriteX >= scrollX) {
+        if ((y >= spriteY && y < (spriteY + 8)) && spriteX >= scrollX) {
             visibleSprites.push_back(sprite);
         }
     }
@@ -182,7 +182,7 @@ void Processor::renderScanline() {
         for (auto const& sprite : visibleSprites) {
             int16_t spriteX = sprite.x;
             spriteX -= 8;
-            if (x >= spriteX && x <= spriteX + 8) {
+            if (x >= spriteX && x < spriteX + 8) {
                 spriteToDraw = sprite;
                 drawSprite = true;
                 break;
@@ -211,7 +211,11 @@ TILE_LOOKUP:
         auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
         Shinobu::Frontend::OpenGL::Color color;
         if (drawSprite) {
-            uint8_t colorIndex = colorData[x % 8];
+            uint8_t colorDataIndex = x - (spriteToDraw.x - 8);
+            if (spriteToDraw.attributes.xFlip) {
+                colorDataIndex = 7 - colorDataIndex;
+            }
+            uint8_t colorIndex = colorData[colorDataIndex];
             if (colorIndex == 0) {
                 drawSprite = false;
                 goto TILE_LOOKUP;
