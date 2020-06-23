@@ -203,7 +203,12 @@ TILE_LOOKUP:
             }
         }
         uint16_t offset = (0x10 * tileIndex);
-        uint16_t yInTile = y % VRAMTileDataSide;
+        uint16_t yInTile;
+        if (drawSprite) {
+            yInTile = y - (spriteToDraw.y - 16);
+        } else {
+            yInTile = y % VRAMTileDataSide;
+        }
         uint16_t lowAddress = yInTile * 2 + offset;
         uint16_t highAddress = (yInTile * 2 + 1) + offset;
         uint8_t low = memory[lowAddress];
