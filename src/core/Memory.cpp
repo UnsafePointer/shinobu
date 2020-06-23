@@ -67,7 +67,11 @@ void BankController::executeDMA(uint8_t value) {
 }
 
 uint8_t BankController::loadInternal(uint16_t address) const {
-    std::optional<uint32_t> offset = WorkRAMBank00.contains(address);
+    std::optional<uint32_t> offset = VideoRAM.contains(address);
+    if (offset) {
+        return PPU->VRAMload(*offset);
+    }
+    offset = WorkRAMBank00.contains(address);
     if (offset) {
         return WRAMBank00[*offset];
     }
