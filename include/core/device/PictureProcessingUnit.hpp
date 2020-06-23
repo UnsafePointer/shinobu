@@ -16,6 +16,15 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
+            const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = {
+                {
+                    { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
+                    { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
+                    { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
+                    { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
+                }
+            };
+
             union SpriteAttributes {
                 uint8_t _value;
                 struct {
@@ -105,18 +114,7 @@ namespace Core {
                     uint8_t color3 : 2;
                 };
 
-                Palette() : _value(0) {}
-                Shinobu::Frontend::OpenGL::Color colorWithIndex(uint8_t index) const {
-                    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = {
-                        {
-                            { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
-                            { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
-                            { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
-                            { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
-                        }
-                     };
-                     return colors[index];
-                }
+                Palette() : _value(0) {};
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0x9);
@@ -153,8 +151,8 @@ namespace Core {
 
                 bool isAnyConditionMet();
 
-                std::array<Shinobu::Frontend::OpenGL::Color, 8> getTileRowPixelsWithData(uint8_t lower, uint8_t upper) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index) const;
+                std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
