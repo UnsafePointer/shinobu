@@ -111,6 +111,9 @@ void Processor::step(uint8_t cycles) {
         interruptConditions[Mode1] = status.mode1InterruptEnable;
     }
 
+    status.coincidence = LY == LYC;
+    interruptConditions[Coincidence] = status.coincidence;
+
     if (steps >= CyclesPerScanline) {
         if (LY <= 143) {
             renderScanline();
@@ -121,8 +124,6 @@ void Processor::step(uint8_t cycles) {
             renderer->update();
             scanlines.clear();
         }
-        status.coincidence = LY == LYC;
-        interruptConditions[Coincidence] = status.coincidence;
         if (LY >= TotalScanlines) {
             LY = 0;
         }
