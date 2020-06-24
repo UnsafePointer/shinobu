@@ -169,7 +169,7 @@ void Processor::renderScanline() {
         spriteY -= 16;
         int16_t spriteX = sprite.x;
         spriteX -= 8;
-        if ((y >= spriteY && y < (spriteY + 8)) && spriteX >= -8 && spriteX < 168) {
+        if ((LY >= spriteY && LY < (spriteY + 8)) && spriteX >= -8 && spriteX < 168) {
             visibleSprites.push_back(sprite);
         }
     }
@@ -206,7 +206,7 @@ TILE_LOOKUP:
         uint16_t offset = (0x10 * tileIndex);
         uint16_t yInTile;
         if (drawSprite) {
-            yInTile = y - (spriteToDraw.y - 16);
+            yInTile = y - (spriteToDraw.y - 16) - scrollY;
         } else {
             yInTile = y % VRAMTileDataSide;
         }
