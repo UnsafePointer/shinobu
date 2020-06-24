@@ -168,7 +168,7 @@ void Processor::renderScanline() {
         spriteY -= 16;
         int16_t spriteX = sprite.x;
         spriteX -= 8;
-        if ((y >= spriteY && y < (spriteY + 8)) && spriteX >= 0 && spriteX < 160) {
+        if ((y >= spriteY && y < (spriteY + 8)) && spriteX >= -8 && spriteX < 168) {
             visibleSprites.push_back(sprite);
         }
     }
@@ -182,8 +182,7 @@ void Processor::renderScanline() {
         for (auto const& sprite : visibleSprites) {
             int16_t spriteX = sprite.x;
             spriteX -= 8;
-            spriteX = (scrollX + spriteX) % TileMapResolution;
-            if (x >= spriteX && x < spriteX + 8) {
+            if (i >= spriteX && i < spriteX + 8) {
                 spriteToDraw = sprite;
                 drawSprite = true;
                 break;
