@@ -172,6 +172,9 @@ void Processor::renderScanline() {
         if ((LY >= spriteY && LY < (spriteY + 8)) && spriteX >= -8 && spriteX < 168) {
             visibleSprites.push_back(sprite);
         }
+        if (visibleSprites.size() >= 10) {
+            break;
+        }
     }
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
