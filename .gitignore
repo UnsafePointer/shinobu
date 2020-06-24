@@ -87,6 +87,7 @@ build
 *.BIN
 *.yaml
 *.log
+*.sav
 
 # Dear ImGui
 
