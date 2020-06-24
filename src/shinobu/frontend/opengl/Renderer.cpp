@@ -43,8 +43,8 @@ void Renderer::addPixels(std::vector<Vertex> pixels) {
 }
 
 void Renderer::addViewPort(std::vector<Vertex> vertices) {
-    checkForceDraw(vertices.size(), GL_LINE_LOOP);
-    mode = GL_LINE_LOOP;
+    checkForceDraw(vertices.size(), GL_LINES);
+    mode = GL_LINES;
     glLineWidth(scale);
     buffer->addData(vertices);
 }

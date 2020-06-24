@@ -354,11 +354,58 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
     Shinobu::Frontend::OpenGL::Color color = { 1.0, 0.0, 0.0 };
     Shinobu::Frontend::OpenGL::Point upperLeft = { (GLfloat)scrollX, (GLfloat)scrollY };
     Shinobu::Frontend::OpenGL::Point upperLeftTranslated = { upperLeft.x, TileMapResolution - upperLeft.y };
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> viewPort = {};
     Shinobu::Frontend::OpenGL::Vertex v1 = { upperLeftTranslated, color };
     Shinobu::Frontend::OpenGL::Vertex v2 = { { upperLeftTranslated.x + HorizontalResolution, upperLeftTranslated.y }, color };
     Shinobu::Frontend::OpenGL::Vertex v3 = { { upperLeftTranslated.x + HorizontalResolution, upperLeftTranslated.y - VerticalResolution }, color };
     Shinobu::Frontend::OpenGL::Vertex v4 = { { upperLeftTranslated.x, upperLeftTranslated.y - VerticalResolution }, color };
-    return { v1, v2, v3, v4 };
+    viewPort.push_back(v1);
+    viewPort.push_back(v2);
+    viewPort.push_back(v2);
+    viewPort.push_back(v3);
+    viewPort.push_back(v3);
+    viewPort.push_back(v4);
+    viewPort.push_back(v4);
+    viewPort.push_back(v1);
+    if (v2.position.x >= TileMapResolution) {
+        viewPort.push_back({ { -PixelScale, v2.position.y }, color });
+        viewPort.push_back({ { v2.position.x - TileMapResolution, v2.position.y }, color });
+        viewPort.push_back({ { v2.position.x - TileMapResolution, v2.position.y }, color });
+        viewPort.push_back({ { v2.position.x - TileMapResolution, v3.position.y }, color });
+        viewPort.push_back({ { v2.position.x - TileMapResolution, v3.position.y }, color });
+        viewPort.push_back({ { -PixelScale, v3.position.y }, color });
+        viewPort.push_back({ { -PixelScale, v3.position.y }, color });
+        viewPort.push_back({ { -PixelScale, v2.position.y }, color });
+        if (v3.position.y < 0) {
+            viewPort.push_back({ { -PixelScale, TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v4.position.x - (TileMapResolution - HorizontalResolution), TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v4.position.x - (TileMapResolution - HorizontalResolution), TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v4.position.x - (TileMapResolution - HorizontalResolution), TileMapResolution + v4.position.y }, color });
+            viewPort.push_back({ { v4.position.x - (TileMapResolution - HorizontalResolution), TileMapResolution + v4.position.y }, color });
+            viewPort.push_back({ { -PixelScale, TileMapResolution + v4.position.y }, color });
+            viewPort.push_back({ { -PixelScale, TileMapResolution + v4.position.y }, color });
+            viewPort.push_back({ { -PixelScale, TileMapResolution + PixelScale }, color });
+
+            viewPort.push_back({ { TileMapResolution + PixelScale, TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v3.position.x - HorizontalResolution, TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v3.position.x - HorizontalResolution, TileMapResolution + PixelScale }, color });
+            viewPort.push_back({ { v3.position.x - HorizontalResolution, TileMapResolution + v3.position.y }, color });
+            viewPort.push_back({ { v3.position.x - HorizontalResolution, TileMapResolution + v3.position.y }, color });
+            viewPort.push_back({ { TileMapResolution + PixelScale, TileMapResolution + v3.position.y }, color });
+            viewPort.push_back({ { TileMapResolution + PixelScale, TileMapResolution + v3.position.y }, color });
+            viewPort.push_back({ { TileMapResolution + PixelScale, TileMapResolution + PixelScale }, color });
+        }
+    } else if (v3.position.y < 0) {
+        viewPort.push_back({ { v4.position.x, TileMapResolution + PixelScale }, color });
+        viewPort.push_back({ { v4.position.x, TileMapResolution + v4.position.y }, color });
+        viewPort.push_back({ { v4.position.x, TileMapResolution + v4.position.y }, color });
+        viewPort.push_back({ { v3.position.x, TileMapResolution + v3.position.y }, color });
+        viewPort.push_back({ { v3.position.x, TileMapResolution + v3.position.y }, color });
+        viewPort.push_back({ { v3.position.x, TileMapResolution + PixelScale }, color });
+        viewPort.push_back({ { v3.position.x, TileMapResolution + PixelScale }, color });
+        viewPort.push_back({ { v4.position.x, TileMapResolution + PixelScale }, color });
+    }
+    return viewPort;
 }
 
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getLCDOutput() const {
