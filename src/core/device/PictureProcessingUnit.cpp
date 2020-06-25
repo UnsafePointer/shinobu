@@ -210,6 +210,9 @@ TILE_LOOKUP:
         uint16_t yInTile;
         if (drawSprite) {
             yInTile = y - (spriteToDraw.y - 16) - scrollY;
+            if (spriteToDraw.attributes.yFlip) {
+                yInTile = 7 - yInTile;
+            }
         } else {
             yInTile = y % VRAMTileDataSide;
         }
