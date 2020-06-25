@@ -70,7 +70,7 @@ namespace Core {
                     uint8_t _backgroundTileMapDisplaySelect : 1;
                     uint8_t _background_WindowTileDataSelect : 1;
                     uint8_t windowDisplayEnable : 1;
-                    uint8_t _windowTimeMapDisplaySelect : 1;
+                    uint8_t _windowTileMapDisplaySelect : 1;
                     uint8_t LCDDisplayEnable : 1;
                 };
 
@@ -79,7 +79,7 @@ namespace Core {
                 SpriteSize spriteSize() { return SpriteSize(_spriteSize); }
                 Background_WindowTileMapLocation backgroundTileMapDisplaySelect() const { return Background_WindowTileMapLocation(_backgroundTileMapDisplaySelect); }
                 Background_WindowTileDataLocation background_WindowTileDataSelect() const { return Background_WindowTileDataLocation(_background_WindowTileDataSelect); }
-                Background_WindowTileMapLocation windowTimeMapDisplaySelect() const { return Background_WindowTileMapLocation(_windowTimeMapDisplaySelect); }
+                Background_WindowTileMapLocation windowTileMapDisplaySelect() const { return Background_WindowTileMapLocation(_windowTileMapDisplaySelect); }
             };
 
             enum LCDCMode : uint8_t {
