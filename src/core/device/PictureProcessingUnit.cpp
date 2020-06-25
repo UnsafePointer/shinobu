@@ -160,6 +160,8 @@ void Processor::OAMStore(uint16_t offset, uint8_t value) {
 
 void Processor::renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+    SpriteSize spriteSize = control.spriteSize();
+    uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
     uint16_t y = (LY + scrollY) % TileMapResolution;
     Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
     uint32_t backgroundMapAddressStart;
@@ -191,7 +193,7 @@ void Processor::renderScanline() {
         spriteY -= 16;
         int16_t spriteX = sprite.x;
         spriteX -= 8;
-        if ((LY >= spriteY && LY < (spriteY + 8)) && spriteX >= -8 && spriteX < 168) {
+        if ((LY >= spriteY && LY < (spriteY + spriteHeight)) && spriteX >= -8 && spriteX < 168) {
             visibleSprites.push_back(sprite);
         }
         if (visibleSprites.size() >= 10) {
@@ -243,7 +245,7 @@ TILE_LOOKUP:
         if (drawSprite) {
             yInTile = y - (spriteToDraw.y - 16) - scrollY;
             if (spriteToDraw.attributes.yFlip) {
-                yInTile = 7 - yInTile;
+                yInTile = (spriteHeight - 1) - yInTile;
             }
         } else {
             if (drawWindow) {
