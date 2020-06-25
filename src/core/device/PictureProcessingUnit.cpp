@@ -7,7 +7,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
     interruptConditions[Mode2] = false;
     interruptConditions[Mode1] = false;
     interruptConditions[Mode0] = false;
@@ -42,6 +42,10 @@ uint8_t Processor::load(uint16_t offset) const {
         return object0Palette._value;
     case 0x9:
         return object1Palette._value;
+    case 0xA:
+        return windowYPosition;
+    case 0xB:
+        return windowXPosition;
     default:
         logger.logWarning("Unhandled Picture Processing Unit load at offset: %04x", offset);
         return 0;
@@ -78,6 +82,12 @@ void Processor::store(uint16_t offset, uint8_t value) {
         return;
     case 0x9:
         object1Palette._value = value;
+        return;
+    case 0xA:
+        windowYPosition = value;
+        return;
+    case 0xB:
+        windowXPosition = value;
         return;
     default:
         logger.logWarning("Unhandled Picture Processing Unit at offset: %04x with value: %04x", offset, value);
