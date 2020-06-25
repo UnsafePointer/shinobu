@@ -171,6 +171,18 @@ void Processor::renderScanline() {
         backgroundMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
+    Background_WindowTileMapLocation windowMapLocation = control.windowTileMapDisplaySelect();
+    uint32_t windowMapAddressStart;
+    switch (windowMapLocation) {
+    case _9800_9BFF:
+        windowMapAddressStart = 0x9800 - 0x8000;
+        break;
+    case _9C00_9FFF:
+        windowMapAddressStart = 0x9C00 - 0x8000;
+        break;
+    }
+    int windowX = windowXPosition;
+    windowX -= 7;
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     std::vector<Sprite> visibleSprites = {};
     std::vector<Sprite> sprites = getSpriteData();
@@ -193,6 +205,7 @@ void Processor::renderScanline() {
         uint16_t x = (scrollX + i) % TileMapResolution;
         Sprite spriteToDraw;
         bool drawSprite = false;
+        bool drawWindow = false;
         for (auto const& sprite : visibleSprites) {
             int16_t spriteX = sprite.x;
             spriteX -= 8;
@@ -208,11 +221,20 @@ void Processor::renderScanline() {
         } else {
 TILE_LOOKUP:
             uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            uint32_t addressStart = backgroundMapAddressStart;
+            if (control.windowDisplayEnable) {
+
+                if (LY >= windowYPosition && i >= windowX) {
+                    addressStart = windowMapAddressStart;
+                    tileIndexInMap = ((i - windowX) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+                    drawWindow = true;
+                }
+            }
             if (tileDataLocation == _8000_8FFF) {
-                uint8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+                uint8_t indexOffset = memory[addressStart + tileIndexInMap];
                 tileIndex = indexOffset;
             } else {
-                int8_t indexOffset = memory[backgroundMapAddressStart + tileIndexInMap];
+                int8_t indexOffset = memory[addressStart + tileIndexInMap];
                 tileIndex = 256 + indexOffset;
             }
         }
@@ -224,7 +246,11 @@ TILE_LOOKUP:
                 yInTile = 7 - yInTile;
             }
         } else {
-            yInTile = y % VRAMTileDataSide;
+            if (drawWindow) {
+                yInTile = (LY - windowYPosition) % VRAMTileDataSide;
+            } else {
+                yInTile = y % VRAMTileDataSide;
+            }
         }
         uint16_t lowAddress = yInTile * 2 + offset;
         uint16_t highAddress = (yInTile * 2 + 1) + offset;
@@ -249,7 +275,11 @@ TILE_LOOKUP:
                 }
             }
         } else {
-            color = backgroundPaletteColors[colorData[x % 8]];
+            if (drawWindow) {
+                color = backgroundPaletteColors[colorData[i % 8]];
+            } else {
+                color = backgroundPaletteColors[colorData[x % 8]];
+            }
         }
         Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
         scanline.push_back(vertex);
