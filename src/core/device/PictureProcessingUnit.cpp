@@ -243,7 +243,7 @@ TILE_LOOKUP:
         uint16_t offset = (0x10 * tileIndex);
         uint16_t yInTile;
         if (drawSprite) {
-            yInTile = y - (spriteToDraw.y - 16) - scrollY;
+            yInTile = LY - (spriteToDraw.y - 16);
             if (spriteToDraw.attributes.yFlip) {
                 yInTile = (spriteHeight - 1) - yInTile;
             }
