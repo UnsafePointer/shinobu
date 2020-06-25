@@ -12,14 +12,17 @@ using namespace Shinobu;
 
 Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes() {
     setupSDL();
-    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, WindowHeight);
-    setupOpenGL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
+    bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
+
+    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, shouldUseImGuiFrontend ? DebugWindowHeight : WindowHeight);
+    setupOpenGL();
+
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
-    if (configurationManager->shouldUseImGuiFrontend()) {
+    if (shouldUseImGuiFrontend) {
         renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
     } else {
         renderer = std::make_unique<Shinobu::Frontend::SDL2::Renderer>(window, PPU);
