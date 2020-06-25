@@ -217,6 +217,11 @@ void Processor::renderScanline() {
                 break;
             }
         }
+        if (!control.background_WindowDisplayEnable && !drawSprite) {
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f }};
+            scanline.push_back(vertex);
+            continue;
+        }
         uint16_t tileIndex;
         if (drawSprite) {
             tileIndex = spriteToDraw.tileNumber;
