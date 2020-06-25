@@ -188,16 +188,18 @@ void Processor::renderScanline() {
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     std::vector<Sprite> visibleSprites = {};
     std::vector<Sprite> sprites = getSpriteData();
-    for (auto const& sprite : sprites) {
-        int16_t spriteY = sprite.y;
-        spriteY -= 16;
-        int16_t spriteX = sprite.x;
-        spriteX -= 8;
-        if ((LY >= spriteY && LY < (spriteY + spriteHeight)) && spriteX >= -8 && spriteX < 168) {
-            visibleSprites.push_back(sprite);
-        }
-        if (visibleSprites.size() >= 10) {
-            break;
+    if (control.spriteDisplayEnable) {
+        for (auto const& sprite : sprites) {
+            int16_t spriteY = sprite.y;
+            spriteY -= 16;
+            int16_t spriteX = sprite.x;
+            spriteX -= 8;
+            if ((LY >= spriteY && LY < (spriteY + spriteHeight)) && spriteX >= -8 && spriteX < 168) {
+                visibleSprites.push_back(sprite);
+            }
+            if (visibleSprites.size() >= 10) {
+                break;
+            }
         }
     }
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
