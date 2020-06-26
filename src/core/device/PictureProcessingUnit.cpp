@@ -4,6 +4,7 @@
 #include <bitset>
 #include "common/System.hpp"
 #include "shinobu/frontend/Renderer.hpp"
+#include <algorithm>
 
 using namespace Core::Device::PictureProcessingUnit;
 
@@ -241,6 +242,13 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     }
 }
 
+bool Core::Device::PictureProcessingUnit::compareSpritesByPriority(const Sprite &a, const Sprite &b) {
+    if (a.x == b.x) {
+        return a.offset < b.offset;
+    }
+    return a.x < b.x;
+}
+
 void Processor::renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     SpriteSize spriteSize = control.spriteSize();
@@ -267,6 +275,7 @@ void Processor::renderScanline() {
                 spritesToDraw.push_back(sprite);
             }
         }
+        std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
         if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f }};
             scanline.push_back(vertex);
@@ -497,7 +506,7 @@ std::vector<Sprite> Processor::getSpriteData() const {
     std::vector<Sprite> sprites = {};
     for (int i = 0; i < NumberOfSpritesInOAM; i++) {
         uint16_t offset = i * 4;
-        Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]));
+        Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]), offset);
         sprites.push_back(sprite);
     }
     return sprites;

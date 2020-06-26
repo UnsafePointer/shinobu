@@ -43,13 +43,16 @@ namespace Core {
                 uint8_t x;
                 uint8_t tileNumber;
                 SpriteAttributes attributes;
+                uint16_t offset;
 
-                Sprite() : y(0), x(0), tileNumber(0), attributes(0) {}
-                Sprite(uint8_t y, uint8_t x, uint8_t tileNumber, SpriteAttributes attributes) : y(y), x(x), tileNumber(tileNumber), attributes(attributes) {}
+                Sprite() : y(0), x(0), tileNumber(0), attributes(0), offset(0) {}
+                Sprite(uint8_t y, uint8_t x, uint8_t tileNumber, SpriteAttributes attributes, uint16_t offset) : y(y), x(x), tileNumber(tileNumber), attributes(attributes), offset(offset) {}
 
                 int16_t positionY() const { return ((int16_t)y) - 16; }
                 int16_t positionX() const { return ((int16_t)x) - 8; }
             };
+
+            bool compareSpritesByPriority(const Sprite &a, const Sprite &b);
 
             enum Background_WindowTileMapLocation : uint8_t {
                 _9800_9BFF = 0,
