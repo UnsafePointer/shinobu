@@ -45,7 +45,7 @@ uint8_t Processor::load(uint16_t offset) const {
     case 0xA:
         return windowYPosition;
     case 0xB:
-        return windowXPosition;
+        return windowXPosition._value;
     default:
         logger.logWarning("Unhandled Picture Processing Unit load at offset: %04x", offset);
         return 0;
@@ -87,7 +87,7 @@ void Processor::store(uint16_t offset, uint8_t value) {
         windowYPosition = value;
         return;
     case 0xB:
-        windowXPosition = value;
+        windowXPosition._value = value;
         return;
     default:
         logger.logWarning("Unhandled Picture Processing Unit at offset: %04x with value: %04x", offset, value);
@@ -202,17 +202,15 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
         break;
     }
     bool drawWindow = false;
-    int windowX = windowXPosition;
-    windowX -= 7;
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     uint16_t screenPositionXWithScroll = (screenPositionX + scrollX) % TileMapResolution;
     uint16_t screenPositionYWithScroll = (LY + scrollY) % TileMapResolution;
     uint16_t tileIndexInMap = (screenPositionXWithScroll / VRAMTileDataSide) + (screenPositionYWithScroll / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
     uint32_t addressStart = backgroundMapAddressStart;
     if (control.windowDisplayEnable) {
-        if (LY >= windowYPosition && screenPositionX >= windowX) {
+        if (LY >= windowYPosition && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
-            tileIndexInMap = ((screenPositionX - windowX) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             drawWindow = true;
         }
     }
@@ -247,8 +245,6 @@ void Processor::renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     SpriteSize spriteSize = control.spriteSize();
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
-    int windowX = windowXPosition;
-    windowX -= 7;
     std::vector<Sprite> visibleSprites = {};
     std::vector<Sprite> sprites = getSpriteData();
     if (control.spriteDisplayEnable) {

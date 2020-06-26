@@ -120,6 +120,14 @@ namespace Core {
                 Palette() : _value(0) {};
             };
 
+            struct WindowXPosition {
+                uint8_t _value;
+
+                WindowXPosition() : _value(0) {};
+
+                int16_t position() const { return ((int16_t)_value) - 7; }
+            };
+
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
             const Core::Memory::Range DMATransferRange = Core::Memory::Range(0xFF46, 0x1);
 
@@ -147,7 +155,7 @@ namespace Core {
                 Palette object0Palette;
                 Palette object1Palette;
                 uint8_t windowYPosition;
-                uint8_t windowXPosition;
+                WindowXPosition windowXPosition;
                 uint32_t steps;
                 std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
 
