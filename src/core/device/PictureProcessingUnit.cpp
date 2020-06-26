@@ -261,26 +261,26 @@ void Processor::renderScanline() {
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
     for (int i = 0; i < HorizontalResolution; i++) {
-        Sprite spriteToDraw;
-        bool drawSprite = false;
+        std::vector<Sprite> spritesToDraw = {};
         for (auto const& sprite : visibleSprites) {
             if (i >= sprite.positionX() && i < sprite.positionX() + 8) {
-                spriteToDraw = sprite;
-                drawSprite = true;
-                break;
+                spritesToDraw.push_back(sprite);
             }
         }
-        if (!control.background_WindowDisplayEnable && !drawSprite) {
+        if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f }};
             scanline.push_back(vertex);
             continue;
         }
         uint8_t colorIndex;
         Shinobu::Frontend::OpenGL::Color color;
-        if (!drawSprite) {
+        uint8_t spriteIndex = 0;
+        if (spritesToDraw.empty()) {
             colorIndex = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
             color = backgroundPaletteColors[colorIndex];
         } else {
+DRAW_SPRITE:
+            Sprite spriteToDraw = spritesToDraw[spriteIndex];
             if (spriteToDraw.attributes._priority == 0) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
@@ -290,6 +290,10 @@ void Processor::renderScanline() {
                         color = object0PaletteColors[colorIndex];
                     }
                 } else {
+                    if (spriteIndex < (spritesToDraw.size() - 1)) {
+                        spriteIndex++;
+                        goto DRAW_SPRITE;
+                    }
                     colorIndex = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
                     color = backgroundPaletteColors[colorIndex];
                 }
