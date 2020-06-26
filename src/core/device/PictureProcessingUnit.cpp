@@ -163,7 +163,7 @@ uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprit
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
     uint16_t tileIndex = sprite.tileNumber;
     uint16_t offset = (0x10 * tileIndex);
-    uint16_t yInTile = LY - (sprite.y - 16);
+    uint16_t yInTile = LY - sprite.positionY();
     if (sprite.attributes.yFlip) {
         yInTile = (spriteHeight - 1) - yInTile;
     }
@@ -172,7 +172,7 @@ uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprit
     uint8_t low = memory[lowAddress];
     uint8_t high = memory[highAddress];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
-    uint8_t colorDataIndex = screenPositionX - (sprite.x - 8);
+    uint8_t colorDataIndex = screenPositionX - sprite.positionX();
     if (sprite.attributes.xFlip) {
         colorDataIndex = 7 - colorDataIndex;
     }
@@ -253,11 +253,7 @@ void Processor::renderScanline() {
     std::vector<Sprite> sprites = getSpriteData();
     if (control.spriteDisplayEnable) {
         for (auto const& sprite : sprites) {
-            int16_t spriteY = sprite.y;
-            spriteY -= 16;
-            int16_t spriteX = sprite.x;
-            spriteX -= 8;
-            if ((LY >= spriteY && LY < (spriteY + spriteHeight)) && spriteX >= -8 && spriteX < 168) {
+            if ((LY >= sprite.positionY() && LY < (sprite.positionY() + spriteHeight)) && sprite.positionX() >= -8 && sprite.positionX() < 168) {
                 visibleSprites.push_back(sprite);
             }
             if (visibleSprites.size() >= 10) {
@@ -272,9 +268,7 @@ void Processor::renderScanline() {
         Sprite spriteToDraw;
         bool drawSprite = false;
         for (auto const& sprite : visibleSprites) {
-            int16_t spriteX = sprite.x;
-            spriteX -= 8;
-            if (i >= spriteX && i < spriteX + 8) {
+            if (i >= sprite.positionX() && i < sprite.positionX() + 8) {
                 spriteToDraw = sprite;
                 drawSprite = true;
                 break;

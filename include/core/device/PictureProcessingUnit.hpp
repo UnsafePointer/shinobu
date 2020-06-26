@@ -46,6 +46,9 @@ namespace Core {
 
                 Sprite() : y(0), x(0), tileNumber(0), attributes(0) {}
                 Sprite(uint8_t y, uint8_t x, uint8_t tileNumber, SpriteAttributes attributes) : y(y), x(x), tileNumber(tileNumber), attributes(attributes) {}
+
+                int16_t positionY() const { return ((int16_t)y) - 16; }
+                int16_t positionX() const { return ((int16_t)x) - 8; }
             };
 
             enum Background_WindowTileMapLocation : uint8_t {
