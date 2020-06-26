@@ -8,7 +8,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
     interruptConditions[Mode2] = false;
     interruptConditions[Mode1] = false;
     interruptConditions[Mode0] = false;
@@ -134,6 +134,7 @@ void Processor::step(uint8_t cycles) {
             interrupt->requestInterrupt(Interrupt::VBLANK);
             renderer->update();
             scanlines.clear();
+            windowLineCounter = 0;
         }
         if (LY >= TotalScanlines) {
             LY = 0;
@@ -217,7 +218,7 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     if (control.windowDisplayEnable) {
         if (LY >= windowYPosition && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
-            tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + (windowLineCounter / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             drawWindow = true;
         }
     }
@@ -332,6 +333,9 @@ DRAW_SPRITE:
         }
         Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
         scanline.push_back(vertex);
+    }
+    if (control.windowDisplayEnable && LY >= windowYPosition && windowXPosition.position() <= 160) {
+        windowLineCounter++;
     }
     scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
 }

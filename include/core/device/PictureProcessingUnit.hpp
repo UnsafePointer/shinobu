@@ -159,6 +159,7 @@ namespace Core {
                 Palette object1Palette;
                 uint8_t windowYPosition;
                 WindowXPosition windowXPosition;
+                uint8_t windowLineCounter;
                 uint32_t steps;
                 std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
 
