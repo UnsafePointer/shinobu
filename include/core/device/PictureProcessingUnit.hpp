@@ -76,7 +76,7 @@ namespace Core {
 
                 LCDControl() : _value() {}
 
-                SpriteSize spriteSize() { return SpriteSize(_spriteSize); }
+                SpriteSize spriteSize() const { return SpriteSize(_spriteSize); }
                 Background_WindowTileMapLocation backgroundTileMapDisplaySelect() const { return Background_WindowTileMapLocation(_backgroundTileMapDisplaySelect); }
                 Background_WindowTileDataLocation background_WindowTileDataSelect() const { return Background_WindowTileDataLocation(_background_WindowTileDataSelect); }
                 Background_WindowTileMapLocation windowTileMapDisplaySelect() const { return Background_WindowTileMapLocation(_windowTileMapDisplaySelect); }
@@ -161,6 +161,8 @@ namespace Core {
 
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
+                uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
+                uint8_t getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Processor();

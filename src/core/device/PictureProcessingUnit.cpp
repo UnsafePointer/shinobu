@@ -158,11 +158,29 @@ void Processor::OAMStore(uint16_t offset, uint8_t value) {
     spriteAttributeTable[offset] = value;
 }
 
-void Processor::renderScanline() {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const {
     SpriteSize spriteSize = control.spriteSize();
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
-    uint16_t y = (LY + scrollY) % TileMapResolution;
+    uint16_t tileIndex = sprite.tileNumber;
+    uint16_t offset = (0x10 * tileIndex);
+    uint16_t yInTile = LY - (sprite.y - 16);
+    if (sprite.attributes.yFlip) {
+        yInTile = (spriteHeight - 1) - yInTile;
+    }
+    uint16_t lowAddress = yInTile * 2 + offset;
+    uint16_t highAddress = (yInTile * 2 + 1) + offset;
+    uint8_t low = memory[lowAddress];
+    uint8_t high = memory[highAddress];
+    auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
+    uint8_t colorDataIndex = screenPositionX - (sprite.x - 8);
+    if (sprite.attributes.xFlip) {
+        colorDataIndex = 7 - colorDataIndex;
+    }
+    uint8_t colorIndex = colorData[colorDataIndex];
+    return colorIndex;
+}
+
+uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const {
     Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
     uint32_t backgroundMapAddressStart;
     switch (backgroundMapLocation) {
@@ -183,9 +201,54 @@ void Processor::renderScanline() {
         windowMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
+    bool drawWindow = false;
     int windowX = windowXPosition;
     windowX -= 7;
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
+    uint16_t screenPositionXWithScroll = (screenPositionX + scrollX) % TileMapResolution;
+    uint16_t screenPositionYWithScroll = (LY + scrollY) % TileMapResolution;
+    uint16_t tileIndexInMap = (screenPositionXWithScroll / VRAMTileDataSide) + (screenPositionYWithScroll / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+    uint32_t addressStart = backgroundMapAddressStart;
+    if (control.windowDisplayEnable) {
+        if (LY >= windowYPosition && screenPositionX >= windowX) {
+            addressStart = windowMapAddressStart;
+            tileIndexInMap = ((screenPositionX - windowX) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            drawWindow = true;
+        }
+    }
+    uint16_t tileIndex;
+    if (tileDataLocation == _8000_8FFF) {
+        uint8_t indexOffset = memory[addressStart + tileIndexInMap];
+        tileIndex = indexOffset;
+    } else {
+        int8_t indexOffset = memory[addressStart + tileIndexInMap];
+        tileIndex = 256 + indexOffset;
+    }
+    uint16_t offset = (0x10 * tileIndex);
+    uint16_t yInTile;
+    if (drawWindow) {
+        yInTile = (LY - windowYPosition) % VRAMTileDataSide;
+    } else {
+        yInTile = screenPositionYWithScroll % VRAMTileDataSide;
+    }
+    uint16_t lowAddress = yInTile * 2 + offset;
+    uint16_t highAddress = (yInTile * 2 + 1) + offset;
+    uint8_t low = memory[lowAddress];
+    uint8_t high = memory[highAddress];
+    auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
+    if (drawWindow) {
+        return colorData[screenPositionX % 8];
+    } else {
+        return colorData[screenPositionXWithScroll % 8];
+    }
+}
+
+void Processor::renderScanline() {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+    SpriteSize spriteSize = control.spriteSize();
+    uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
+    int windowX = windowXPosition;
+    windowX -= 7;
     std::vector<Sprite> visibleSprites = {};
     std::vector<Sprite> sprites = getSpriteData();
     if (control.spriteDisplayEnable) {
@@ -206,10 +269,8 @@ void Processor::renderScanline() {
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
     for (int i = 0; i < HorizontalResolution; i++) {
-        uint16_t x = (scrollX + i) % TileMapResolution;
         Sprite spriteToDraw;
         bool drawSprite = false;
-        bool drawWindow = false;
         for (auto const& sprite : visibleSprites) {
             int16_t spriteX = sprite.x;
             spriteX -= 8;
@@ -224,70 +285,40 @@ void Processor::renderScanline() {
             scanline.push_back(vertex);
             continue;
         }
-        uint16_t tileIndex;
-        if (drawSprite) {
-            tileIndex = spriteToDraw.tileNumber;
-        } else {
-TILE_LOOKUP:
-            uint16_t tileIndexInMap = (x / VRAMTileDataSide) + (y / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
-            uint32_t addressStart = backgroundMapAddressStart;
-            if (control.windowDisplayEnable) {
-
-                if (LY >= windowYPosition && i >= windowX) {
-                    addressStart = windowMapAddressStart;
-                    tileIndexInMap = ((i - windowX) / VRAMTileDataSide) + ((LY - windowYPosition) / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
-                    drawWindow = true;
-                }
-            }
-            if (tileDataLocation == _8000_8FFF) {
-                uint8_t indexOffset = memory[addressStart + tileIndexInMap];
-                tileIndex = indexOffset;
-            } else {
-                int8_t indexOffset = memory[addressStart + tileIndexInMap];
-                tileIndex = 256 + indexOffset;
-            }
-        }
-        uint16_t offset = (0x10 * tileIndex);
-        uint16_t yInTile;
-        if (drawSprite) {
-            yInTile = LY - (spriteToDraw.y - 16);
-            if (spriteToDraw.attributes.yFlip) {
-                yInTile = (spriteHeight - 1) - yInTile;
-            }
-        } else {
-            if (drawWindow) {
-                yInTile = (LY - windowYPosition) % VRAMTileDataSide;
-            } else {
-                yInTile = y % VRAMTileDataSide;
-            }
-        }
-        uint16_t lowAddress = yInTile * 2 + offset;
-        uint16_t highAddress = (yInTile * 2 + 1) + offset;
-        uint8_t low = memory[lowAddress];
-        uint8_t high = memory[highAddress];
-        auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
+        uint8_t colorIndex;
         Shinobu::Frontend::OpenGL::Color color;
-        if (drawSprite) {
-            uint8_t colorDataIndex = i - (spriteToDraw.x - 8);
-            if (spriteToDraw.attributes.xFlip) {
-                colorDataIndex = 7 - colorDataIndex;
-            }
-            uint8_t colorIndex = colorData[colorDataIndex];
-            if (colorIndex == 0) {
-                drawSprite = false;
-                goto TILE_LOOKUP;
-            } else {
-                if (spriteToDraw.attributes.DMGPalette == 0) {
-                    color = object0PaletteColors[colorIndex];
-                } else {
-                    color = object1PaletteColors[colorIndex];
-                }
-            }
+        if (!drawSprite) {
+            colorIndex = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+            color = backgroundPaletteColors[colorIndex];
         } else {
-            if (drawWindow) {
-                color = backgroundPaletteColors[colorData[i % 8]];
+            if (spriteToDraw.attributes._priority == 0) {
+                colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                if (colorIndex != 0) {
+                    if (spriteToDraw.attributes.DMGPalette) {
+                        color = object1PaletteColors[colorIndex];
+                    } else {
+                        color = object0PaletteColors[colorIndex];
+                    }
+                } else {
+                    colorIndex = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                    color = backgroundPaletteColors[colorIndex];
+                }
             } else {
-                color = backgroundPaletteColors[colorData[x % 8]];
+                colorIndex = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                if (colorIndex == 0) {
+                    colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                    if (colorIndex != 0) {
+                        if (spriteToDraw.attributes.DMGPalette) {
+                            color = object1PaletteColors[colorIndex];
+                        } else {
+                            color = object0PaletteColors[colorIndex];
+                        }
+                    } else {
+                        color = backgroundPaletteColors[colorIndex];
+                    }
+                } else {
+                    color = backgroundPaletteColors[colorIndex];
+                }
             }
         }
         Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
