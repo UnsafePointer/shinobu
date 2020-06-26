@@ -163,10 +163,16 @@ uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprit
     SpriteSize spriteSize = control.spriteSize();
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
     uint16_t tileIndex = sprite.tileNumber;
+    if (spriteSize == SpriteSize::_8x16) {
+        tileIndex = sprite.tileNumber & 0xFE;
+    }
     uint16_t offset = (0x10 * tileIndex);
     uint16_t yInTile = LY - sprite.positionY();
     if (sprite.attributes.yFlip) {
         yInTile = (spriteHeight - 1) - yInTile;
+        if (spriteSize == SpriteSize::_8x16 && yInTile >= 8) {
+            tileIndex = sprite.tileNumber | 0x01;
+        }
     }
     uint16_t lowAddress = yInTile * 2 + offset;
     uint16_t highAddress = (yInTile * 2 + 1) + offset;
