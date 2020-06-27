@@ -79,14 +79,13 @@ void BankController::saveExternalRAM() {
     if (!cartridge->isOpen()) {
         return;
     }
-    if (cartridge->header.cartridgeType != Core::ROM::Type::MBC1_RAM_BATTERY) {
-        return;
+    if (cartridge->header.cartridgeType == Core::ROM::Type::MBC1_RAM_BATTERY ||
+        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY) {
+        std::ofstream logfile = std::ofstream();
+        logfile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
+        logfile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
+        logfile.close();
     }
-
-    std::ofstream logfile = std::ofstream();
-    logfile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
-    logfile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
-    logfile.close();
 }
 
 void BankController::executeDMA(uint8_t value) {
@@ -335,6 +334,73 @@ void MBC1::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
+uint8_t MBC3::Controller::load(uint16_t address) const {
+    std::optional<uint32_t> offset = ROMBank00.contains(address);
+    if (offset) {
+        uint32_t physicalAddress = address & 0x3FFF;
+        return cartridge->load(physicalAddress);
+    }
+    offset = ROMBank01_N.contains(address);
+    if (offset) {
+        uint32_t upperMask = _ROMBANK._value;
+        uint32_t physicalAddress = ((upperMask << 14) % cartridge->ROMSize()) | (address & 0x3FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        if (_RAMG.enableAccess == 0b1010) {
+            uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            return externalRAM[physicalAddress];
+        } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+            logger.logWarning("Unhandled RTC register load with index: %02x", _RAMBANK_RTCRegister._value);
+            return 0;
+        } else {
+            return 0xFF;
+        }
+    }
+    return loadInternal(address);
+}
+
+void MBC3::Controller::store(uint16_t address, uint8_t value) {
+    std::optional<uint32_t> offset = RAMG_TimerEnableRange.contains(address);
+    if (offset) {
+        _RAMG._value = value;
+        return;
+    }
+    offset = ROMBANKRange.contains(address);
+    if (offset) {
+        _ROMBANK._value = value;
+        if (_ROMBANK.bank1 == 0) {
+            _ROMBANK.bank1 = 1;
+        }
+        return;
+    }
+    offset = RAMBANK_RTCRegisterRange.contains(address);
+    if (offset) {
+        _RAMBANK_RTCRegister._value = value;
+        return;
+    }
+    offset = LatchClockDataRange.contains(address);
+    if (offset) {
+        latchClockData = value;
+        return;
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        if (_RAMG.enableAccess == 0b1010) {
+            uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            externalRAM[physicalAddress] = value;
+        } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+            logger.logWarning("Unhandled RTC register write with index: %02x and value: %02x", _RAMBANK_RTCRegister._value, value);
+        }
+        return;
+    }
+    storeInternal(address, value);
+    return;
+}
+
 Controller::Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
@@ -372,7 +438,10 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
+    case Core::ROM::MBC3:
+    case Core::ROM::MBC3_RAM:
+    case Core::ROM::MBC3_RAM_BATTERY:
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);

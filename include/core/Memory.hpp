@@ -170,6 +170,51 @@ namespace Core {
             };
         };
 
+        namespace MBC3 {
+            // https://gbdev.io/pandocs/#mbc3
+            const Range RAMG_TimerEnableRange = Range(0x0, 0x2000);
+            const Range ROMBANKRange = Range(0x2000, 0x2000);
+            const Range RAMBANK_RTCRegisterRange = Range(0x4000, 0x2000);
+            const Range LatchClockDataRange = Range(0x6000, 0x2000);
+
+            union ROMBANK {
+                uint8_t _value;
+                struct {
+                    uint8_t bank1 : 7;
+                    uint8_t unused : 1;
+                };
+
+                ROMBANK() : _value(0x1) {}
+            };
+
+            union RAMBANK {
+                uint8_t _value;
+                struct {
+                    uint8_t bank2 : 2;
+                    uint8_t unused : 6;
+                };
+
+                RAMBANK() : _value() {}
+            };
+
+            class Controller : public BankController {
+                MBC1::RAMG _RAMG;
+                ROMBANK _ROMBANK;
+                RAMBANK _RAMBANK_RTCRegister;
+                uint8_t latchClockData;
+            public:
+                Controller(Common::Logs::Level logLevel,
+                           std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                           std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                           std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
+                uint8_t load(uint16_t address) const override;
+                void store(uint16_t address, uint8_t value) override;
+            };
+        };
+
         class Controller {
             Common::Logs::Logger logger;
 
