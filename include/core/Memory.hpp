@@ -83,6 +83,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
             ~BankController();
 
+            void loadExternalRAMFromSaveFile();
+            void saveExternalRAM();
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
         };
@@ -189,6 +191,7 @@ namespace Core {
 
             void initialize(bool skipBootROM);
             bool hasBootROM() const;
+            void saveExternalRAM() const;
             uint8_t load(uint16_t address) const;
             void store(uint16_t address, uint8_t value);
             uint16_t loadDoubleWord(uint16_t address) const;

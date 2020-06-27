@@ -101,6 +101,7 @@ void Emulator::emulateFrame() {
         frameTimes = 0;
         window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms", averageFrameTime));
     }
+    memoryController->saveExternalRAM();
 }
 
 void Emulator::handleSDLEvent(SDL_Event event) {

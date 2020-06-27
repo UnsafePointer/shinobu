@@ -53,6 +53,42 @@ BankController::~BankController() {
 
 }
 
+void BankController::loadExternalRAMFromSaveFile() {
+    std::filesystem::path filePath = cartridge->saveFilePath();
+    if (!std::filesystem::exists(filePath)) {
+        logger.logWarning("No save file found.");
+        return;
+    }
+
+    std::ifstream file = std::ifstream();
+    file.open(filePath, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        logger.logError("Unable to load save file at path: %s", filePath.string().c_str());
+    }
+
+    std::streampos fileSize = file.tellg();
+    logger.logMessage("Opened save file path of size: %x", fileSize);
+
+    file.seekg(0, file.beg);
+    file.read(reinterpret_cast<char *>(&externalRAM[0]), fileSize);
+
+    file.close();
+}
+
+void BankController::saveExternalRAM() {
+    if (!cartridge->isOpen()) {
+        return;
+    }
+    if (cartridge->header.cartridgeType != Core::ROM::Type::MBC1_RAM_BATTERY) {
+        return;
+    }
+
+    std::ofstream logfile = std::ofstream();
+    logfile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
+    logfile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
+    logfile.close();
+}
+
 void BankController::executeDMA(uint8_t value) {
     uint16_t source = value;
     source <<= 8;
@@ -342,10 +378,15 @@ void Controller::initialize(bool skipBootROM) {
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
         break;
     }
+    bankController->loadExternalRAMFromSaveFile();
 }
 
 bool Controller::hasBootROM() const {
     return bootROM->hasBootROM();
+}
+
+void Controller::saveExternalRAM() const {
+    bankController->saveExternalRAM();
 }
 
 uint8_t Controller::load(uint16_t address) const {

@@ -142,7 +142,7 @@ namespace Core {
         class Cartridge {
             Common::Logs::Logger logger;
 
-            std::ifstream file;
+            std::filesystem::path filePath;
             std::vector<uint8_t> memory;
         public:
             Header header;
@@ -151,6 +151,7 @@ namespace Core {
 
             void open(std::filesystem::path &filePath);
             bool isOpen() const;
+            std::filesystem::path saveFilePath() const;
             uint8_t load(uint32_t address) const;
             uint32_t RAMSize() const;
             uint32_t ROMSize() const;

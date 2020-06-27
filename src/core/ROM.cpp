@@ -55,7 +55,7 @@ void BOOT::ROM::storeLockRegister(uint8_t value) {
     lockRegister.unused = 0x3F; // Read as 1
 }
 
-Cartridge::Cartridge(Common::Logs::Level logLevel) : logger(logLevel, "  [ROM]: "), file(), memory(), header() {
+Cartridge::Cartridge(Common::Logs::Level logLevel) : logger(logLevel, "  [ROM]: "), filePath(), memory(), header() {
 
 }
 
@@ -67,10 +67,12 @@ void Cartridge::open(std::filesystem::path &filePath) {
         return;
     }
 
+    std::ifstream file = std::ifstream();
     file.open(filePath, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         logger.logError("Unable to load ROM file at path: %s", filePath.string().c_str());
     }
+    this->filePath = filePath;
 
     std::streampos fileSize = file.tellg();
     logger.logMessage("Opened file path of size: %x", fileSize);
@@ -92,6 +94,10 @@ void Cartridge::open(std::filesystem::path &filePath) {
 
 bool Cartridge::isOpen() const {
     return !memory.empty();
+}
+
+std::filesystem::path Cartridge::saveFilePath() const {
+    return std::filesystem::path(filePath).replace_extension(".sav");
 }
 
 uint8_t Cartridge::load(uint32_t address) const {
