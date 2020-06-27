@@ -128,7 +128,7 @@ namespace Core {
 
                 WindowXPosition() : _value(0) {};
 
-                int16_t position() const { return ((int16_t)_value) - 7; }
+                int16_t position() const { return std::max(((int16_t)_value) - 7, 0); }
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
