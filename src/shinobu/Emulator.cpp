@@ -95,11 +95,11 @@ void Emulator::emulateFrame() {
     }
     frameTimes += SDL_GetTicks() - frameTime;
     frameCounter++;
-    if (frameCounter >= 5) {
+    if (frameCounter >= 60) {
         frameCounter = 0;
-        uint32_t averageFrameTime = frameTimes / 5;
+        uint32_t averageFrameTime = frameTimes / 60;
+        window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms - %d ms", averageFrameTime, frameTimes));
         frameTimes = 0;
-        window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms", averageFrameTime));
     }
     memoryController->saveExternalRAM();
 }
