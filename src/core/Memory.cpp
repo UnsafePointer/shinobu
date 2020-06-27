@@ -321,6 +321,9 @@ Controller::~Controller() {
 void Controller::initialize(bool skipBootROM) {
     bootROM->initialize(skipBootROM);
     if (!cartridge->isOpen()) {
+        if (!bootROM->hasBootROM()) {
+            logger.logError("No cartridge or BOOT ROM detected, nothing to execute.");
+        }
         bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
         logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
