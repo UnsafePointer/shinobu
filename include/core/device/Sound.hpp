@@ -6,6 +6,18 @@
 namespace Core {
     namespace Device {
         namespace Sound {
+            namespace Shared {
+                union FrequencyMSB_LengthEnable_Trigger {
+                    uint8_t _value;
+                    struct {
+                        uint8_t frequencyMSB : 3;
+                        uint8_t unused : 3;
+                        uint8_t lengthEnable : 1;
+                        uint8_t trigger;
+                    };
+                    FrequencyMSB_LengthEnable_Trigger() : _value() {}
+                };
+            };
             namespace Square {
                 union Shift_Negate_SweepPeriod {
                     uint8_t _value;
@@ -34,30 +46,50 @@ namespace Core {
                     };
                     Period_Envelope_StartingVolume() : _value() {}
                 };
-                union FrequencyMSB_LengthEnable_Trigger {
-                    uint8_t _value;
-                    struct {
-                        uint8_t frequencyMSB : 3;
-                        uint8_t unused : 3;
-                        uint8_t lengthEnable : 1;
-                        uint8_t trigger;
-                    };
-                    FrequencyMSB_LengthEnable_Trigger() : _value() {}
-                };
 
                 struct One {
                     Shift_Negate_SweepPeriod _NR10;
                     LengthLoad_Duty _NR11;
                     Period_Envelope_StartingVolume _NR12;
                     uint8_t _NR13;
-                    FrequencyMSB_LengthEnable_Trigger _NR14;
+                    Shared::FrequencyMSB_LengthEnable_Trigger _NR14;
                 };
 
                 struct Two {
                     LengthLoad_Duty _NR21;
                     Period_Envelope_StartingVolume _NR22;
                     uint8_t _NR23;
-                    FrequencyMSB_LengthEnable_Trigger _NR24;
+                    Shared::FrequencyMSB_LengthEnable_Trigger _NR24;
+                };
+            };
+
+            namespace Wave {
+                union DAC {
+                    uint8_t _value;
+                    struct {
+                        uint8_t unused : 7;
+                        uint8_t power : 1;
+                    };
+
+                    DAC() : _value() {}
+                };
+                union Volume {
+                    uint8_t _value;
+                    struct {
+                        uint8_t unused : 5;
+                        uint8_t code : 2;
+                        uint8_t unused2 : 1;
+                    };
+
+                    Volume() : _value() {}
+                };
+
+                struct Wave {
+                    DAC _NR30;
+                    uint8_t _NR31;
+                    Volume _NR32;
+                    uint8_t _NR33;
+                    Shared::FrequencyMSB_LengthEnable_Trigger _NR34;
                 };
             };
 
@@ -68,6 +100,7 @@ namespace Core {
 
                 Square::One squareOne;
                 Square::Two squareTwo;
+                Wave::Wave wave;
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
