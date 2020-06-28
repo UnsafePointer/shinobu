@@ -71,6 +71,9 @@ namespace Core {
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
+
+                uint8_t load(uint16_t offset) const;
+                void store(uint16_t offset, uint8_t value);
             };
         };
     };
