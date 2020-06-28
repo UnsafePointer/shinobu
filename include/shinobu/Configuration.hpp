@@ -22,6 +22,7 @@ namespace Shinobu {
             Common::Logs::Level timer;
             Common::Logs::Level openGL;
             Common::Logs::Level joypad;
+            Common::Logs::Level sound;
             bool trace;
             bool useImGuiFrontend;
 
@@ -39,6 +40,7 @@ namespace Shinobu {
             Common::Logs::Level timerLogLevel() const;
             Common::Logs::Level openGLLogLevel() const;
             Common::Logs::Level joypadLogLevel() const;
+            Common::Logs::Level soundLogLevel() const;
             bool shouldTraceLogs() const;
             bool shouldUseImGuiFrontend() const;
             void setupConfigurationFile() const;
