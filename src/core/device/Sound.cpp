@@ -2,5 +2,5 @@
 
 using namespace Core::Device::Sound;
 
-Controller::Controller() {}
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), squareOne(), squareTwo() {}
 Controller::~Controller() {}
