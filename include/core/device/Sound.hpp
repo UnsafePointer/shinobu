@@ -13,9 +13,18 @@ namespace Core {
                         uint8_t frequencyMSB : 3;
                         uint8_t unused : 3;
                         uint8_t lengthEnable : 1;
-                        uint8_t trigger;
+                        uint8_t trigger : 1;
                     };
                     FrequencyMSB_LengthEnable_Trigger() : _value() {}
+                };
+                union Period_Envelope_StartingVolume {
+                    uint8_t _value;
+                    struct {
+                        uint8_t period : 3;
+                        uint8_t envelope : 1;
+                        uint8_t startingVolume : 4;
+                    };
+                    Period_Envelope_StartingVolume() : _value() {}
                 };
             };
             namespace Square {
@@ -37,27 +46,18 @@ namespace Core {
                     };
                     LengthLoad_Duty() : _value() {}
                 };
-                union Period_Envelope_StartingVolume {
-                    uint8_t _value;
-                    struct {
-                        uint8_t period : 3;
-                        uint8_t envelope : 1;
-                        uint8_t startingVolume : 4;
-                    };
-                    Period_Envelope_StartingVolume() : _value() {}
-                };
 
                 struct One {
                     Shift_Negate_SweepPeriod _NR10;
                     LengthLoad_Duty _NR11;
-                    Period_Envelope_StartingVolume _NR12;
+                    Shared::Period_Envelope_StartingVolume _NR12;
                     uint8_t _NR13;
                     Shared::FrequencyMSB_LengthEnable_Trigger _NR14;
                 };
 
                 struct Two {
                     LengthLoad_Duty _NR21;
-                    Period_Envelope_StartingVolume _NR22;
+                    Shared::Period_Envelope_StartingVolume _NR22;
                     uint8_t _NR23;
                     Shared::FrequencyMSB_LengthEnable_Trigger _NR24;
                 };
@@ -93,6 +93,41 @@ namespace Core {
                 };
             };
 
+            namespace Noise {
+                union LengthLoad {
+                    uint8_t _value;
+                    struct {
+                        uint8_t lengthLoad : 6;
+                        uint8_t unused : 2;
+                    };
+                    LengthLoad() : _value() {}
+                };
+                union Divisor_LFSRWidthMode_ClockShift {
+                    uint8_t _value;
+                    struct {
+                        uint8_t divisorCode : 3;
+                        uint8_t width : 1;
+                        uint8_t clockShift : 4;
+                    };
+                };
+                union LengthEnable_Trigger {
+                    uint8_t _value;
+                    struct {
+                        uint8_t frequencyMSB : 6;
+                        uint8_t lengthEnable : 1;
+                        uint8_t trigger : 1;
+                    };
+                    LengthEnable_Trigger() : _value() {}
+                };
+
+                struct Noise {
+                    LengthLoad _NR41;
+                    Shared::Period_Envelope_StartingVolume _NR42;
+                    Divisor_LFSRWidthMode_ClockShift _NR43;
+                    LengthEnable_Trigger _NR44;
+                };
+            };
+
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x16);
 
             class Controller {
@@ -101,6 +136,7 @@ namespace Core {
                 Square::One squareOne;
                 Square::Two squareTwo;
                 Wave::Wave wave;
+                Noise::Noise noise;
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
