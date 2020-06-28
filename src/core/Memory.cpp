@@ -7,6 +7,7 @@
 #include "core/device/Interrupt.hpp"
 #include "core/device/Timer.hpp"
 #include "core/device/JoypadInput.hpp"
+#include "core/device/Sound.hpp"
 
 using namespace Core::Memory;
 
@@ -156,6 +157,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return timer->load(*offset);
         }
+        offset = Core::Device::Sound::AddressRange.contains(address);
+        if (offset) {
+            return sound->load(*offset);
+        }
         logger.logWarning("Unhandled I/O Register load at address: %04x", address);
         return 0;
     }
@@ -237,6 +242,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         offset = Device::Timer::AddressRange.contains(address);
         if (offset) {
             timer->store(*offset, value);
+            return;
+        }
+        offset = Device::Sound::AddressRange.contains(address);
+        if (offset) {
+            sound->store(*offset, value);
             return;
         }
         logger.logWarning("Unhandled I/O Register write at address: %04x with value: %02x", address, value);
