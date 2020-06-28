@@ -8,3 +8,5 @@ const double FrameRate = 59.73;
 const uint32_t CyclesPerFrame = ceil((float)CyclesPerSecond / FrameRate);
 const uint32_t CyclesPerScanline = ceil((float)CyclesPerFrame / (float)TotalScanlines);
 const uint8_t clocks[] = { 9, 3, 5, 7 };
+const uint32_t SoundControllerLengthStepFrequency = 256;
+const uint32_t SoundControllerLengthStep = CyclesPerSecond / SoundControllerLengthStepFrequency;

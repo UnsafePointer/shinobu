@@ -88,6 +88,7 @@ void Emulator::emulateFrame() {
             instruction = Core::CPU::Instructions::Instruction(0x76, false);
             cycles = 4;
         }
+        sound->step(cycles);
         PPU->step(cycles);
         timer->step(cycles);
         joypad->updateJoypad();

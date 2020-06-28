@@ -26,6 +26,20 @@ namespace Core {
                     };
                     Period_Envelope_StartingVolume() : _value() {}
                 };
+
+                class Channel {
+                protected:
+                    FrequencyMSB_LengthEnable_Trigger _NRX4;
+
+                    bool enabled;
+                    uint8_t lengthCounter;
+                    uint32_t lengthCounterSteps;
+                public:
+                    Channel() : _NRX4(), enabled(), lengthCounter(), lengthCounterSteps() {}
+                    ~Channel() {}
+                    void loadLengthCounter(uint8_t value);
+                    void step(uint8_t cycles);
+                };
             };
             namespace Square {
                 union Shift_Negate_SweepPeriod {
@@ -47,24 +61,26 @@ namespace Core {
                     LengthLoad_Duty() : _value() {}
                 };
 
-                struct One {
+                class One : Shared::Channel {
+                    friend class Core::Device::Sound::Controller;
+
                     Shift_Negate_SweepPeriod _NR10;
                     LengthLoad_Duty _NR11;
                     Shared::Period_Envelope_StartingVolume _NR12;
                     uint8_t _NR13;
-                    Shared::FrequencyMSB_LengthEnable_Trigger _NR14;
-
-                    One() : _NR10(), _NR11(), _NR12(), _NR13(), _NR14() {}
+                public:
+                    One() : Shared::Channel(), _NR10(), _NR11(), _NR12(), _NR13() {}
                 };
 
-                struct Two {
+                class Two : Shared::Channel {
+                    friend class Core::Device::Sound::Controller;
+
                     uint8_t _NR20;
                     LengthLoad_Duty _NR21;
                     Shared::Period_Envelope_StartingVolume _NR22;
                     uint8_t _NR23;
-                    Shared::FrequencyMSB_LengthEnable_Trigger _NR24;
-
-                    Two() : _NR20(), _NR21(), _NR22(), _NR23(), _NR24() {}
+                public:
+                    Two() : Shared::Channel(), _NR20(), _NR21(), _NR22(), _NR23() {}
                 };
             };
 
@@ -89,14 +105,15 @@ namespace Core {
                     Volume() : _value() {}
                 };
 
-                struct Wave {
+                class Wave : Shared::Channel {
+                    friend class Core::Device::Sound::Controller;
+
                     DAC _NR30;
                     uint8_t _NR31;
                     Volume _NR32;
                     uint8_t _NR33;
-                    Shared::FrequencyMSB_LengthEnable_Trigger _NR34;
-
-                    Wave() : _NR30(), _NR31(), _NR32(), _NR33(), _NR34() {}
+                public:
+                    Wave() : Shared::Channel(), _NR30(), _NR31(), _NR32(), _NR33() {}
                 };
             };
 
@@ -117,24 +134,16 @@ namespace Core {
                         uint8_t clockShift : 4;
                     };
                 };
-                union LengthEnable_Trigger {
-                    uint8_t _value;
-                    struct {
-                        uint8_t frequencyMSB : 6;
-                        uint8_t lengthEnable : 1;
-                        uint8_t trigger : 1;
-                    };
-                    LengthEnable_Trigger() : _value() {}
-                };
 
-                struct Noise {
+                class Noise : Shared::Channel {
+                    friend class Core::Device::Sound::Controller;
+
                     uint8_t _NR40;
                     LengthLoad _NR41;
                     Shared::Period_Envelope_StartingVolume _NR42;
                     Divisor_LFSRWidthMode_ClockShift _NR43;
-                    LengthEnable_Trigger _NR44;
-
-                    Noise() : _NR40(), _NR41(), _NR42(), _NR43(), _NR44() {}
+                public:
+                    Noise() : Shared::Channel(), _NR40(), _NR41(), _NR42(), _NR43() {}
                 };
             };
 
@@ -201,10 +210,12 @@ namespace Core {
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
-                uint8_t load(uint16_t offset) const;
+                uint8_t load(uint16_t offset);
                 void store(uint16_t offset, uint8_t value);
                 uint8_t waveTableLoad(uint16_t offset) const;
                 void waveTableStore(uint16_t offset, uint8_t value);
+
+                void step(uint8_t cycles);
             };
         };
     };
