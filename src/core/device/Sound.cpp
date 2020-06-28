@@ -2,7 +2,7 @@
 
 using namespace Core::Device::Sound;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), squareOne(), squareTwo(), wave(), noise(), control() {}
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), squareOne(), squareTwo(), wave(), noise(), control(), waveTable() {}
 Controller::~Controller() {}
 
 uint8_t Controller::load(uint16_t offset) const {
@@ -134,4 +134,12 @@ void Controller::store(uint16_t offset, uint8_t value) {
         logger.logWarning("Unhandled sound controller load at offset: %02x", offset);
         return;
     }
+}
+
+uint8_t Controller::waveTableLoad(uint16_t offset) const {
+    return waveTable[offset];
+}
+
+void Controller::waveTableStore(uint16_t offset, uint8_t value) {
+    waveTable[offset] = value;
 }

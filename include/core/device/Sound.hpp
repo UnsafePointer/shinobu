@@ -186,6 +186,7 @@ namespace Core {
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x20);
+            const Core::Memory::Range WaveTableRange = Core::Memory::Range(0xFF30, 0x10);
 
             class Controller {
                 Common::Logs::Logger logger;
@@ -195,12 +196,15 @@ namespace Core {
                 Wave::Wave wave;
                 Noise::Noise noise;
                 Control::Control control;
+                std::array<uint8_t, 0x10> waveTable;
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
+                uint8_t waveTableLoad(uint16_t offset) const;
+                void waveTableStore(uint16_t offset, uint8_t value);
             };
         };
     };
