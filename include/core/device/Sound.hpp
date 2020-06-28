@@ -128,7 +128,54 @@ namespace Core {
                 };
             };
 
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x16);
+            namespace Control {
+                union VinLEnable_LeftVolume_VinREnable_RightVolume {
+                    uint8_t _value;
+                    struct {
+                        uint8_t rightVolume : 3;
+                        uint8_t vinRightEnable : 1;
+                        uint8_t leftVolume : 3;
+                        uint8_t vinLeftEnable : 1;
+                    };
+
+                    VinLEnable_LeftVolume_VinREnable_RightVolume() : _value() {}
+                };
+                union LeftEnables_RightEnables {
+                    uint8_t _value;
+                    struct {
+                        uint8_t squareOneRightEnable : 1;
+                        uint8_t squareTwoRightEnable : 1;
+                        uint8_t waveRightEnable : 1;
+                        uint8_t noiseRightEnable : 1;
+                        uint8_t squareOneLeftEnable : 1;
+                        uint8_t squareTwoLeftEnable : 1;
+                        uint8_t waveLeftEnable : 1;
+                        uint8_t noiseLeftEnable : 1;
+                    };
+
+                    LeftEnables_RightEnables() : _value() {}
+                };
+                union Power_Statuses {
+                    uint8_t _value;
+                    struct {
+                        uint8_t squareOneLengthStatus : 1;
+                        uint8_t squareTwoLengthStatus : 1;
+                        uint8_t waveLengthStatus : 1;
+                        uint8_t noiseLengthStatus : 1;
+                        uint8_t unused : 3;
+                        uint8_t power : 1;
+                    };
+                    Power_Statuses() : _value() {}
+                };
+
+                struct Control {
+                    VinLEnable_LeftVolume_VinREnable_RightVolume _NR50;
+                    LeftEnables_RightEnables _NR51;
+                    Power_Statuses _NR52;
+                };
+            };
+
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x17);
 
             class Controller {
                 Common::Logs::Logger logger;
@@ -137,6 +184,7 @@ namespace Core {
                 Square::Two squareTwo;
                 Wave::Wave wave;
                 Noise::Noise noise;
+                Control::Control control;
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
