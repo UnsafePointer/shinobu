@@ -10,21 +10,21 @@ uint8_t Controller::load(uint16_t offset) const {
     case 0x0:
         return squareOne._NR10._value;
     case 0x1:
-        return squareOne._NR10._value;
+        return squareOne._NR11._value;
     case 0x2:
-        return squareOne._NR10._value;
+        return squareOne._NR12._value;
     case 0x3:
-        return squareOne._NR10._value;
+        return squareOne._NR13;
     case 0x4:
-        return squareOne._NR10._value;
+        return squareOne._NR14._value;
     case 0x6:
-        return squareOne._NR10._value;
+        return squareTwo._NR21._value;
     case 0x7:
-        return squareOne._NR10._value;
+        return squareTwo._NR22._value;
     case 0x8:
-        return squareOne._NR10._value;
+        return squareTwo._NR23;
     case 0x9:
-        return squareOne._NR10._value;
+        return squareTwo._NR24._value;
     case 0xA:
         return wave._NR30._value;
     case 0xB:
@@ -47,28 +47,28 @@ void Controller::store(uint16_t offset, uint8_t value) {
         squareOne._NR10._value = value;
         return;
     case 0x1:
-        squareOne._NR10._value = value;
+        squareOne._NR11._value = value;
         return;
     case 0x2:
-        squareOne._NR10._value = value;
+        squareOne._NR12._value = value;
         return;
     case 0x3:
-        squareOne._NR10._value = value;
+        squareOne._NR13 = value;
         return;
     case 0x4:
-        squareOne._NR10._value = value;
+        squareOne._NR14._value = value;
         return;
     case 0x6:
-        squareOne._NR10._value = value;
+        squareTwo._NR21._value = value;
         return;
     case 0x7:
-        squareOne._NR10._value = value;
+        squareTwo._NR22._value = value;
         return;
     case 0x8:
-        squareOne._NR10._value = value;
+        squareTwo._NR23 = value;
         return;
     case 0x9:
-        squareOne._NR10._value = value;
+        squareTwo._NR24._value = value;
         return;
     case 0xA:
         wave._NR30._value = value;
