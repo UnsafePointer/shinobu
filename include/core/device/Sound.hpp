@@ -185,7 +185,7 @@ namespace Core {
                 };
             };
 
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x17);
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x20);
 
             class Controller {
                 Common::Logs::Logger logger;
