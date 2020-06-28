@@ -3,10 +3,13 @@
 #include <gb_apu/Gb_Apu.h>
 #include <gb_apu/Multi_Buffer.h>
 #include "common/Logger.hpp"
+#include "core/Memory.hpp"
 
 namespace Core {
     namespace Device {
         namespace Sound {
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x20);
+
             class Controller {
                 Common::Logs::Logger logger;
 
