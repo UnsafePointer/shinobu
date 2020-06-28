@@ -23,6 +23,9 @@ namespace Core {
         namespace JoypadInput {
             class Controller;
         };
+        namespace Sound {
+            class Controller;
+        };
     }
     namespace ROM {
         class Cartridge;
@@ -64,6 +67,7 @@ namespace Core {
             std::array<uint8_t, 0x1000> WRAMBank01_N;
             std::unique_ptr<Core::Device::SerialDataTransfer::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
+            std::unique_ptr<Core::Device::Sound::Controller> &sound;
             std::array<uint8_t, 0x7F> HRAM;
             std::vector<uint8_t> externalRAM;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
@@ -78,6 +82,7 @@ namespace Core {
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
                            std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
@@ -97,9 +102,10 @@ namespace Core {
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -162,9 +168,10 @@ namespace Core {
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -207,9 +214,10 @@ namespace Core {
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                            std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -222,6 +230,7 @@ namespace Core {
             std::unique_ptr<BankController> bankController;
             std::unique_ptr<Core::ROM::BOOT::ROM> bootROM;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
+            std::unique_ptr<Core::Device::Sound::Controller> &sound;
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
@@ -229,6 +238,7 @@ namespace Core {
             Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                       std::unique_ptr<Core::Device::Sound::Controller> &sound,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                        std::unique_ptr<Core::Device::Timer::Controller> &timer,
                        std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);

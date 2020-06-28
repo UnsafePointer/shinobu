@@ -3,7 +3,7 @@
 
 using namespace Core::Device::Sound;
 
-Controller::Controller() : apu(), buffer(), time() {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), apu(), buffer(), time() {
     apu.treble_eq(-20.0);
 	buffer.bass_freq(461);
 }

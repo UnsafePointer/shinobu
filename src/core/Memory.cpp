@@ -31,6 +31,7 @@ BankController::BankController(Common::Logs::Level logLevel,
                                std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                                std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
                                std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                               std::unique_ptr<Core::Device::Sound::Controller> &sound,
                                std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                                std::unique_ptr<Core::Device::Timer::Controller> &timer,
                                std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
@@ -39,6 +40,7 @@ BankController::BankController(Common::Logs::Level logLevel,
                                                                                                  WRAMBank00(),
                                                                                                  WRAMBank01_N(),
                                                                                                  PPU(PPU),
+                                                                                                 sound(sound),
                                                                                                  HRAM(),
                                                                                                  externalRAM(),
                                                                                                  interrupt(interrupt),
@@ -404,11 +406,13 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
 Controller::Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                       std::unique_ptr<Core::Device::Sound::Controller> &sound,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                        std::unique_ptr<Core::Device::Timer::Controller> &timer,
                        std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
                                                                                          cartridge(cartridge),
                                                                                          PPU(PPU),
+                                                                                         sound(sound),
                                                                                          interrupt(interrupt),
                                                                                          timer(timer),
                                                                                          joypad(joypad) {
@@ -426,14 +430,14 @@ void Controller::initialize(bool skipBootROM) {
         if (!bootROM->hasBootROM()) {
             logger.logError("No cartridge or BOOT ROM detected, nothing to execute.");
         }
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
         logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
     }
     Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
@@ -441,7 +445,7 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC3:
     case Core::ROM::MBC3_RAM:
     case Core::ROM::MBC3_RAM_BATTERY:
-        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, interrupt, timer, joypad);
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
