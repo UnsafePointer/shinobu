@@ -29,7 +29,7 @@ Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes() {
     }
     PPU->setRenderer(renderer.get());
 
-    sound = std::make_unique<Core::Device::Sound::Controller>(Common::Logs::NoLog);
+    sound = std::make_unique<Core::Device::Sound::Controller>(configurationManager->soundLogLevel());
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt);
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());

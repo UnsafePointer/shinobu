@@ -64,6 +64,10 @@ Common::Logs::Level Configuration::Manager::joypadLogLevel() const {
     return joypad;
 }
 
+Common::Logs::Level Configuration::Manager::soundLogLevel() const {
+    return sound;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -94,6 +98,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["timer"] = "NOLOG";
     logConfigurationRef["openGL"] = "NOLOG";
     logConfigurationRef["joypad"] = "NOLOG";
+    logConfigurationRef["sound"] = "NOLOG";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -114,6 +119,7 @@ void Configuration::Manager::loadConfiguration() {
     timer = Common::Logs::levelWithValue(configuration["log"]["timer"].As<std::string>());
     openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
+    sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     useImGuiFrontend = configuration["PPU"]["debugger"].As<bool>();
     if (trace) {
