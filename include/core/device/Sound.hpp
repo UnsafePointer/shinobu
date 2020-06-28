@@ -53,13 +53,18 @@ namespace Core {
                     Shared::Period_Envelope_StartingVolume _NR12;
                     uint8_t _NR13;
                     Shared::FrequencyMSB_LengthEnable_Trigger _NR14;
+
+                    One() : _NR10(), _NR11(), _NR12(), _NR13(), _NR14() {}
                 };
 
                 struct Two {
+                    uint8_t _NR20;
                     LengthLoad_Duty _NR21;
                     Shared::Period_Envelope_StartingVolume _NR22;
                     uint8_t _NR23;
                     Shared::FrequencyMSB_LengthEnable_Trigger _NR24;
+
+                    Two() : _NR20(), _NR21(), _NR22(), _NR23(), _NR24() {}
                 };
             };
 
@@ -90,6 +95,8 @@ namespace Core {
                     Volume _NR32;
                     uint8_t _NR33;
                     Shared::FrequencyMSB_LengthEnable_Trigger _NR34;
+
+                    Wave() : _NR30(), _NR31(), _NR32(), _NR33(), _NR34() {}
                 };
             };
 
@@ -121,10 +128,13 @@ namespace Core {
                 };
 
                 struct Noise {
+                    uint8_t _NR40;
                     LengthLoad _NR41;
                     Shared::Period_Envelope_StartingVolume _NR42;
                     Divisor_LFSRWidthMode_ClockShift _NR43;
                     LengthEnable_Trigger _NR44;
+
+                    Noise() : _NR40(), _NR41(), _NR42(), _NR43(), _NR44() {}
                 };
             };
 
