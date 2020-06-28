@@ -184,7 +184,7 @@ namespace Core {
                         uint8_t unused : 3;
                         uint8_t power : 1;
                     };
-                    Power_Statuses() : _value() {}
+                    Power_Statuses() : _value(0x80) {}
                 };
 
                 struct Control {
@@ -206,6 +206,8 @@ namespace Core {
                 Noise::Noise noise;
                 Control::Control control;
                 std::array<uint8_t, 0x10> waveTable;
+
+                void powerOff();
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();

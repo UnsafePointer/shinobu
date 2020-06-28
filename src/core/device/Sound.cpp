@@ -84,6 +84,9 @@ uint8_t Controller::load(uint16_t offset) {
 }
 
 void Controller::store(uint16_t offset, uint8_t value) {
+    if (!control._NR52.power && offset != 0x16) {
+        return;
+    }
     switch (offset) {
     case 0x0:
         squareOne._NR10._value = value;
@@ -157,6 +160,9 @@ void Controller::store(uint16_t offset, uint8_t value) {
         return;
     case 0x16:
         control._NR52._value = value;
+        if (!control._NR52.power) {
+            powerOff();
+        }
         return;
     default:
         logger.logWarning("Unhandled sound controller load at offset: %02x", offset);
@@ -177,4 +183,33 @@ void Controller::step(uint8_t cycles) {
     squareTwo.step(cycles);
     wave.step(cycles);
     noise.step(cycles);
+}
+
+void Controller::powerOff() {
+    squareOne._NR10._value = 0x0;
+    squareOne._NR11._value = 0x0;
+    squareOne.loadLengthCounter(squareOne._NR11.lengthLoad);
+    squareOne._NR12._value = 0x0;
+    squareOne._NR13 = 0x0;
+    squareOne._NRX4._value = 0x0;
+    squareTwo._NR20 = 0x0;
+    squareTwo._NR21._value = 0x0;
+    squareTwo.loadLengthCounter(squareTwo._NR21.lengthLoad);
+    squareTwo._NR22._value = 0x0;
+    squareTwo._NR23 = 0x0;
+    squareTwo._NRX4._value = 0x0;
+    wave._NR30._value = 0x0;
+    wave._NR31 = 0x0;
+    wave.loadLengthCounter(wave._NR31);
+    wave._NR32._value = 0x0;
+    wave._NR33 = 0x0;
+    wave._NRX4._value = 0x0;
+    noise._NR40 = 0x0;
+    noise._NR41._value = 0x0;
+    noise.loadLengthCounter(noise._NR41.lengthLoad);
+    noise._NR42._value = 0x0;
+    noise._NR43._value = 0x0;
+    noise._NRX4._value = 0x0;
+    control._NR50._value = 0x0;
+    control._NR51._value = 0x0;
 }
