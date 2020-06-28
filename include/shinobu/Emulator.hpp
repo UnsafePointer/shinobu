@@ -11,6 +11,7 @@
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include "shinobu/frontend/imgui/Renderer.hpp"
 #include "core/device/JoypadInput.hpp"
+#include "core/device/Sound.hpp"
 
 namespace Shinobu {
     class Emulator {
@@ -20,6 +21,7 @@ namespace Shinobu {
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;
         std::unique_ptr<Core::Memory::Controller> memoryController;
+        std::unique_ptr<Core::Device::Sound::Controller> sound;
         std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
         std::unique_ptr<Core::Device::Interrupt::Controller> interrupt;
         std::unique_ptr<Core::Device::Timer::Controller> timer;
