@@ -4,3 +4,6 @@
 [submodule "imgui"]
 	path = imgui
 	url = git@github.com:UnsafePointer/imgui.git
+[submodule "Gb_Snd_Emu"]
+	path = Gb_Snd_Emu
+	url = git@github.com:UnsafePointer/Gb_Snd_Emu.git
