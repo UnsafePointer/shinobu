@@ -461,6 +461,8 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        break;
     case Core::ROM::MBC3:
     case Core::ROM::MBC3_RAM:
     case Core::ROM::MBC3_RAM_BATTERY:
