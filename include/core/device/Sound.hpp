@@ -32,12 +32,11 @@ namespace Core {
                     FrequencyMSB_LengthEnable_Trigger _NRX4;
 
                     bool enabled;
-                    uint8_t lengthCounter;
                     uint32_t lengthCounterSteps;
+                    uint32_t lengthCounter;
                 public:
-                    Channel() : _NRX4(), enabled(), lengthCounter(), lengthCounterSteps() {}
+                    Channel() : _NRX4(), enabled(), lengthCounterSteps(), lengthCounter() {}
                     ~Channel() {}
-                    void loadLengthCounter(uint8_t value);
                     void step(uint8_t cycles);
                 };
             };

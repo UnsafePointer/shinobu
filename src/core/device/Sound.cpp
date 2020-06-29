@@ -6,10 +6,6 @@ using namespace Core::Device::Sound;
 Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), squareOne(), squareTwo(), wave(), noise(), control(), waveTable() {}
 Controller::~Controller() {}
 
-void Shared::Channel::loadLengthCounter(uint8_t value) {
-    lengthCounter = value;
-}
-
 void Shared::Channel::step(uint8_t cycles) {
     if (!_NRX4.lengthEnable || lengthCounter == 0) {
         return;
@@ -17,7 +13,6 @@ void Shared::Channel::step(uint8_t cycles) {
     lengthCounterSteps += cycles;
     if (lengthCounterSteps >= SoundControllerLengthStep) {
         lengthCounterSteps %= SoundControllerLengthStep;
-        lengthCounterSteps += SoundControllerLengthStep;
         lengthCounter--;
         if (lengthCounter <= 0) {
             enabled = false;
@@ -91,10 +86,16 @@ void Controller::store(uint16_t offset, uint8_t value) {
     case 0x0:
         squareOne._NR10._value = value;
         return;
-    case 0x1:
+    case 0x1: {
         squareOne._NR11._value = value;
-        squareOne.loadLengthCounter(squareOne._NR11.lengthLoad);
+        if (squareOne._NR11.lengthLoad == 0) {
+            squareOne.lengthCounter = 0x40;
+        } else {
+            uint8_t counter = (~squareOne._NR11.lengthLoad) + 1;
+            squareOne.lengthCounter = counter & 0x3F;
+        }
         return;
+    }
     case 0x2:
         squareOne._NR12._value = value;
         return;
@@ -109,7 +110,6 @@ void Controller::store(uint16_t offset, uint8_t value) {
         return;
     case 0x6:
         squareTwo._NR21._value = value;
-        squareTwo.loadLengthCounter(squareTwo._NR21.lengthLoad);
         return;
     case 0x7:
         squareTwo._NR22._value = value;
@@ -125,7 +125,6 @@ void Controller::store(uint16_t offset, uint8_t value) {
         return;
     case 0xB:
         wave._NR31 = value;
-        wave.loadLengthCounter(wave._NR31);
         return;
     case 0xC:
         wave._NR32._value = value;
@@ -141,7 +140,6 @@ void Controller::store(uint16_t offset, uint8_t value) {
         return;
     case 0x10:
         noise._NR41._value = value;
-        noise.loadLengthCounter(noise._NR41.lengthLoad);
         return;
     case 0x11:
         noise._NR42._value = value;
@@ -188,25 +186,21 @@ void Controller::step(uint8_t cycles) {
 void Controller::powerOff() {
     squareOne._NR10._value = 0x0;
     squareOne._NR11._value = 0x0;
-    squareOne.loadLengthCounter(squareOne._NR11.lengthLoad);
     squareOne._NR12._value = 0x0;
     squareOne._NR13 = 0x0;
     squareOne._NRX4._value = 0x0;
     squareTwo._NR20 = 0x0;
     squareTwo._NR21._value = 0x0;
-    squareTwo.loadLengthCounter(squareTwo._NR21.lengthLoad);
     squareTwo._NR22._value = 0x0;
     squareTwo._NR23 = 0x0;
     squareTwo._NRX4._value = 0x0;
     wave._NR30._value = 0x0;
     wave._NR31 = 0x0;
-    wave.loadLengthCounter(wave._NR31);
     wave._NR32._value = 0x0;
     wave._NR33 = 0x0;
     wave._NRX4._value = 0x0;
     noise._NR40 = 0x0;
     noise._NR41._value = 0x0;
-    noise.loadLengthCounter(noise._NR41.lengthLoad);
     noise._NR42._value = 0x0;
     noise._NR43._value = 0x0;
     noise._NRX4._value = 0x0;
