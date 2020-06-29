@@ -67,7 +67,7 @@ uint8_t Controller::load(uint16_t offset) {
     case 0x15:
         return control._NR51._value | 0x00;
     case 0x16:
-        control._NR52.squareOneLengthStatus = squareOne.lengthCounter != 0;
+        control._NR52.squareOneLengthStatus = squareOne.enabled && (squareOne.lengthCounter || !squareOne._NRX4.lengthEnable);
         control._NR52.squareTwoLengthStatus = squareTwo.lengthCounter != 0;
         control._NR52.waveLengthStatus = wave.lengthCounter != 0;
         control._NR52.noiseLengthStatus = noise.lengthCounter != 0;
@@ -104,6 +104,10 @@ void Controller::store(uint16_t offset, uint8_t value) {
         return;
     case 0x4:
         squareOne._NRX4._value = value;
+        if (squareOne._NRX4.lengthEnable && squareOne.lengthCounter == 0) {
+            squareOne.lengthCounter = 0x40;
+            squareOne.enabled = true;
+        }
         return;
     case 0x5:
         squareTwo._NR20 = value;
@@ -160,6 +164,8 @@ void Controller::store(uint16_t offset, uint8_t value) {
         control._NR52._value = value;
         if (!control._NR52.power) {
             powerOff();
+        } else {
+            squareOne.enabled &= true;
         }
         return;
     default:

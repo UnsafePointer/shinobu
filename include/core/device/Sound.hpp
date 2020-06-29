@@ -35,7 +35,7 @@ namespace Core {
                     uint32_t lengthCounterSteps;
                     uint32_t lengthCounter;
                 public:
-                    Channel() : _NRX4(), enabled(), lengthCounterSteps(), lengthCounter() {}
+                    Channel() : _NRX4(), enabled(true), lengthCounterSteps(), lengthCounter() {}
                     ~Channel() {}
                     void step(uint8_t cycles);
                 };
