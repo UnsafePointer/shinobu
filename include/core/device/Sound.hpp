@@ -24,6 +24,8 @@ namespace Core {
 
                 uint8_t load(uint16_t address);
                 void store(uint16_t address, uint8_t value);
+                long availableSamples() const;
+                blargg_err_t setSampleRate(long rate);
                 void endFrame();
             };
         };

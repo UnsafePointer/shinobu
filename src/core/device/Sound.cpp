@@ -27,3 +27,13 @@ void Controller::endFrame() {
 	bool stereo = apu.end_frame(CyclesPerFrame);
 	buffer.end_frame(CyclesPerFrame, stereo);
 }
+
+long Controller::availableSamples() const {
+	return buffer.samples_avail();
+}
+
+blargg_err_t Controller::setSampleRate(long rate) {
+	apu.output(buffer.center(), buffer.left(), buffer.right());
+	buffer.clock_rate(CyclesPerSecond);
+	return buffer.set_sample_rate(rate);
+}
