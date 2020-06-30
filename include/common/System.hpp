@@ -15,3 +15,4 @@ const int HorizontalResolution = 160;
 const int VerticalResolution = 144;
 const int NumberOfSpritesInOAM = 40;
 const int SampleRate = 44100;
+const int AudioBufferSize = 2048;

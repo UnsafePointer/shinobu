@@ -12,6 +12,7 @@
 #include "shinobu/frontend/imgui/Renderer.hpp"
 #include "core/device/JoypadInput.hpp"
 #include "core/device/Sound.hpp"
+#include <gb_apu/Sound_Queue.h>
 
 namespace Shinobu {
     class Emulator {
@@ -32,8 +33,11 @@ namespace Shinobu {
         uint32_t frameCounter;
         uint32_t frameTimes;
 
+        Sound_Queue soundQueue;
+
         void setupSDL() const;
         void setupOpenGL() const;
+        void enqueueSound();
     public:
         Emulator();
         ~Emulator();

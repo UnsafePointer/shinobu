@@ -10,7 +10,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes() {
+Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue() {
     setupSDL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
@@ -38,6 +38,8 @@ Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes() {
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
+
+    soundQueue.start(SampleRate, 2);
 }
 
 Emulator::~Emulator() {
@@ -45,7 +47,7 @@ Emulator::~Emulator() {
 }
 
 void Emulator::setupSDL() const {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0) {
         // TODO: Add proper emulator logger
         exit(1);
     }
@@ -59,6 +61,13 @@ void Emulator::setupOpenGL() const {
         // TODO: Add proper emulator logger
         exit(1);
     }
+}
+
+void Emulator::enqueueSound() {
+    sound->endFrame();
+    static blip_sample_t buffer[AudioBufferSize];
+    long count = sound->readSamples(buffer, AudioBufferSize);
+    soundQueue.write(buffer, count);
 }
 
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
@@ -95,7 +104,7 @@ void Emulator::emulateFrame() {
         processor->checkPendingInterrupts(instruction);
         currentCycles += cycles;
     }
-    sound->endFrame();
+    enqueueSound();
     frameTimes += SDL_GetTicks() - frameTime;
     frameCounter++;
     if (frameCounter >= 60) {

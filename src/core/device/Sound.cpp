@@ -32,6 +32,10 @@ long Controller::availableSamples() const {
 	return buffer.samples_avail();
 }
 
+long Controller::readSamples(sample_t* out, long count) {
+	return buffer.read_samples(out, count);
+}
+
 blargg_err_t Controller::setSampleRate(long rate) {
 	apu.output(buffer.center(), buffer.left(), buffer.right());
 	buffer.clock_rate(CyclesPerSecond);
