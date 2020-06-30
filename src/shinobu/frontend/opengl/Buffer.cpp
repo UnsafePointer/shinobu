@@ -39,7 +39,7 @@ void Buffer<T>::clean() {
 
 template <class T>
 void Buffer<T>::addData(std::vector<T> data) {
-    uint remainingCapacity = capacity - size;
+    unsigned int remainingCapacity = capacity - size;
     if (data.size() > remainingCapacity) {
         // TODO: Use proper logging
         std::cout << "Renderer buffer out of memory." << std::endl;
@@ -47,8 +47,8 @@ void Buffer<T>::addData(std::vector<T> data) {
     }
     bind();
 
-    uint offset = size * sizeof(T);
-    uint dataSize = data.size() * sizeof(T);
+    unsigned int offset = size * sizeof(T);
+    unsigned int dataSize = data.size() * sizeof(T);
     glBufferSubData(GL_ARRAY_BUFFER, offset, dataSize, data.data());
 
     size += data.size();
