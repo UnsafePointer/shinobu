@@ -14,6 +14,17 @@ Window::~Window() {
     SDL_DestroyWindow(window);
 }
 
+void Window::toggleFullscreen() const {
+    bool fullscreen = SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+    if (!fullscreen) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_ShowCursor(SDL_DISABLE);
+    } else {
+        SDL_SetWindowFullscreen(window, 0);
+        SDL_ShowCursor(SDL_ENABLE);
+    }
+}
+
 std::pair<uint32_t,uint32_t> Window::dimensions() const {
     return { width, height };
 }
@@ -27,7 +38,11 @@ SDL_GLContext Window::GLContext() const {
 }
 
 void Window::handleSDLEvent(SDL_Event event) const {
-    if(event.type != SDL_WINDOWEVENT || event.window.windowID != windowID) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f) {
+        toggleFullscreen();
+        return;
+    }
+    if (event.type != SDL_WINDOWEVENT || event.window.windowID != windowID) {
         return;
     }
     switch (event.window.event) {
