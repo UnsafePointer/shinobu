@@ -8,7 +8,7 @@
 namespace Core {
     namespace Device {
         namespace Sound {
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x20);
+            const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF10, 0x30);
 
             class Controller {
                 Common::Logs::Logger logger;
