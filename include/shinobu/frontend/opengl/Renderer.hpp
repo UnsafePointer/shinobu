@@ -31,6 +31,7 @@ namespace Shinobu {
                 Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderToFramebuffer = true);
                 ~Renderer();
 
+                void clear() const;
                 void render();
                 void addPixels(std::vector<Vertex> pixels);
                 void addViewPort(std::vector<Vertex> vertices);

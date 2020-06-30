@@ -58,6 +58,11 @@ void Renderer::checkForceDraw(uint32_t verticesToRender, GLenum mode) {
     return;
 }
 
+void Renderer::clear() const {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Renderer::render() {
     // TODO: Force the framebuffer stay alive outside the if scope
     if (renderToFramebuffer) {

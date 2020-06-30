@@ -1,4 +1,5 @@
 #include "shinobu/frontend/sdl2/Window.hpp"
+#include <glad/glad.h>
 
 using namespace Shinobu::Frontend::SDL2;
 
@@ -25,6 +26,22 @@ void Window::toggleFullscreen() const {
     }
 }
 
+void Window::handleWindowResize(uint32_t newWidth, uint32_t newHeight) const {
+    glMatrixMode(GL_PROJECTION_MATRIX);
+    glLoadIdentity();
+    glOrtho(0, width, height, 0, 1, -1);
+    float horizontalRatio = newWidth / (float)width;
+    float verticalRatio = newHeight / (float)height;
+    float ratio = horizontalRatio < verticalRatio ? horizontalRatio : verticalRatio;
+    float viewWidth = width * ratio;
+    float viewHeight = height * ratio;
+    uint32_t viewPositionX = (newWidth - width * ratio) / 2;
+    uint32_t viewPositionY = (newHeight - height * ratio) / 2;
+    glViewport(viewPositionX, viewPositionY, viewWidth, viewHeight);
+    glMatrixMode(GL_MODELVIEW_MATRIX);
+    glLoadIdentity();
+}
+
 std::pair<uint32_t,uint32_t> Window::dimensions() const {
     return { width, height };
 }
@@ -48,6 +65,10 @@ void Window::handleSDLEvent(SDL_Event event) const {
     switch (event.window.event) {
         case SDL_WINDOWEVENT_CLOSE: {
             logger.logError("Exiting...");
+            break;
+        }
+        case SDL_WINDOWEVENT_SIZE_CHANGED: {
+            handleWindowResize(event.window.data1, event.window.data2);
             break;
         }
     }

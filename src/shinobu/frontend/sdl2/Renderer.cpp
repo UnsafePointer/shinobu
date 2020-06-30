@@ -12,6 +12,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::update() {
+    renderer->clear();
     renderer->addPixels(PPU->getLCDOutput());
     renderer->render();
     SDL_GL_SwapWindow(window->windowRef());

@@ -18,6 +18,7 @@ namespace Shinobu {
                 uint32_t windowID;
 
                 void toggleFullscreen() const;
+                void handleWindowResize(uint32_t width, uint32_t height) const;
             public:
                 Window(std::string title, uint32_t width, uint32_t height);
                 ~Window();
