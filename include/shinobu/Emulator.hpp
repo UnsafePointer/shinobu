@@ -13,9 +13,12 @@
 #include "core/device/JoypadInput.hpp"
 #include "core/device/Sound.hpp"
 #include <gb_apu/Sound_Queue.h>
+#include "common/Logger.hpp"
 
 namespace Shinobu {
     class Emulator {
+        Common::Logs::Logger logger;
+
         std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
         std::unique_ptr<Shinobu::Frontend::Renderer> renderer;
 

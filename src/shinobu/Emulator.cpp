@@ -7,10 +7,11 @@
 #include "common/System.hpp"
 #include "shinobu/frontend/sdl2/Renderer.hpp"
 #include "common/Formatter.hpp"
+#include "shinobu/frontend/sdl2/Error.hpp"
 
 using namespace Shinobu;
 
-Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted() {
+Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted() {
     setupSDL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
@@ -50,19 +51,15 @@ Emulator::~Emulator() {
 }
 
 void Emulator::setupSDL() const {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0) {
-        // TODO: Add proper emulator logger
-        exit(1);
-    }
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    Frontend::SDL2::handleSDL2Error(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO), logger);
+    Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4), logger);
+    Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5), logger);
+    Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG), logger);
 }
 
 void Emulator::setupOpenGL() const {
     if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
-        // TODO: Add proper emulator logger
-        exit(1);
+        logger.logError("Unable to load OpenGL");
     }
 }
 
