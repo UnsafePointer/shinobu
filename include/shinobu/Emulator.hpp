@@ -39,7 +39,7 @@ namespace Shinobu {
         Sound_Queue soundQueue;
         bool isMuted;
 
-        void setupSDL() const;
+        void setupSDL(bool debug) const;
         void setupOpenGL() const;
         void enqueueSound();
     public:

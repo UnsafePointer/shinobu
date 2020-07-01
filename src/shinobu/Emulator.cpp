@@ -12,9 +12,9 @@
 using namespace Shinobu;
 
 Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted() {
-    setupSDL();
-
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
+    setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
+
     bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
     isMuted = configurationManager->shouldMute();
 
@@ -50,11 +50,13 @@ Emulator::~Emulator() {
     SDL_Quit();
 }
 
-void Emulator::setupSDL() const {
+void Emulator::setupSDL(bool debug) const {
     Frontend::SDL2::handleSDL2Error(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO), logger);
     Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4), logger);
     Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5), logger);
-    Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG), logger);
+    if (debug) {
+        Frontend::SDL2::handleSDL2Error(SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG), logger);
+    }
 }
 
 void Emulator::setupOpenGL() const {
