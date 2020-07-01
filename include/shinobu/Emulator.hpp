@@ -34,6 +34,7 @@ namespace Shinobu {
         uint32_t frameTimes;
 
         Sound_Queue soundQueue;
+        bool isMuted;
 
         void setupSDL() const;
         void setupOpenGL() const;

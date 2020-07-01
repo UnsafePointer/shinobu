@@ -10,7 +10,14 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     PPU(Common::Logs::Level::NoLog),
     serial(Common::Logs::Level::NoLog),
     disassembler(Common::Logs::Level::NoLog),
-    interrupt(Common::Logs::Level::NoLog)
+    interrupt(Common::Logs::Level::NoLog),
+    timer(Common::Logs::Level::NoLog),
+    openGL(Common::Logs::Level::NoLog),
+    joypad(Common::Logs::Level::NoLog),
+    sound(Common::Logs::Level::NoLog),
+    trace(),
+    useImGuiFrontend(),
+    mute()
 {
 
 }
@@ -76,12 +83,19 @@ bool Configuration::Manager::shouldUseImGuiFrontend() const {
     return useImGuiFrontend;
 }
 
+bool Configuration::Manager::shouldMute() const {
+    return mute;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
         return;
     }
     logger.logWarning("Local configuration file not found");
+    Yaml::Node audioConfiguration = Yaml::Node();
+    Yaml::Node &audioConfigurationRef = audioConfiguration;
+    audioConfigurationRef["mute"] = "false";
     Yaml::Node PPUConfiguration = Yaml::Node();
     Yaml::Node &PPUConfigurationRef = PPUConfiguration;
     PPUConfigurationRef["debugger"] = "false";
@@ -103,6 +117,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
     configurationRef["PPU"] = PPUConfiguration;
+    configurationRef["audio"] = audioConfiguration;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -122,6 +137,7 @@ void Configuration::Manager::loadConfiguration() {
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     useImGuiFrontend = configuration["PPU"]["debugger"].As<bool>();
+    mute = configuration["audio"]["mute"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

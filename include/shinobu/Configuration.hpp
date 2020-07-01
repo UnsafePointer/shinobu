@@ -25,6 +25,7 @@ namespace Shinobu {
             Common::Logs::Level sound;
             bool trace;
             bool useImGuiFrontend;
+            bool mute;
 
             Manager();
         public:
@@ -43,6 +44,7 @@ namespace Shinobu {
             Common::Logs::Level soundLogLevel() const;
             bool shouldTraceLogs() const;
             bool shouldUseImGuiFrontend() const;
+            bool shouldMute() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

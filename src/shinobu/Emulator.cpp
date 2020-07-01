@@ -10,11 +10,12 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue() {
+Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted() {
     setupSDL();
 
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
+    isMuted = configurationManager->shouldMute();
 
     window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, shouldUseImGuiFrontend ? DebugWindowHeight : WindowHeight);
     setupOpenGL();
@@ -39,7 +40,9 @@ Emulator::Emulator() : shouldSkipBootROM(false), frameCounter(), frameTimes(), s
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
 
-    soundQueue.start(SampleRate, 2);
+    if (!isMuted) {
+        soundQueue.start(SampleRate, 2);
+    }
 }
 
 Emulator::~Emulator() {
@@ -64,6 +67,9 @@ void Emulator::setupOpenGL() const {
 }
 
 void Emulator::enqueueSound() {
+    if (isMuted) {
+        return;
+    }
     sound->endFrame();
     static blip_sample_t buffer[AudioBufferSize];
     long count = sound->readSamples(buffer, AudioBufferSize);
