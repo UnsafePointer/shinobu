@@ -22,7 +22,24 @@ GameController::GameController(Common::Logs::Level logLevel) : logger(logLevel, 
 GameController::~GameController() { }
 
 bool GameController::isGameControllerButtonPressed(Button button) {
-    (void)button;
+    switch (button) {
+    case Button::Up:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
+    case Button::Down:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+    case Button::Left:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+    case Button::Right:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+    case Button::A:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+    case Button::B:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+    case Button::Start:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+    case Button::Select:
+        return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK);
+    }
     return false;
 }
 
