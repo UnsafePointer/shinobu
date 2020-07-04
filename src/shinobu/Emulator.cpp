@@ -18,7 +18,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
     isMuted = configurationManager->shouldMute();
 
-    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, shouldUseImGuiFrontend ? DebugWindowHeight : WindowHeight);
+    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, shouldUseImGuiFrontend ? DebugWindowHeight : WindowHeight, configurationManager->shouldLaunchFullscreen());
     setupOpenGL();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());

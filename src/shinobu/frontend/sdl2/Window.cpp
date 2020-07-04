@@ -3,8 +3,11 @@
 
 using namespace Shinobu::Frontend::SDL2;
 
-Window::Window(std::string title, uint32_t width, uint32_t height) : logger(Common::Logs::Level::NoLog, ""), title(title), width(width), height(height) {
+Window::Window(std::string title, uint32_t width, uint32_t height, bool fullscreen) : logger(Common::Logs::Level::NoLog, ""), title(title), width(width), height(height) {
     Uint32 flags = SDL_WINDOW_OPENGL;
+    if (fullscreen) {
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    }
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     windowID = SDL_GetWindowID(window);
     SDLGLContext = SDL_GL_CreateContext(window);

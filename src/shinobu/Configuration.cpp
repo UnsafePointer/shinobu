@@ -17,7 +17,8 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     sound(Common::Logs::Level::NoLog),
     trace(),
     useImGuiFrontend(),
-    mute()
+    mute(),
+    launchFullscreen()
 {
 
 }
@@ -87,12 +88,19 @@ bool Configuration::Manager::shouldMute() const {
     return mute;
 }
 
+bool Configuration::Manager::shouldLaunchFullscreen() const {
+    return launchFullscreen;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
         return;
     }
     logger.logWarning("Local configuration file not found");
+    Yaml::Node videoConfiguration = Yaml::Node();
+    Yaml::Node &videoConfigurationRef = videoConfiguration;
+    videoConfigurationRef["fullscreen"] = "false";
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
@@ -118,6 +126,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     configurationRef["log"] = logConfiguration;
     configurationRef["PPU"] = PPUConfiguration;
     configurationRef["audio"] = audioConfiguration;
+    configurationRef["video"] = videoConfiguration;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -138,6 +147,7 @@ void Configuration::Manager::loadConfiguration() {
     trace = configuration["log"]["trace"].As<bool>();
     useImGuiFrontend = configuration["PPU"]["debugger"].As<bool>();
     mute = configuration["audio"]["mute"].As<bool>();
+    launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

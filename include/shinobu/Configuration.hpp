@@ -26,6 +26,7 @@ namespace Shinobu {
             bool trace;
             bool useImGuiFrontend;
             bool mute;
+            bool launchFullscreen;
 
             Manager();
         public:
@@ -45,6 +46,7 @@ namespace Shinobu {
             bool shouldTraceLogs() const;
             bool shouldUseImGuiFrontend() const;
             bool shouldMute() const;
+            bool shouldLaunchFullscreen() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
