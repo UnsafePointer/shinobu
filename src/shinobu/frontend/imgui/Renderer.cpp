@@ -51,8 +51,11 @@ void Renderer::update() {
         }
         ImGui::End();
         if (ImGui::Begin("LCD Output", NULL, ImGuiWindowFlags_NoResize)) {
-            LCDOutputRenderer->addPixels(PPU->getLCDOutput());
-            LCDOutputRenderer->render();
+            auto scanlines = PPU->getLCDOutput();
+            for (const auto& scanline : scanlines) {
+                LCDOutputRenderer->addPixels(scanline);
+                LCDOutputRenderer->render();
+            }
             ImVec2 size = ImVec2(static_cast<float>(HorizontalResolution * PixelScale), static_cast<float>(VerticalResolution * PixelScale));
             ImGui::Image(reinterpret_cast<ImTextureID>(LCDOutputRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));
         }

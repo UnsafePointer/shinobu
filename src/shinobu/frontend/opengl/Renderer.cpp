@@ -13,7 +13,7 @@ Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderT
     GLuint heightUniform = program->findProgramUniform("height");
     glUniform1f(heightUniform, height);
 
-    buffer = std::make_unique<Buffer<Vertex>>(program, 1024);
+    buffer = std::make_unique<Buffer<Vertex>>(program, width * scale * 6);
     framebufferTexture = std::make_unique<Texture>(width * scale, height * scale);
 
     Debug::Debugger *debugger = Debug::Debugger::getInstance();
@@ -34,12 +34,14 @@ std::array<Vertex, 6> Renderer::verticesForPixel(Vertex pixel) const {
 }
 
 void Renderer::addPixels(std::vector<Vertex> pixels) {
+    std::vector<Vertex> vertices = {};
     for (const auto& pixel : pixels) {
         std::array<Vertex, 6> verticesForPixel = this->verticesForPixel(pixel);
-        checkForceDraw(verticesForPixel.size(), GL_TRIANGLES);
-        mode = GL_TRIANGLES;
-        buffer->addData(verticesForPixel.data(), verticesForPixel.size());
+        vertices.insert(vertices.end(), verticesForPixel.begin(), verticesForPixel.end());
     }
+    mode = GL_TRIANGLES;
+    checkForceDraw(vertices.size(), GL_TRIANGLES);
+    buffer->addData(vertices.data(), vertices.size());
 }
 
 void Renderer::addViewPort(std::vector<Vertex> vertices) {

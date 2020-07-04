@@ -165,7 +165,7 @@ namespace Core {
                 uint8_t interruptConditions;
 
                 Shinobu::Frontend::Renderer *renderer;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> scanlines;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> scanlines;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
@@ -192,7 +192,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getLCDOutput() const;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput() const;
                 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
             };
         };

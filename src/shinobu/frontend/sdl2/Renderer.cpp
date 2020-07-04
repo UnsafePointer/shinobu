@@ -13,7 +13,11 @@ Renderer::~Renderer() {
 
 void Renderer::update() {
     renderer->clear();
-    renderer->addPixels(PPU->getLCDOutput());
+    auto scanlines = PPU->getLCDOutput();
+    for (const auto& scanline : scanlines) {
+        renderer->addPixels(scanline);
+        renderer->render();
+    }
     renderer->render();
     SDL_GL_SwapWindow(window->windowRef());
 }

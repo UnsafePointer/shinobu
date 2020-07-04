@@ -338,7 +338,7 @@ DRAW_SPRITE:
     if (control.windowDisplayEnable && LY >= windowYPosition && windowXPosition.position() <= 160) {
         windowLineCounter++;
     }
-    scanlines.insert(scanlines.end(), scanline.begin(), scanline.end());
+    scanlines.push_back(scanline);
 }
 
 std::array<uint8_t, 8> Processor::getTileRowPixelsColorIndicesWithData(uint8_t low, uint8_t high) const {
@@ -509,7 +509,7 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
     return viewPort;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getLCDOutput() const {
+std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getLCDOutput() const {
     return scanlines;
 }
 
