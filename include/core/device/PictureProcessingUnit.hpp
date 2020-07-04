@@ -134,11 +134,12 @@ namespace Core {
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
             const Core::Memory::Range DMATransferRange = Core::Memory::Range(0xFF46, 0x1);
 
-            enum LCDCSTATInterruptCondition {
-                Mode2 = 0,
-                Mode1 = 1,
-                Mode0 = 2,
-                Coincidence = 3,
+            enum LCDCSTATInterruptCondition : uint8_t {
+                None = 0,
+                Mode2 = 1 << 0,
+                Mode1 = 1 << 1,
+                Mode0 = 1 << 2,
+                Coincidence = 1 << 3,
             };
 
             class Processor {
@@ -161,12 +162,10 @@ namespace Core {
                 WindowXPosition windowXPosition;
                 uint8_t windowLineCounter;
                 uint32_t steps;
-                std::unordered_map<LCDCSTATInterruptCondition, bool> interruptConditions;
+                uint8_t interruptConditions;
 
                 Shinobu::Frontend::Renderer *renderer;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> scanlines;
-
-                bool isAnyConditionMet();
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
