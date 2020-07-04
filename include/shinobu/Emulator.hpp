@@ -39,6 +39,8 @@ namespace Shinobu {
         Sound_Queue soundQueue;
         bool isMuted;
 
+        bool stopEmulation;
+
         void setupSDL(bool debug) const;
         void setupOpenGL() const;
         void enqueueSound();
@@ -51,5 +53,7 @@ namespace Shinobu {
         void powerUp();
         void emulateFrame();
         void handleSDLEvent(SDL_Event event);
+        bool shouldExit() const;
+        void saveExternalRAM();
     };
 };

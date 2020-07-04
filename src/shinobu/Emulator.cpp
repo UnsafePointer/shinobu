@@ -11,7 +11,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted() {
+Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 
@@ -118,10 +118,21 @@ void Emulator::emulateFrame() {
         window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms - %d ms", averageFrameTime, frameTimes));
         frameTimes = 0;
     }
-    memoryController->saveExternalRAM();
 }
 
 void Emulator::handleSDLEvent(SDL_Event event) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+        stopEmulation = true;
+        return;
+    }
     window->handleSDLEvent(event);
     renderer->handleSDLEvent(event);
+}
+
+bool Emulator::shouldExit() const {
+    return stopEmulation;
+}
+
+void Emulator::saveExternalRAM() {
+    memoryController->saveExternalRAM();
 }

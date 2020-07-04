@@ -16,12 +16,13 @@ int main(int argc, char* argv[]) {
     Emulator emulator = Emulator();
     runner.configureEmulator(emulator);
     emulator.powerUp();
-    while (true) {
+    while (!emulator.shouldExit()) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             emulator.handleSDLEvent(event);
         }
         emulator.emulateFrame();
     }
+    emulator.saveExternalRAM();
     return 0;
 }
