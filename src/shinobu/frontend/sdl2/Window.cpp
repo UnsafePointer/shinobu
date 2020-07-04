@@ -7,6 +7,7 @@ Window::Window(std::string title, uint32_t width, uint32_t height, bool fullscre
     Uint32 flags = SDL_WINDOW_OPENGL;
     if (fullscreen) {
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        SDL_ShowCursor(SDL_DISABLE);
     }
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     windowID = SDL_GetWindowID(window);
