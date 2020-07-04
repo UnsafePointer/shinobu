@@ -23,7 +23,7 @@ Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderT
 Renderer::~Renderer() {
 }
 
-std::vector<Vertex> Renderer::verticesForPixel(Vertex pixel) const {
+std::array<Vertex, 6> Renderer::verticesForPixel(Vertex pixel) const {
     Vertex v1 = Vertex({pixel.position, pixel.color});
     Vertex v2 = Vertex({pixel.position.x + 1, pixel.position.y, pixel.color});
     Vertex v3 = Vertex({pixel.position.x + 1, pixel.position.y + 1, pixel.color.r, pixel.color.g, pixel.color.b});
@@ -35,10 +35,10 @@ std::vector<Vertex> Renderer::verticesForPixel(Vertex pixel) const {
 
 void Renderer::addPixels(std::vector<Vertex> pixels) {
     for (const auto& pixel : pixels) {
-        std::vector<Vertex> verticesForPixel = this->verticesForPixel(pixel);
+        std::array<Vertex, 6> verticesForPixel = this->verticesForPixel(pixel);
         checkForceDraw(verticesForPixel.size(), GL_TRIANGLES);
         mode = GL_TRIANGLES;
-        buffer->addData(verticesForPixel);
+        buffer->addData(verticesForPixel.data(), verticesForPixel.size());
     }
 }
 
@@ -46,7 +46,7 @@ void Renderer::addViewPort(std::vector<Vertex> vertices) {
     checkForceDraw(vertices.size(), GL_LINES);
     mode = GL_LINES;
     glLineWidth(scale);
-    buffer->addData(vertices);
+    buffer->addData(vertices.data(), vertices.size());
 }
 
 void Renderer::checkForceDraw(uint32_t verticesToRender, GLenum mode) {

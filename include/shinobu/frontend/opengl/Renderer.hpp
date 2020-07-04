@@ -24,7 +24,7 @@ namespace Shinobu {
                 std::unique_ptr<Buffer<Vertex>> buffer;
 
                 std::unique_ptr<Texture> framebufferTexture;
-                std::vector<Vertex> verticesForPixel(Vertex pixel) const;
+                std::array<Vertex, 6> verticesForPixel(Vertex pixel) const;
 
                 void checkForceDraw(uint32_t verticesToRender, GLenum mode);
             public:
