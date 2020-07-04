@@ -92,3 +92,7 @@ build
 # Dear ImGui
 
 imgui.ini
+
+# Valgrind
+
+callgrind.*
