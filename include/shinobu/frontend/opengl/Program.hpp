@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 namespace Shinobu {
     namespace Frontend {
@@ -9,11 +10,11 @@ namespace Shinobu {
             class Program {
                 GLuint program;
 
-                std::string openShaderSource(std::string filePath) const;
-                GLuint compileShader(std::string filePath, GLenum shaderType) const;
+                std::string openShaderSource(std::filesystem::path filePath, GLenum shaderType) const;
+                GLuint compileShader(std::filesystem::path, GLenum shaderType) const;
                 GLuint linkProgram(std::vector<GLuint> shaders) const;
             public:
-                Program(std::string vertexShaderSrcPath, std::string fragmentShaderSrcPath);
+                Program(std::filesystem::path vertexShaderSrcPath, std::filesystem::path fragmentShaderSrcPath);
                 ~Program();
 
                 void useProgram() const;

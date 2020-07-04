@@ -1,10 +1,11 @@
 #include "shinobu/frontend/opengl/Program.hpp"
 #include <fstream>
 #include "shinobu/frontend/opengl/debug/Debugger.hpp"
+#include "shinobu/frontend/opengl/Shaders.hpp"
 
 using namespace Shinobu::Frontend::OpenGL;
 
-Program::Program(std::string vertexShaderSrcPath, std::string fragmentShaderSrcPath) {
+Program::Program(std::filesystem::path vertexShaderSrcPath, std::filesystem::path fragmentShaderSrcPath) {
     GLuint vertexShader = compileShader(vertexShaderSrcPath, GL_VERTEX_SHADER);
     GLuint fragmentShader = compileShader(fragmentShaderSrcPath, GL_FRAGMENT_SHADER);
     program = linkProgram({vertexShader, fragmentShader});
@@ -20,7 +21,14 @@ void Program::useProgram() const {
     glUseProgram(program);
 }
 
-std::string Program::openShaderSource(std::string filePath) const {
+std::string Program::openShaderSource(std::filesystem::path filePath, GLenum shaderType) const {
+    if (!std::filesystem::exists(filePath)) {
+        if (shaderType == GL_VERTEX_SHADER) {
+            return Shinobu::Frontend::OpenGL::Shaders::vertex;
+        } else if (shaderType == GL_FRAGMENT_SHADER) {
+            return Shinobu::Frontend::OpenGL::Shaders::fragment;
+        }
+    }
     std::ifstream file(filePath);
     std::string source;
 
@@ -32,8 +40,8 @@ std::string Program::openShaderSource(std::string filePath) const {
     return source;
 }
 
-GLuint Program::compileShader(std::string filePath, GLenum shaderType) const {
-    std::string source = openShaderSource(filePath);
+GLuint Program::compileShader(std::filesystem::path filePath, GLenum shaderType) const {
+    std::string source = openShaderSource(filePath, shaderType);
     GLuint shader = glCreateShader(shaderType);
     const GLchar *src = source.c_str();
     glShaderSource(shader, 1, &src, NULL);
