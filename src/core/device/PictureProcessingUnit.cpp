@@ -252,9 +252,9 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     uint8_t high = memory[highAddress];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
     if (drawWindow) {
-        return colorData[screenPositionX % 8];
+        return colorData[(screenPositionX - windowXPosition.position()) % VRAMTileDataSide];
     } else {
-        return colorData[screenPositionXWithScroll % 8];
+        return colorData[screenPositionXWithScroll % VRAMTileDataSide];
     }
 }
 
