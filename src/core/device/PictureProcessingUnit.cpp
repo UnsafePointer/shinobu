@@ -64,9 +64,11 @@ void Processor::store(uint16_t offset, uint8_t value) {
         return;
     }
     case 0x2:
+        logger.logMessage("SCY write with value: %02x", value);
         scrollY = value;
         return;
     case 0x3:
+        logger.logMessage("SCX write with value: %02x", value);
         scrollX = value;
         return;
     case 0x4:
@@ -85,9 +87,11 @@ void Processor::store(uint16_t offset, uint8_t value) {
         object1Palette._value = value;
         return;
     case 0xA:
+        logger.logMessage("WY write with value: %02x", value);
         windowYPosition = value;
         return;
     case 0xB:
+        logger.logMessage("WX write with value: %02x", value);
         windowXPosition._value = value;
         return;
     default:
@@ -109,15 +113,19 @@ void Processor::step(uint8_t cycles) {
 
     if (LY < 144) {
         if (steps <= 80) {
+            logger.logMessage("PPU in OAM (Mode 2)");
             status.setMode(SearchingOAM);
             interruptConditions[Mode2] = status.mode2InterruptEnable;
         } else if (steps <= 289) {
+            logger.logMessage("PPU in Transfering data (Mode 3)");
             status.setMode(TransferingData);
         } else {
+            logger.logMessage("PPU in HBlank (Mode 0)");
             status.setMode(HBlank);
             interruptConditions[Mode0] = status.mode0InterruptEnable;
         }
     } else {
+        logger.logMessage("PPU in VBlank (Mode 1)");
         status.setMode(VBlank);
         interruptConditions[Mode1] = status.mode1InterruptEnable;
     }
@@ -127,6 +135,7 @@ void Processor::step(uint8_t cycles) {
 
     if (steps >= CyclesPerScanline) {
         if (LY <= 143) {
+            logger.logMessage("Rendering scanline: %d", LY);
             renderScanline();
         }
         LY++;
