@@ -125,6 +125,10 @@ void Emulator::handleSDLEvent(SDL_Event event) {
         stopEmulation = true;
         return;
     }
+    if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
+        stopEmulation = true;
+        return;
+    }
     window->handleSDLEvent(event);
     renderer->handleSDLEvent(event);
 }

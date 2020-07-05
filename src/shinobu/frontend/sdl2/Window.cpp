@@ -67,10 +67,6 @@ void Window::handleSDLEvent(SDL_Event event) const {
         return;
     }
     switch (event.window.event) {
-        case SDL_WINDOWEVENT_CLOSE: {
-            logger.logError("Exiting...");
-            break;
-        }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             handleWindowResize(event.window.data1, event.window.data2);
             break;
