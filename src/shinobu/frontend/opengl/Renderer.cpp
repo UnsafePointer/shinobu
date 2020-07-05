@@ -13,7 +13,12 @@ Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderT
     GLuint heightUniform = program->findProgramUniform("height");
     glUniform1f(heightUniform, height);
 
-    buffer = std::make_unique<Buffer<Vertex>>(program, width * scale * 6);
+    uint32_t bufferCapacity =  width * scale * 6;
+    if (renderToFramebuffer) {
+        bufferCapacity = width * height * scale * 6;
+    }
+
+    buffer = std::make_unique<Buffer<Vertex>>(program, bufferCapacity);
     framebufferTexture = std::make_unique<Texture>(width * scale, height * scale);
 
     Debug::Debugger *debugger = Debug::Debugger::getInstance();
