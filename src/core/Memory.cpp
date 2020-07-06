@@ -96,7 +96,7 @@ void BankController::executeDMA(uint8_t value) {
     source <<= 8;
     uint16_t sourceEnd = source + 0x9F;
     uint16_t destination = 0xFE00;
-    while (source < sourceEnd) {
+    while (source <= sourceEnd) {
         uint8_t value = load(source);
         store(destination, value);
         source++;
