@@ -18,7 +18,12 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
     isMuted = configurationManager->shouldMute();
 
-    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", WindowWidth, shouldUseImGuiFrontend ? DebugWindowHeight : WindowHeight, configurationManager->shouldLaunchFullscreen());
+    SDL_DisplayMode displayMode;
+    Frontend::SDL2::handleSDL2Error(SDL_GetDesktopDisplayMode(0, &displayMode), logger);
+
+    int heigth = displayMode.h / 2;
+    int width = (float)heigth * 1.11;
+    window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", width, heigth, configurationManager->shouldLaunchFullscreen());
     setupOpenGL();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());

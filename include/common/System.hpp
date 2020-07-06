@@ -1,9 +1,6 @@
 #pragma once
 #include <cstdint>
 
-const int WindowWidth = 1200;
-const int WindowHeight = 1080;
-const int DebugWindowHeight = 1200;
 const int PixelScale = 3;
 const int NumberOfVRAMTileDataTiles = 384;
 const int VRAMTileDataSide = 8;
