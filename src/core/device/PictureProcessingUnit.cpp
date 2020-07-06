@@ -242,7 +242,7 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     uint16_t offset = (0x10 * tileIndex);
     uint16_t yInTile;
     if (drawWindow) {
-        yInTile = (LY - windowYPosition) % VRAMTileDataSide;
+        yInTile = windowLineCounter % VRAMTileDataSide;
     } else {
         yInTile = screenPositionYWithScroll % VRAMTileDataSide;
     }
