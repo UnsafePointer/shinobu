@@ -121,6 +121,7 @@ void Emulator::emulateFrame() {
         uint32_t averageFrameTime = frameTimes / 60;
         Shinobu::Frontend::Performance::Frame frame = { averageFrameTime, frameTimes };
         window->updateWindowTitleWithFramePerformance(frame);
+        renderer->setLastPerformanceFrame(frame);
         frameTimes = 0;
     }
 }

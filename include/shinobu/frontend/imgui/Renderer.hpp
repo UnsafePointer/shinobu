@@ -25,6 +25,7 @@ namespace Shinobu {
 
                 void update() override;
                 void handleSDLEvent(SDL_Event event) override;
+                void setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame frame) override;
             };
         };
     };

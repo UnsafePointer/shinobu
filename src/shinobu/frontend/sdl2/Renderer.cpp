@@ -6,7 +6,7 @@
 
 using namespace Shinobu::Frontend::SDL2;
 
-Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU) {
+Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), lastFrame() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO(); (void)io;
@@ -35,6 +35,13 @@ void Renderer::update() {
     }
     renderer->render();
 
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+    ImGui::Begin("", NULL, window_flags);
+    ImGui::SetWindowFontScale(3.0);
+    ImGui::Text("Avg: %d ms\nElaps: %d ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
+    ImGui::End();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(window->windowRef());
@@ -43,3 +50,7 @@ void Renderer::update() {
 void Renderer::handleSDLEvent(SDL_Event event) {
     ImGui_ImplSDL2_ProcessEvent(&event);
  }
+
+void Renderer::setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame frame) {
+    lastFrame = frame;
+}
