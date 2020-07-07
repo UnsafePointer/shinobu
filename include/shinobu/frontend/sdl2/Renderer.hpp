@@ -17,6 +17,7 @@ namespace Shinobu {
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> renderer;
                 ImGuiIO *io;
                 Shinobu::Frontend::Performance::Frame lastFrame;
+                bool shouldDisplayPerformanceOverlay;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();
