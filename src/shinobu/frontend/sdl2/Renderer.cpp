@@ -10,6 +10,7 @@ using namespace Shinobu::Frontend::SDL2;
 Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), lastFrame() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     shouldDisplayPerformanceOverlay = configurationManager->shouldLaunchFullscreen();
+    overlayScale = configurationManager->overlayScale();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -43,7 +44,7 @@ void Renderer::update() {
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
     if (shouldDisplayPerformanceOverlay) {
         ImGui::Begin("", NULL, window_flags);
-        ImGui::SetWindowFontScale(3.0);
+        ImGui::SetWindowFontScale(overlayScale);
         ImGui::Text("Avg: %d ms\nElaps: %d ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
         ImGui::End();
     }

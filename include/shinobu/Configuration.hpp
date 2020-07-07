@@ -27,6 +27,7 @@ namespace Shinobu {
             bool useImGuiFrontend;
             bool mute;
             bool launchFullscreen;
+            int scale;
 
             Manager();
         public:
@@ -47,6 +48,7 @@ namespace Shinobu {
             bool shouldUseImGuiFrontend() const;
             bool shouldMute() const;
             bool shouldLaunchFullscreen() const;
+            int overlayScale() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
