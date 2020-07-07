@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <tuple>
 #include "common/Logger.hpp"
+#include "shinobu/frontend/Performance.hpp"
 
 namespace Shinobu {
     namespace Frontend {
@@ -27,7 +28,7 @@ namespace Shinobu {
                 SDL_Window* windowRef() const;
                 SDL_GLContext GLContext() const;
                 void handleSDLEvent(SDL_Event event) const;
-                void updateWindowTitleWithSuffix(std::string suffix) const;
+                void updateWindowTitleWithFramePerformance(Shinobu::Frontend::Performance::Frame frame) const;
             };
         };
     };

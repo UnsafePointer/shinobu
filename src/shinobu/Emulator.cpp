@@ -1,13 +1,12 @@
 #include "shinobu/Emulator.hpp"
 #include <iostream>
-#include "common/Formatter.hpp"
 #include "shinobu/Configuration.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 #include <glad/glad.h>
 #include "common/System.hpp"
 #include "shinobu/frontend/sdl2/Renderer.hpp"
-#include "common/Formatter.hpp"
 #include "shinobu/frontend/sdl2/Error.hpp"
+#include "shinobu/frontend/Performance.hpp"
 
 using namespace Shinobu;
 
@@ -120,7 +119,8 @@ void Emulator::emulateFrame() {
     if (frameCounter >= 60) {
         frameCounter = 0;
         uint32_t averageFrameTime = frameTimes / 60;
-        window->updateWindowTitleWithSuffix(Common::Formatter::format(" - %d ms - %d ms", averageFrameTime, frameTimes));
+        Shinobu::Frontend::Performance::Frame frame = { averageFrameTime, frameTimes };
+        window->updateWindowTitleWithFramePerformance(frame);
         frameTimes = 0;
     }
 }

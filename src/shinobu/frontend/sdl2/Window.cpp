@@ -1,5 +1,6 @@
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include <glad/glad.h>
+#include "common/Formatter.hpp"
 
 using namespace Shinobu::Frontend::SDL2;
 
@@ -75,7 +76,7 @@ void Window::handleSDLEvent(SDL_Event event) const {
     }
 }
 
-void Window::updateWindowTitleWithSuffix(std::string suffix) const {
-    std::string titleCopy = title;
-    SDL_SetWindowTitle(window, titleCopy.append(suffix).c_str());
+void Window::updateWindowTitleWithFramePerformance(Shinobu::Frontend::Performance::Frame frame) const {
+    std::string updatedTitle = Common::Formatter::format("%s - %d ms - %d ms", title.c_str(), frame.averageFrameTime, frame.elapsedTime);
+    SDL_SetWindowTitle(window, updatedTitle.c_str());
 }
