@@ -45,6 +45,7 @@ void Renderer::update() {
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
     if (shouldDisplayPerformanceOverlay && frames.size() >= 10) {
         ImGui::Begin("Performance", NULL, window_flags);
+        ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowFontScale(overlayScale);
         Shinobu::Frontend::Performance::Frame lastFrame = frames.back();
         ImGui::Text("Avg: %d ms\nElaps: %d ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
