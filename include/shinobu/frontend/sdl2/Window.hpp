@@ -4,10 +4,14 @@
 #include <cstdint>
 #include <tuple>
 #include "common/Logger.hpp"
-#include "shinobu/frontend/Performance.hpp"
+#include "common/Performance.hpp"
 
 namespace Shinobu {
     namespace Frontend {
+        namespace Performance {
+            struct Frame;
+        };
+
         namespace SDL2 {
             class Window {
                 Common::Logs::Logger logger;
@@ -28,7 +32,7 @@ namespace Shinobu {
                 SDL_Window* windowRef() const;
                 SDL_GLContext GLContext() const;
                 void handleSDLEvent(SDL_Event event) const;
-                void updateWindowTitleWithFramePerformance(Shinobu::Frontend::Performance::Frame frame) const;
+                void updateWindowTitleWithFramePerformance(Common::Performance::Frame frame) const;
             };
         };
     };

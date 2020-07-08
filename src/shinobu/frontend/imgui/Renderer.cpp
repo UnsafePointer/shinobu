@@ -8,6 +8,7 @@
 #include "core/device/PictureProcessingUnit.hpp"
 #include "common/System.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
+#include "common/Performance.hpp"
 
 using namespace Shinobu::Frontend::Imgui;
 
@@ -93,6 +94,6 @@ void Renderer::handleSDLEvent(SDL_Event event) {
     ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
-void Renderer::setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame frame) {
+void Renderer::setLastPerformanceFrame(Common::Performance::Frame frame) {
     (void)frame;
 }

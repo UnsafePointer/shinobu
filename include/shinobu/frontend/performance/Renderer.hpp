@@ -1,10 +1,11 @@
 #pragma once
+#include <cstdint>
 #include <memory>
-#include <imgui/imgui.h>
 #include "shinobu/frontend/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include "shinobu/frontend/opengl/Renderer.hpp"
-#include "common/Performance.hpp"
+#include <imgui/imgui.h>
+#include <deque>
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -12,14 +13,15 @@ namespace Core::Device::PictureProcessingUnit {
 
 namespace Shinobu {
     namespace Frontend {
-        namespace Imgui {
+        namespace Performance {
             class Renderer : public Shinobu::Frontend::Renderer {
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> tileDataRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> backgroundMapRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> LCDOutputRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> spriteRenderer;
+                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> renderer;
                 ImGuiIO *io;
-                ImVec4 backgroundColor;
+                std::deque<Common::Performance::Frame> frames;
+                bool shouldDisplayPerformanceOverlay;
+                int overlayScale;
+                uint32_t maxValue;
+                uint32_t minValue;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();

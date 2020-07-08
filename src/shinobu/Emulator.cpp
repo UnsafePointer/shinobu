@@ -6,7 +6,7 @@
 #include "common/System.hpp"
 #include "shinobu/frontend/sdl2/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Error.hpp"
-#include "shinobu/frontend/Performance.hpp"
+#include "common/Performance.hpp"
 
 using namespace Shinobu;
 
@@ -119,7 +119,7 @@ void Emulator::emulateFrame() {
     if (frameCounter >= 60) {
         frameCounter = 0;
         uint32_t averageFrameTime = frameTimes / 60;
-        Shinobu::Frontend::Performance::Frame frame = { averageFrameTime, frameTimes };
+        Common::Performance::Frame frame = { averageFrameTime, frameTimes };
         window->updateWindowTitleWithFramePerformance(frame);
         renderer->setLastPerformanceFrame(frame);
         frameTimes = 0;

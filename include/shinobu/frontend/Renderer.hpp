@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "shinobu/frontend/sdl2/Window.hpp"
+#include "common/Performance.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -17,7 +18,7 @@ namespace Shinobu {
             ~Renderer();
             virtual void update() = 0;
             virtual void handleSDLEvent(SDL_Event event) = 0;
-            virtual void setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame frame) = 0;
+            virtual void setLastPerformanceFrame(Common::Performance::Frame frame) = 0;
         };
     };
 };
