@@ -78,6 +78,6 @@ void Window::handleSDLEvent(SDL_Event event) const {
 }
 
 void Window::updateWindowTitleWithFramePerformance(Common::Performance::Frame frame) const {
-    std::string updatedTitle = Common::Formatter::format("%s - %d ms - %d ms", title.c_str(), frame.averageFrameTime, frame.elapsedTime);
+    std::string updatedTitle = Common::Formatter::format("%s - %.2f ms - %.2f ms", title.c_str(), frame.averageFrameTime, frame.elapsedTime);
     SDL_SetWindowTitle(window, updatedTitle.c_str());
 }

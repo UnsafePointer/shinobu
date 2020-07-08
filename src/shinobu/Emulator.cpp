@@ -128,8 +128,8 @@ void Emulator::emulateFrame() {
     frameCounter++;
     if (frameCounter >= 60) {
         frameCounter = 0;
-        uint32_t averageFrameTime = frameTimes / 60;
-        Common::Performance::Frame frame = { averageFrameTime, frameTimes };
+        float averageFrameTime = (float)frameTimes / 60.0f;
+        Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
         window->updateWindowTitleWithFramePerformance(frame);
         renderer->setLastPerformanceFrame(frame);
         frameTimes = 0;

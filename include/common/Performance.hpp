@@ -4,8 +4,8 @@
 namespace Common {
     namespace Performance {
         struct Frame {
-            uint32_t averageFrameTime;
-            uint32_t elapsedTime;
+            float averageFrameTime;
+            float elapsedTime;
         };
     };
 };

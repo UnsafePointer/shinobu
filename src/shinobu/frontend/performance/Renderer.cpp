@@ -8,13 +8,13 @@
 
 using namespace Shinobu::Frontend::Performance;
 
-Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), frames(), maxValue(std::numeric_limits<uint32_t>::min()), minValue(std::numeric_limits<uint32_t>::max()) {
+Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), frames(), maxValue(std::numeric_limits<float>::min()), minValue(std::numeric_limits<float>::max()) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     shouldDisplayPerformanceOverlay = configurationManager->shouldLaunchFullscreen();
     overlayScale = configurationManager->overlayScale();
 
     for (int i = 0; i < PerformancePlotPoints; i++) {
-        Common::Performance::Frame frame = { 16, 1000 };
+        Common::Performance::Frame frame = { 16.0f, 1000.0f };
         frames.push_back(frame);
     }
 
@@ -53,7 +53,7 @@ void Renderer::update() {
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowFontScale(overlayScale);
         Common::Performance::Frame lastFrame = frames.back();
-        ImGui::Text("Avg: %d ms\nElaps: %d ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
+        ImGui::Text("Avg: %.2f ms\nElaps: %.2f ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
         GLint viewport[4];
         glGetIntegerv(GL_VIEWPORT, viewport);
         static float values[10] = {};

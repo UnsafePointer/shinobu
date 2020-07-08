@@ -20,8 +20,8 @@ namespace Shinobu {
                 std::deque<Common::Performance::Frame> frames;
                 bool shouldDisplayPerformanceOverlay;
                 int overlayScale;
-                uint32_t maxValue;
-                uint32_t minValue;
+                float maxValue;
+                float minValue;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();
