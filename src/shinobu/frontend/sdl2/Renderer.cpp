@@ -13,6 +13,11 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     shouldDisplayPerformanceOverlay = configurationManager->shouldLaunchFullscreen();
     overlayScale = configurationManager->overlayScale();
 
+    for (int i = 0; i < PerformancePlotPoints; i++) {
+        Shinobu::Frontend::Performance::Frame frame = { 16, 1000 };
+        frames.push_back(frame);
+    }
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO(); (void)io;
@@ -43,7 +48,7 @@ void Renderer::update() {
 
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-    if (shouldDisplayPerformanceOverlay && frames.size() >= 10) {
+    if (shouldDisplayPerformanceOverlay && frames.size() >= PerformancePlotPoints) {
         ImGui::Begin("Performance", NULL, window_flags);
         ImGui::SetWindowPos(ImVec2(0, 0));
         ImGui::SetWindowFontScale(overlayScale);
@@ -80,7 +85,7 @@ void Renderer::setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame fra
     frames.push_back(frame);
     minValue = std::min(frame.averageFrameTime, minValue);
     maxValue = std::max(frame.averageFrameTime, maxValue);
-    if (frames.size() > 10) {
+    if (frames.size() > PerformancePlotPoints) {
         frames.pop_front();
     }
 }
