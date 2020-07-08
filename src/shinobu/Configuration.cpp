@@ -3,17 +3,6 @@
 
 using namespace Shinobu;
 
-Configuration::Frontend Configuration::frontendWithValue(std::string value) {
-    if (value.compare("PPU") == 0) {
-        return Configuration::Frontend::PPUDebugger;
-    } else if (value.compare("SDL") == 0) {
-        return Configuration::Frontend::SDL;
-    } else if (value.compare("Perf") == 0) {
-        return Configuration::Frontend::Performance;
-    }
-    return Configuration::Frontend::Unknown;
-}
-
 Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "", false)),
     CPU(Common::Logs::Level::NoLog),
     memory(Common::Logs::Level::NoLog),
@@ -27,7 +16,7 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     joypad(Common::Logs::Level::NoLog),
     sound(Common::Logs::Level::NoLog),
     trace(),
-    frontend(Configuration::Frontend::Unknown),
+    frontend(Shinobu::Frontend::Kind::Unknown),
     mute(),
     launchFullscreen()
 {
@@ -91,7 +80,7 @@ bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
 
-Configuration::Frontend Configuration::Manager::frontendKind() const {
+Shinobu::Frontend::Kind Configuration::Manager::frontendKind() const {
     return frontend;
 }
 
@@ -161,7 +150,7 @@ void Configuration::Manager::loadConfiguration() {
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
-    frontend = frontendWithValue(configuration["frontend"]["kind"].As<std::string>());
+    frontend = Shinobu::Frontend::kindWithValue(configuration["frontend"]["kind"].As<std::string>());
     mute = configuration["audio"]["mute"].As<bool>();
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     scale = configuration["video"]["overlayScale"].As<int>();

@@ -29,8 +29,4 @@ void Renderer::update() {
 
 void Renderer::handleSDLEvent(SDL_Event event) {
     (void)event;
- }
-
-void Renderer::setLastPerformanceFrame(Common::Performance::Frame frame) {
-    (void)frame;
 }

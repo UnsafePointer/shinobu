@@ -4,7 +4,6 @@
 #include "shinobu/frontend/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include "shinobu/frontend/opengl/Renderer.hpp"
-#include "common/Performance.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -26,7 +25,7 @@ namespace Shinobu {
 
                 void update() override;
                 void handleSDLEvent(SDL_Event event) override;
-                void setLastPerformanceFrame(Common::Performance::Frame frame) override;
+                Kind frontendKind() override { return Kind::PPU; }
             };
         };
     };

@@ -28,7 +28,8 @@ namespace Shinobu {
 
                 void update() override;
                 void handleSDLEvent(SDL_Event event) override;
-                void setLastPerformanceFrame(Common::Performance::Frame frame) override;
+                Kind frontendKind() override { return Kind::Perf; }
+                void setLastPerformanceFrame(Common::Performance::Frame frame);
             };
         };
     };

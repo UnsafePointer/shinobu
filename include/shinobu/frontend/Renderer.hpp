@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include "shinobu/frontend/sdl2/Window.hpp"
-#include "common/Performance.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -9,6 +8,14 @@ namespace Core::Device::PictureProcessingUnit {
 
 namespace Shinobu {
     namespace Frontend {
+        enum Kind : uint8_t {
+            Unknown = 0,
+            PPU = 1,
+            SDL = 2,
+            Perf = 3,
+        };
+        Kind kindWithValue(std::string value);
+
         class Renderer {
         protected:
             std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window;
@@ -18,7 +25,7 @@ namespace Shinobu {
             ~Renderer();
             virtual void update() = 0;
             virtual void handleSDLEvent(SDL_Event event) = 0;
-            virtual void setLastPerformanceFrame(Common::Performance::Frame frame) = 0;
+            virtual Kind frontendKind() = 0;
         };
     };
 };

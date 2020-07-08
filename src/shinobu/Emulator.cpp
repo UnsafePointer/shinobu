@@ -15,7 +15,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 
-    Configuration::Frontend frontend = configurationManager->frontendKind();
+    Shinobu::Frontend::Kind frontend = configurationManager->frontendKind();
     isMuted = configurationManager->shouldMute();
 
     SDL_DisplayMode displayMode;
@@ -30,16 +30,16 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
     switch (frontend) {
-    case Configuration::Frontend::PPUDebugger:
+    case Shinobu::Frontend::Kind::PPU:
         renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
         break;
-    case Configuration::Frontend::SDL:
+    case Shinobu::Frontend::Kind::SDL:
         renderer = std::make_unique<Shinobu::Frontend::SDL2::Renderer>(window, PPU);
         break;
-    case Configuration::Frontend::Performance:
+    case Shinobu::Frontend::Kind::Perf:
         renderer = std::make_unique<Shinobu::Frontend::Performance::Renderer>(window, PPU);
         break;
-    case Configuration::Frontend::Unknown:
+    case Shinobu::Frontend::Kind::Unknown:
         logger.logError("Unknown frontend configuration");
         break;
     }
@@ -131,7 +131,9 @@ void Emulator::emulateFrame() {
         float averageFrameTime = (float)frameTimes / 60.0f;
         Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
         window->updateWindowTitleWithFramePerformance(frame);
-        renderer->setLastPerformanceFrame(frame);
+        if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
+            dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+        }
         frameTimes = 0;
     }
 }
