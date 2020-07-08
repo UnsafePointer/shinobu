@@ -57,6 +57,8 @@ void Renderer::update() {
             values[i] = frame.averageFrameTime;
             i++;
         }
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(121/255.0f, 97/255.0f, 177/255.0f, 0.35f));
+        ImGui::PushStyleColor(ImGuiCol_PlotLines, ImVec4(121/255.0f, 97/255.0f, 177/255.0f, 1.0f));
         ImGui::PlotLines("", values, IM_ARRAYSIZE(values), 0, "", minValue, maxValue, ImVec2(viewport[0], 0.0f));
         ImGui::End();
     }
