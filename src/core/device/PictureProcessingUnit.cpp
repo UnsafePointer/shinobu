@@ -9,10 +9,7 @@
 using namespace Core::Device::PictureProcessingUnit;
 
 Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
-    interruptConditions[Mode2] = false;
-    interruptConditions[Mode1] = false;
-    interruptConditions[Mode0] = false;
-    interruptConditions[Coincidence] = false;
+
 }
 
 Processor::~Processor() {
@@ -100,38 +97,50 @@ void Processor::store(uint16_t offset, uint8_t value) {
     }
 }
 
-bool Processor::isAnyConditionMet() {
-    return interruptConditions[Mode2] | interruptConditions[Mode1] | interruptConditions[Mode0] | interruptConditions[Coincidence];
-}
-
 void Processor::step(uint8_t cycles) {
     if (!control.LCDDisplayEnable) {
         return;
     }
     steps += cycles;
-    bool areAnyConditionsMet = isAnyConditionMet();
+    bool areAnyConditionsMet = interruptConditions != LCDCSTATInterruptCondition::None;
 
     if (LY < 144) {
         if (steps <= 80) {
             logger.logMessage("PPU in OAM (Mode 2)");
             status.setMode(SearchingOAM);
-            interruptConditions[Mode2] = status.mode2InterruptEnable;
+            if (status.mode2InterruptEnable) {
+                interruptConditions |= LCDCSTATInterruptCondition::Mode2;
+            } else {
+                interruptConditions &= ~LCDCSTATInterruptCondition::Mode2;
+            }
         } else if (steps <= 289) {
             logger.logMessage("PPU in Transfering data (Mode 3)");
             status.setMode(TransferingData);
         } else {
             logger.logMessage("PPU in HBlank (Mode 0)");
             status.setMode(HBlank);
-            interruptConditions[Mode0] = status.mode0InterruptEnable;
+            if (status.mode0InterruptEnable) {
+                status.mode0InterruptEnable |= LCDCSTATInterruptCondition::Mode0;
+            } else {
+                interruptConditions &= ~LCDCSTATInterruptCondition::Mode0;
+            }
         }
     } else {
         logger.logMessage("PPU in VBlank (Mode 1)");
         status.setMode(VBlank);
-        interruptConditions[Mode1] = status.mode1InterruptEnable;
+        if (status.mode1InterruptEnable) {
+            interruptConditions |= LCDCSTATInterruptCondition::Mode1;
+        } else {
+            interruptConditions &= ~LCDCSTATInterruptCondition::Mode1;
+        }
     }
 
     status.coincidence = LY == LYC;
-    interruptConditions[Coincidence] = status.coincidence;
+    if (status.coincidence) {
+        interruptConditions |= LCDCSTATInterruptCondition::Coincidence;
+    } else {
+        interruptConditions &= ~LCDCSTATInterruptCondition::Coincidence;
+    }
 
     if (steps >= CyclesPerScanline) {
         if (LY <= 143) {
@@ -151,7 +160,7 @@ void Processor::step(uint8_t cycles) {
         steps %= CyclesPerScanline;
     }
 
-    if (!areAnyConditionsMet && isAnyConditionMet()) {
+    if (!areAnyConditionsMet && (interruptConditions != LCDCSTATInterruptCondition::None)) {
         interrupt->requestInterrupt(Interrupt::LCDSTAT);
     }
     return;
