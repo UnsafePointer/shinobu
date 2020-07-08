@@ -5,6 +5,7 @@
 #include "shinobu/frontend/opengl/Renderer.hpp"
 #include <imgui/imgui.h>
 #include "shinobu/frontend/Performance.hpp"
+#include <deque>
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -16,9 +17,11 @@ namespace Shinobu {
             class Renderer : public Shinobu::Frontend::Renderer {
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> renderer;
                 ImGuiIO *io;
-                Shinobu::Frontend::Performance::Frame lastFrame;
+                std::deque<Shinobu::Frontend::Performance::Frame> frames;
                 bool shouldDisplayPerformanceOverlay;
                 int overlayScale;
+                uint32_t maxValue;
+                uint32_t minValue;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();

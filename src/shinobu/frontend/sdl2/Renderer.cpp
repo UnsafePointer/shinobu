@@ -4,10 +4,11 @@
 #include <imgui/sdl/imgui_impl_sdl.h>
 #include <imgui/opengl3/imgui_impl_opengl3.h>
 #include "shinobu/Configuration.hpp"
+#include <limits>
 
 using namespace Shinobu::Frontend::SDL2;
 
-Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), lastFrame() {
+Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU), frames(), maxValue(std::numeric_limits<uint32_t>::min()), minValue(std::numeric_limits<uint32_t>::max()) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     shouldDisplayPerformanceOverlay = configurationManager->shouldLaunchFullscreen();
     overlayScale = configurationManager->overlayScale();
@@ -42,10 +43,20 @@ void Renderer::update() {
 
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-    if (shouldDisplayPerformanceOverlay) {
-        ImGui::Begin("", NULL, window_flags);
+    if (shouldDisplayPerformanceOverlay && frames.size() >= 10) {
+        ImGui::Begin("Performance", NULL, window_flags);
         ImGui::SetWindowFontScale(overlayScale);
+        Shinobu::Frontend::Performance::Frame lastFrame = frames.back();
         ImGui::Text("Avg: %d ms\nElaps: %d ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
+        GLint viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+        static float values[10] = {};
+        int i = 0;
+        for (Shinobu::Frontend::Performance::Frame frame : frames) {
+            values[i] = frame.averageFrameTime;
+            i++;
+        }
+        ImGui::PlotLines("", values, IM_ARRAYSIZE(values), 0, "", minValue, maxValue, ImVec2(viewport[0], 0.0f));
         ImGui::End();
     }
 
@@ -63,5 +74,10 @@ void Renderer::handleSDLEvent(SDL_Event event) {
  }
 
 void Renderer::setLastPerformanceFrame(Shinobu::Frontend::Performance::Frame frame) {
-    lastFrame = frame;
+    frames.push_back(frame);
+    minValue = std::min(frame.averageFrameTime, minValue);
+    maxValue = std::max(frame.averageFrameTime, maxValue);
+    if (frames.size() > 10) {
+        frames.pop_front();
+    }
 }
