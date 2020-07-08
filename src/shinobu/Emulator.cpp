@@ -7,6 +7,7 @@
 #include "shinobu/frontend/sdl2/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Error.hpp"
 #include "common/Performance.hpp"
+#include "shinobu/frontend/performance/Renderer.hpp"
 
 using namespace Shinobu;
 
@@ -14,7 +15,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 
-    bool shouldUseImGuiFrontend = configurationManager->shouldUseImGuiFrontend();
+    Configuration::Frontend frontend = configurationManager->frontendKind();
     isMuted = configurationManager->shouldMute();
 
     SDL_DisplayMode displayMode;
@@ -28,10 +29,19 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
 
-    if (shouldUseImGuiFrontend) {
+    switch (frontend) {
+    case Configuration::Frontend::PPUDebugger:
         renderer = std::make_unique<Shinobu::Frontend::Imgui::Renderer>(window, PPU);
-    } else {
+        break;
+    case Configuration::Frontend::SDL:
         renderer = std::make_unique<Shinobu::Frontend::SDL2::Renderer>(window, PPU);
+        break;
+    case Configuration::Frontend::Performance:
+        renderer = std::make_unique<Shinobu::Frontend::Performance::Renderer>(window, PPU);
+        break;
+    case Configuration::Frontend::Unknown:
+        logger.logError("Unknown frontend configuration");
+        break;
     }
     PPU->setRenderer(renderer.get());
 

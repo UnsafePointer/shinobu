@@ -5,6 +5,13 @@
 
 namespace Shinobu {
     namespace Configuration {
+        enum Frontend : uint8_t {
+            Unknown = 0,
+            PPUDebugger = 1,
+            SDL = 2,
+            Performance = 3,
+        };
+        Frontend frontendWithValue(std::string value);
 
         const std::filesystem::path filePath = std::filesystem::current_path() / "shinobu.yaml";
 
@@ -24,7 +31,7 @@ namespace Shinobu {
             Common::Logs::Level joypad;
             Common::Logs::Level sound;
             bool trace;
-            bool useImGuiFrontend;
+            Frontend frontend;
             bool mute;
             bool launchFullscreen;
             int scale;
@@ -45,7 +52,7 @@ namespace Shinobu {
             Common::Logs::Level joypadLogLevel() const;
             Common::Logs::Level soundLogLevel() const;
             bool shouldTraceLogs() const;
-            bool shouldUseImGuiFrontend() const;
+            Configuration::Frontend frontendKind() const;
             bool shouldMute() const;
             bool shouldLaunchFullscreen() const;
             int overlayScale() const;

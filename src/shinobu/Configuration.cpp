@@ -3,6 +3,17 @@
 
 using namespace Shinobu;
 
+Configuration::Frontend Configuration::frontendWithValue(std::string value) {
+    if (value.compare("PPU") == 0) {
+        return Configuration::Frontend::PPUDebugger;
+    } else if (value.compare("SDL") == 0) {
+        return Configuration::Frontend::SDL;
+    } else if (value.compare("Perf") == 0) {
+        return Configuration::Frontend::Performance;
+    }
+    return Configuration::Frontend::Unknown;
+}
+
 Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "", false)),
     CPU(Common::Logs::Level::NoLog),
     memory(Common::Logs::Level::NoLog),
@@ -16,7 +27,7 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     joypad(Common::Logs::Level::NoLog),
     sound(Common::Logs::Level::NoLog),
     trace(),
-    useImGuiFrontend(),
+    frontend(Configuration::Frontend::Unknown),
     mute(),
     launchFullscreen()
 {
@@ -80,8 +91,8 @@ bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
 
-bool Configuration::Manager::shouldUseImGuiFrontend() const {
-    return useImGuiFrontend;
+Configuration::Frontend Configuration::Manager::frontendKind() const {
+    return frontend;
 }
 
 bool Configuration::Manager::shouldMute() const {
@@ -109,9 +120,9 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
-    Yaml::Node PPUConfiguration = Yaml::Node();
-    Yaml::Node &PPUConfigurationRef = PPUConfiguration;
-    PPUConfigurationRef["debugger"] = "false";
+    Yaml::Node frontendConfiguration = Yaml::Node();
+    Yaml::Node &frontendConfigurationRef = frontendConfiguration;
+    frontendConfigurationRef["kind"] = "SDL";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -129,7 +140,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
-    configurationRef["PPU"] = PPUConfiguration;
+    configurationRef["frontend"] = frontendConfiguration;
     configurationRef["audio"] = audioConfiguration;
     configurationRef["video"] = videoConfiguration;
     Yaml::Serialize(configuration, filePath.string().c_str());
@@ -150,7 +161,7 @@ void Configuration::Manager::loadConfiguration() {
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
-    useImGuiFrontend = configuration["PPU"]["debugger"].As<bool>();
+    frontend = frontendWithValue(configuration["frontend"]["kind"].As<std::string>());
     mute = configuration["audio"]["mute"].As<bool>();
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     scale = configuration["video"]["overlayScale"].As<int>();
