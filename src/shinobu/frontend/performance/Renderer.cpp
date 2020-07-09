@@ -56,7 +56,7 @@ void Renderer::update() {
         ImGui::Text("Avg: %.2f ms\nElaps: %.2f ms", lastFrame.averageFrameTime, lastFrame.elapsedTime);
         GLint viewport[4];
         glGetIntegerv(GL_VIEWPORT, viewport);
-        static float values[10] = {};
+        static float values[PerformancePlotPoints] = {};
         int i = 0;
         for (Common::Performance::Frame frame : frames) {
             values[i] = frame.averageFrameTime;
