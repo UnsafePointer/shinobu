@@ -39,7 +39,7 @@ std::array<Vertex, 6> Renderer::verticesForPixel(Vertex pixel) const {
 }
 
 void Renderer::addPixels(std::vector<Vertex> pixels) {
-    std::vector<Vertex> vertices = {};
+    std::vector<Vertex> vertices = std::vector<Vertex>(pixels.size() * 6);
     for (const auto& pixel : pixels) {
         std::array<Vertex, 6> verticesForPixel = this->verticesForPixel(pixel);
         vertices.insert(vertices.end(), verticesForPixel.begin(), verticesForPixel.end());
