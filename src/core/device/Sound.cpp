@@ -22,10 +22,10 @@ void Controller::store(uint16_t address, uint8_t value) {
     apu.write_register(clock(), address, value);
 }
 
-void Controller::endFrame() {
+void Controller::step(uint8_t cycles) {
 	time = 0;
-	bool stereo = apu.end_frame(CyclesPerFrame);
-	buffer.end_frame(CyclesPerFrame, stereo);
+	bool stereo = apu.end_frame(cycles);
+	buffer.end_frame(cycles, stereo);
 }
 
 long Controller::availableSamples() const {

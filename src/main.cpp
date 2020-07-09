@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             emulator.handleSDLEvent(event);
         }
-        emulator.emulateFrame();
+        emulator.emulate();
     }
     emulator.saveExternalRAM();
     return 0;

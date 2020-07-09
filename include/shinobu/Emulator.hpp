@@ -33,7 +33,9 @@ namespace Shinobu {
         std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
 
         bool shouldSkipBootROM;
+        uint32_t currentFrameCycles;
         uint32_t frameCounter;
+        uint32_t frameTime;
         uint32_t frameTimes;
 
         Sound_Queue soundQueue;
@@ -51,7 +53,7 @@ namespace Shinobu {
         void setROMFilePath(std::filesystem::path &filePath);
         void setShouldSkipBootROM(bool skipBootROM);
         void powerUp();
-        void emulateFrame();
+        void emulate();
         void handleSDLEvent(SDL_Event event);
         bool shouldExit() const;
         void saveExternalRAM();

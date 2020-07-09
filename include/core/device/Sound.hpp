@@ -28,7 +28,7 @@ namespace Core {
                 typedef blip_sample_t sample_t;
                 long readSamples(sample_t* out, long count);
                 blargg_err_t setSampleRate(long rate);
-                void endFrame();
+                void step(uint8_t cycles);
             };
         };
     };

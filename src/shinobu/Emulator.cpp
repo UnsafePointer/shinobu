@@ -11,7 +11,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), frameCounter(), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
+Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 
@@ -80,10 +80,6 @@ void Emulator::setupOpenGL() const {
 }
 
 void Emulator::enqueueSound() {
-    if (isMuted) {
-        return;
-    }
-    sound->endFrame();
     static blip_sample_t buffer[AudioBufferSize];
     long count = sound->readSamples(buffer, AudioBufferSize);
     soundQueue.write(buffer, count);
@@ -102,10 +98,8 @@ void Emulator::powerUp() {
     processor->initialize();
 }
 
-void Emulator::emulateFrame() {
-    uint32_t currentCycles = 0;
-    uint32_t frameTime = SDL_GetTicks();
-    while (currentCycles < CyclesPerFrame) {
+void Emulator::emulate() {
+    while (sound->availableSamples() <= AudioBufferSize) {
         uint8_t cycles;
         Core::CPU::Instructions::Instruction instruction;
         if (!processor->isHalted()) {
@@ -117,25 +111,30 @@ void Emulator::emulateFrame() {
             instruction = Core::CPU::Instructions::Instruction(0x76, false);
             cycles = 4;
         }
+        sound->step(cycles);
         PPU->step(cycles);
         timer->step(cycles);
         joypad->updateJoypad();
         processor->checkPendingInterrupts(instruction);
-        currentCycles += cycles;
+        currentFrameCycles += cycles;
+        if (currentFrameCycles >= CyclesPerFrame) {
+            currentFrameCycles %= CyclesPerFrame;
+            frameCounter++;
+            frameTimes += SDL_GetTicks() - frameTime;
+            frameTime = SDL_GetTicks();
+            if (frameCounter >= 60) {
+                frameCounter = 0;
+                float averageFrameTime = (float)frameTimes / 60.0f;
+                Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
+                window->updateWindowTitleWithFramePerformance(frame);
+                if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
+                    dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+                }
+                frameTimes = 0;
+            }
+        }
     }
     enqueueSound();
-    frameTimes += SDL_GetTicks() - frameTime;
-    frameCounter++;
-    if (frameCounter >= 60) {
-        frameCounter = 0;
-        float averageFrameTime = (float)frameTimes / 60.0f;
-        Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
-        window->updateWindowTitleWithFramePerformance(frame);
-        if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
-            dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
-        }
-        frameTimes = 0;
-    }
 }
 
 void Emulator::handleSDLEvent(SDL_Event event) {
