@@ -8,6 +8,8 @@
 #include "core/device/Timer.hpp"
 #include "core/device/JoypadInput.hpp"
 #include "core/device/Sound.hpp"
+#include <cstring>
+#include "common/System.hpp"
 
 using namespace Core::Memory;
 
@@ -73,7 +75,18 @@ void BankController::loadExternalRAMFromSaveFile() {
     logger.logMessage("Opened save file path of size: %x", fileSize);
 
     file.seekg(0, file.beg);
-    file.read(reinterpret_cast<char *>(&externalRAM[0]), fileSize);
+    file.read(reinterpret_cast<char *>(&externalRAM[0]), cartridge->RAMSize());
+
+    if (fileSize > cartridge->RAMSize() && cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+        uint32_t remainingData = (uint32_t)fileSize - cartridge->RAMSize();
+        if (remainingData > ClockDataSize) {
+            logger.logError("Can't load incompatible clock data of size: %d", remainingData);
+            return;
+        }
+        std::vector<uint8_t> clockData = std::vector<uint8_t>(ClockDataSize);
+        file.read(reinterpret_cast<char *>(&clockData[0]), ClockDataSize);
+        dynamic_cast<Core::Memory::MBC3::Controller*>(this)->loadClockData(clockData);
+    }
 
     file.close();
 }
@@ -83,11 +96,16 @@ void BankController::saveExternalRAM() {
         return;
     }
     if (cartridge->header.cartridgeType == Core::ROM::Type::MBC1_RAM_BATTERY ||
-        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY) {
-        std::ofstream logfile = std::ofstream();
-        logfile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
-        logfile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
-        logfile.close();
+        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY ||
+        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+        std::ofstream saveFile = std::ofstream();
+        saveFile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
+        saveFile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
+        if (cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+            std::vector<uint8_t> clockData = dynamic_cast<Core::Memory::MBC3::Controller*>(this)->clockData();
+            saveFile.write(reinterpret_cast<char *>(&clockData[0]), clockData.size());
+        }
+        saveFile.close();
     }
 }
 
@@ -361,12 +379,26 @@ uint8_t MBC3::Controller::load(uint16_t address) const {
     offset = ExternalRAM.contains(address);
     if (offset) {
         if (_RAMG.enableAccess == 0b1010) {
-            uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
-            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
-            return externalRAM[physicalAddress];
-        } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
-            logger.logWarning("Unhandled RTC register load with index: %02x", _RAMBANK_RTCRegister._value);
-            return 0;
+            if (_RAMBANK_RTCRegister._value <= 0x3) {
+                uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
+                uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+                return externalRAM[physicalAddress];
+            } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+                switch (_RAMBANK_RTCRegister._value) {
+                case 0x08:
+                    return _RTCS;
+                case 0x09:
+                    return _RTCM;
+                case 0x0A:
+                    return _RTCH;
+                case 0x0B:
+                    return _RTCDL;
+                case 0x0C:
+                    return _RTCDH._value;
+                }
+            } else {
+                logger.logMessage("Unhandled load at External RAM range with address: %04x", address);
+            }
         } else {
             return 0xFF;
         }
@@ -395,22 +427,110 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
     }
     offset = LatchClockDataRange.contains(address);
     if (offset) {
+        if (latchClockData == 0x0 && value == 0x1) {
+            calculateTime();
+        }
         latchClockData = value;
         return;
     }
     offset = ExternalRAM.contains(address);
     if (offset) {
         if (_RAMG.enableAccess == 0b1010) {
-            uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
-            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
-            externalRAM[physicalAddress] = value;
-        } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
-            logger.logWarning("Unhandled RTC register write with index: %02x and value: %02x", _RAMBANK_RTCRegister._value, value);
+            if (_RAMBANK_RTCRegister._value <= 0x3) {
+                uint32_t upperMask = _RAMBANK_RTCRegister.bank2;
+                uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+                externalRAM[physicalAddress] = value;
+            } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+                switch (_RAMBANK_RTCRegister._value) {
+                case 0x08:
+                    _RTCS = value;
+                    break;
+                case 0x09:
+                    _RTCM = value;
+                    break;
+                case 0x0A:
+                    _RTCH = value;
+                    break;
+                case 0x0B:
+                    _RTCDL = value;
+                    break;
+                case 0x0C:
+                    _RTCDH._value = value;
+                    break;
+                }
+            } else {
+                logger.logMessage("Unhandled store at External RAM range with address: %04x and value: %02x", address, value);
+            }
         }
         return;
     }
     storeInternal(address, value);
     return;
+}
+
+void MBC3::Controller::calculateTime() {
+    if (_RTCDH.halt) {
+        return;
+    }
+    auto now = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsedTime = now - lastTimePoint;
+    auto elapsedTimeSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedTime);
+    if (elapsedTimeSeconds.count() <= 0) {
+        return;
+    }
+    elapsedTimeSeconds += std::chrono::seconds(_RTCS);
+    elapsedTimeSeconds += std::chrono::minutes(_RTCM);
+    elapsedTimeSeconds += std::chrono::hours(_RTCH);
+    uint16_t currentDays = _RTCDH.dayCounterMSB << 8 | _RTCDL;
+    elapsedTimeSeconds += std::chrono::hours(currentDays) * 24;
+    auto days = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::duration_cast<std::chrono::hours>(elapsedTimeSeconds) % std::chrono::hours(24 * 365)).count();
+    _RTCDL = days & 0xFF;
+    _RTCDH.dayCounterCarry = days & 0x100;
+    _RTCH = std::chrono::duration_cast<std::chrono::hours>(elapsedTimeSeconds).count();
+    _RTCM = std::chrono::duration_cast<std::chrono::minutes>(elapsedTimeSeconds % std::chrono::hours(1)).count();
+    _RTCS = std::chrono::duration_cast<std::chrono::seconds>(elapsedTimeSeconds % std::chrono::minutes(1)).count();
+    lastTimePoint = now;
+}
+
+std::vector<uint8_t> MBC3::Controller::clockData() {
+    uint8_t latchedRTCS = _RTCS;
+    uint8_t latchedRTCM = _RTCM;
+    uint8_t latchedRTCH = _RTCH;
+    uint8_t latchedRTCDL = _RTCDL;
+    uint8_t latchedRTCDH = _RTCDH._value;
+    calculateTime();
+
+    std::vector<uint8_t> clockData = {
+        _RTCS, 0x0, 0x0, 0x0,
+        _RTCM, 0x0, 0x0, 0x0,
+        _RTCH, 0x0, 0x0, 0x0,
+        _RTCDL, 0x0, 0x0, 0x0,
+        _RTCDH._value, 0x0, 0x0, 0x0,
+        latchedRTCS, 0x0, 0x0, 0x0,
+        latchedRTCM, 0x0, 0x0, 0x0,
+        latchedRTCH, 0x0, 0x0, 0x0,
+        latchedRTCDL, 0x0, 0x0, 0x0,
+        latchedRTCDH, 0x0, 0x0, 0x0,
+    };
+
+    auto epochNow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    uint8_t serializableEpochNow[sizeof(epochNow)];
+    std::copy(reinterpret_cast<char *>(reinterpret_cast<void*>(&epochNow)), reinterpret_cast<char *>(static_cast<void*>(&epochNow)) + sizeof(epochNow), serializableEpochNow);
+    clockData.insert(clockData.end(), &serializableEpochNow[0], &serializableEpochNow[sizeof(epochNow)]);
+    return clockData;
+}
+
+void MBC3::Controller::loadClockData(std::vector<uint8_t> clockData) {
+    long int epoch;
+    std::memcpy(&epoch, &clockData[40], sizeof(epoch));
+
+    auto value = std::chrono::duration<long int>(epoch);
+    lastTimePoint = std::chrono::time_point<std::chrono::system_clock>(value);
+    _RTCS = clockData[0];
+    _RTCM = clockData[4];
+    _RTCH = clockData[8];
+    _RTCDL = clockData[12];
+    _RTCDH._value = clockData[16];
 }
 
 Controller::Controller(Common::Logs::Level logLevel,
@@ -455,6 +575,7 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC3:
     case Core::ROM::MBC3_RAM:
     case Core::ROM::MBC3_RAM_BATTERY:
+    case Core::ROM::MBC3_TIMER_RAM_BATTERY:
         bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
         break;
     default:

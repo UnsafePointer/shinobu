@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 #include <common/Logger.hpp>
+#include <chrono>
 
 namespace Core {
     namespace Device {
@@ -204,11 +205,31 @@ namespace Core {
                 RAMBANK() : _value() {}
             };
 
+            union RTCDH {
+                uint8_t _value;
+                struct {
+                    uint8_t dayCounterMSB : 1;
+                    uint8_t unused : 5;
+                    uint8_t halt : 1;
+                    uint8_t dayCounterCarry : 1;
+                };
+
+                RTCDH() : _value() {}
+            };
+
             class Controller : public BankController {
                 MBC1::RAMG _RAMG;
                 ROMBANK _ROMBANK;
                 RAMBANK _RAMBANK_RTCRegister;
                 uint8_t latchClockData;
+                uint8_t _RTCS;
+                uint8_t _RTCM;
+                uint8_t _RTCH;
+                uint8_t _RTCDL;
+                RTCDH _RTCDH;
+                std::chrono::time_point<std::chrono::system_clock> lastTimePoint;
+
+                void calculateTime();
             public:
                 Controller(Common::Logs::Level logLevel,
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
@@ -217,9 +238,14 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad),
+                            _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
+
+                // http://bgb.bircd.org/rtcsave.html
+                std::vector<uint8_t> clockData();
+                void loadClockData(std::vector<uint8_t> clockData);
             };
         };
 
