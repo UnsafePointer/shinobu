@@ -96,3 +96,7 @@ imgui.ini
 # Valgrind
 
 callgrind.*
+
+# Game Boy Color
+
+*.gbc
