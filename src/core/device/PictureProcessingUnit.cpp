@@ -54,6 +54,9 @@ void Processor::store(uint16_t offset, uint8_t value) {
     switch (offset) {
     case 0x0:
         control._value = value;
+        if (!control.LCDDisplayEnable) {
+            LY = 0;
+        }
         return;
     case 0x1: {
         status._value &= ~0xF8;
