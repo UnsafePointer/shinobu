@@ -3,9 +3,14 @@
 
 using namespace Core::Device::Sound;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [Sound]: "), apu(), buffer(), time() {
+Controller::Controller(Common::Logs::Level logLevel, bool mute) : logger(logLevel, "  [Sound]: "), apu(), buffer(), time(), muted(mute) {
     apu.treble_eq(-20.0);
 	buffer.bass_freq(461);
+	if (muted) {
+		apu.volume(0.0f);
+	} else {
+		apu.volume(1.0f);
+	}
 }
 
 Controller::~Controller() {}
@@ -40,4 +45,13 @@ blargg_err_t Controller::setSampleRate(long rate) {
 	apu.output(buffer.center(), buffer.left(), buffer.right());
 	buffer.clock_rate(CyclesPerSecond);
 	return buffer.set_sample_rate(rate);
+}
+
+void Controller::toggleMute() {
+	muted = !muted;
+	if (muted) {
+		apu.volume(0.0f);
+	} else {
+		apu.volume(1.0f);
+	}
 }

@@ -45,7 +45,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     }
     PPU->setRenderer(renderer.get());
 
-    sound = std::make_unique<Core::Device::Sound::Controller>(configurationManager->soundLogLevel());
+    sound = std::make_unique<Core::Device::Sound::Controller>(configurationManager->soundLogLevel(), isMuted);
     sound->setSampleRate(SampleRate);
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt);
@@ -55,9 +55,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
 
-    if (!isMuted) {
-        soundQueue.start(SampleRate, 2);
-    }
+    soundQueue.start(SampleRate, 2);
 }
 
 Emulator::~Emulator() {
@@ -140,6 +138,10 @@ void Emulator::emulate() {
 void Emulator::handleSDLEvent(SDL_Event event) {
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
         stopEmulation = true;
+        return;
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m) {
+        sound->toggleMute();
         return;
     }
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {

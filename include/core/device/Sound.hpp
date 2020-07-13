@@ -18,8 +18,9 @@ namespace Core {
                 blip_time_t time;
 
                 blip_time_t clock();
+                bool muted;
             public:
-                Controller(Common::Logs::Level logLevel);
+                Controller(Common::Logs::Level logLevel, bool mute);
                 ~Controller();
 
                 uint8_t load(uint16_t address);
@@ -29,6 +30,7 @@ namespace Core {
                 long readSamples(sample_t* out, long count);
                 blargg_err_t setSampleRate(long rate);
                 void step(uint8_t cycles);
+                void toggleMute();
             };
         };
     };
