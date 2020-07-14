@@ -474,21 +474,23 @@ void MBC3::Controller::calculateTime() {
     }
     auto now = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsedTime = now - lastTimePoint;
-    auto elapsedTimeSeconds = std::chrono::duration_cast<std::chrono::seconds>(elapsedTime);
-    if (elapsedTimeSeconds.count() <= 0) {
+    auto elapsedTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime);
+    if (elapsedTimeMilliseconds.count() < 1000) {
         return;
     }
-    elapsedTimeSeconds += std::chrono::seconds(_RTCS);
-    elapsedTimeSeconds += std::chrono::minutes(_RTCM);
-    elapsedTimeSeconds += std::chrono::hours(_RTCH);
+    elapsedTimeMilliseconds += calculationReminder;
+    elapsedTimeMilliseconds += std::chrono::seconds(_RTCS);
+    elapsedTimeMilliseconds += std::chrono::minutes(_RTCM);
+    elapsedTimeMilliseconds += std::chrono::hours(_RTCH);
     uint16_t currentDays = _RTCDH.dayCounterMSB << 8 | _RTCDL;
-    elapsedTimeSeconds += std::chrono::hours(currentDays) * 24;
-    auto days = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::duration_cast<std::chrono::hours>(elapsedTimeSeconds) % std::chrono::hours(24 * 365)).count();
+    elapsedTimeMilliseconds += std::chrono::hours(currentDays) * 24;
+    auto days = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::duration_cast<std::chrono::hours>(elapsedTimeMilliseconds) % std::chrono::hours(24 * 365)).count();
     _RTCDL = days & 0xFF;
     _RTCDH.dayCounterCarry = days & 0x100;
-    _RTCH = std::chrono::duration_cast<std::chrono::hours>(elapsedTimeSeconds).count();
-    _RTCM = std::chrono::duration_cast<std::chrono::minutes>(elapsedTimeSeconds % std::chrono::hours(1)).count();
-    _RTCS = std::chrono::duration_cast<std::chrono::seconds>(elapsedTimeSeconds % std::chrono::minutes(1)).count();
+    _RTCH = std::chrono::duration_cast<std::chrono::hours>(elapsedTimeMilliseconds).count();
+    _RTCM = std::chrono::duration_cast<std::chrono::minutes>(elapsedTimeMilliseconds % std::chrono::hours(1)).count();
+    _RTCS = std::chrono::duration_cast<std::chrono::seconds>(elapsedTimeMilliseconds % std::chrono::minutes(1)).count();
+    calculationReminder = elapsedTimeMilliseconds % std::chrono::seconds(1);
     lastTimePoint = now;
 }
 

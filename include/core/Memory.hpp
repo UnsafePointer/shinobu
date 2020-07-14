@@ -228,6 +228,7 @@ namespace Core {
                 uint8_t _RTCDL;
                 RTCDH _RTCDH;
                 std::chrono::time_point<std::chrono::system_clock> lastTimePoint;
+                std::chrono::milliseconds calculationReminder;
 
                 void calculateTime();
             public:
@@ -239,7 +240,7 @@ namespace Core {
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
                            std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad),
-                            _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()) {};
+                            _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()), calculationReminder() {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
 
