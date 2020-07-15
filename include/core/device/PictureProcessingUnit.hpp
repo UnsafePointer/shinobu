@@ -107,7 +107,7 @@ namespace Core {
                 };
 
                 LCDStatus() : _value(0x3) {}
-                LCDCMode mode() { return LCDCMode(_mode); }
+                LCDCMode mode() const { return LCDCMode(_mode); }
                 void setMode(LCDCMode mode) { _mode = mode; }
              };
 
