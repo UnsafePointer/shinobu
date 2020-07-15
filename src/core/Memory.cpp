@@ -141,8 +141,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = SpriteAttributeTable.contains(address);
     if (offset) {
-        logger.logWarning("Unhandled Sprite attribute table load at address: %04x", address);
-        return 0;
+        return PPU->OAMLoad(*offset);
     }
     offset = NotUsable.contains(address);
     if (offset) {

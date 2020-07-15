@@ -174,6 +174,10 @@ void Processor::VRAMStore(uint16_t offset, uint8_t value) {
     memory[offset] = value;
 }
 
+uint8_t Processor::OAMLoad(uint16_t offset) const {
+    return spriteAttributeTable[offset];
+}
+
 void Processor::OAMStore(uint16_t offset, uint8_t value) {
     spriteAttributeTable[offset] = value;
 }

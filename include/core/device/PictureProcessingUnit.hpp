@@ -187,6 +187,7 @@ namespace Core {
                 void store(uint16_t offset, uint8_t value);
                 uint8_t VRAMLoad(uint16_t offset) const;
                 void VRAMStore(uint16_t offset, uint8_t value);
+                uint8_t OAMLoad(uint16_t offset) const;
                 void OAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
