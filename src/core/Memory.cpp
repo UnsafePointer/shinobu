@@ -490,7 +490,7 @@ void MBC3::Controller::calculateTime(bool overrideHalt) {
     if (elapsedTimeMilliseconds.count() < 1000) {
         return;
     }
-    elapsedTimeMilliseconds += calculationReminder;
+    elapsedTimeMilliseconds += calculationRemainder;
     elapsedTimeMilliseconds += std::chrono::seconds(_RTCS);
     elapsedTimeMilliseconds += std::chrono::minutes(_RTCM);
     elapsedTimeMilliseconds += std::chrono::hours(_RTCH);
@@ -503,7 +503,7 @@ void MBC3::Controller::calculateTime(bool overrideHalt) {
     _RTCH = std::chrono::duration_cast<std::chrono::hours>(elapsedTimeMilliseconds % std::chrono::hours(24)).count();
     _RTCM = std::chrono::duration_cast<std::chrono::minutes>(elapsedTimeMilliseconds % std::chrono::hours(1)).count();
     _RTCS = std::chrono::duration_cast<std::chrono::seconds>(elapsedTimeMilliseconds % std::chrono::minutes(1)).count();
-    calculationReminder = elapsedTimeMilliseconds % std::chrono::seconds(1);
+    calculationRemainder = elapsedTimeMilliseconds % std::chrono::seconds(1);
     lastTimePoint = now;
 }
 
