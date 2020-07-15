@@ -166,7 +166,7 @@ void Processor::step(uint8_t cycles) {
     return;
 }
 
-uint8_t Processor::VRAMload(uint16_t offset) const {
+uint8_t Processor::VRAMLoad(uint16_t offset) const {
     return memory[offset];
 }
 

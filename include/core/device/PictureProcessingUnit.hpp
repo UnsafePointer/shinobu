@@ -185,7 +185,7 @@ namespace Core {
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
-                uint8_t VRAMload(uint16_t offset) const;
+                uint8_t VRAMLoad(uint16_t offset) const;
                 void VRAMStore(uint16_t offset, uint8_t value);
                 void OAMStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
