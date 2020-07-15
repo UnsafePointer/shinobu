@@ -229,8 +229,9 @@ namespace Core {
                 RTCDH _RTCDH;
                 std::chrono::time_point<std::chrono::system_clock> lastTimePoint;
                 std::chrono::milliseconds calculationReminder;
+                bool hasRTC;
 
-                void calculateTime();
+                void calculateTime(bool overrideHalt = false);
             public:
                 Controller(Common::Logs::Level logLevel,
                            std::unique_ptr<Core::ROM::Cartridge> &cartridge,
@@ -239,8 +240,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad),
-                            _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()), calculationReminder() {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad, bool hasRTC) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad),
+                            _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()), calculationReminder(), hasRTC(hasRTC) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
 

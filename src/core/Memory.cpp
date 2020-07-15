@@ -384,6 +384,9 @@ uint8_t MBC3::Controller::load(uint16_t address) const {
                 uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
                 return externalRAM[physicalAddress];
             } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+                if (!hasRTC) {
+                    logger.logWarning("Using RTC registers when RTC isn't available");
+                }
                 switch (_RAMBANK_RTCRegister._value) {
                 case 0x08:
                     return _RTCS;
@@ -427,6 +430,9 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
     }
     offset = LatchClockDataRange.contains(address);
     if (offset) {
+        if (!hasRTC) {
+            logger.logWarning("Using RTC registers when RTC isn't available");
+        }
         if (latchClockData == 0x0 && value == 0x1) {
             calculateTime();
         }
@@ -441,6 +447,9 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
                 uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
                 externalRAM[physicalAddress] = value;
             } else if (_RAMBANK_RTCRegister._value >= 0x08 && _RAMBANK_RTCRegister._value <= 0x0C) {
+                if (!hasRTC) {
+                    logger.logWarning("Using RTC registers when RTC isn't available");
+                }
                 switch (_RAMBANK_RTCRegister._value) {
                 case 0x08:
                     _RTCS = value;
@@ -468,8 +477,11 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
     return;
 }
 
-void MBC3::Controller::calculateTime() {
-    if (_RTCDH.halt) {
+void MBC3::Controller::calculateTime(bool overrideHalt) {
+    if (_RTCDH.halt && !overrideHalt) {
+        return;
+    }
+    if (!hasRTC) {
         return;
     }
     auto now = std::chrono::system_clock::now();
@@ -500,7 +512,7 @@ std::vector<uint8_t> MBC3::Controller::clockData() {
     uint8_t latchedRTCH = _RTCH;
     uint8_t latchedRTCDL = _RTCDL;
     uint8_t latchedRTCDH = _RTCDH._value;
-    calculateTime();
+    calculateTime(true);
 
     std::vector<uint8_t> clockData = {
         _RTCS, 0x0, 0x0, 0x0,
@@ -574,11 +586,15 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        break;
     case Core::ROM::MBC3:
     case Core::ROM::MBC3_RAM:
     case Core::ROM::MBC3_RAM_BATTERY:
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, false);
+        break;
     case Core::ROM::MBC3_TIMER_RAM_BATTERY:
-        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, true);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
