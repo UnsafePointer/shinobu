@@ -280,7 +280,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         return;
     }
     logger.logError("Unhandled store at address: %04x with value: %02x", address, value);
-    exit(1);
+    return;
 }
 
 uint8_t ROM::Controller::load(uint16_t address) const {
