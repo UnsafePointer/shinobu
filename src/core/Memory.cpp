@@ -588,6 +588,7 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC3_RAM_BATTERY:
         bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, false);
         break;
+    case Core::ROM::MBC3_TIMER_BATTERY:
     case Core::ROM::MBC3_TIMER_RAM_BATTERY:
         bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, true);
         break;
