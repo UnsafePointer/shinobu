@@ -54,6 +54,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
+    PPU->setMemoryController(memoryController);
 
     soundQueue.start(SampleRate, 2);
 }

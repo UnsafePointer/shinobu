@@ -132,7 +132,6 @@ namespace Core {
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
-            const Core::Memory::Range DMATransferRange = Core::Memory::Range(0xFF46, 0x1);
 
             enum LCDCSTATInterruptCondition : uint8_t {
                 None = 0,
@@ -167,6 +166,9 @@ namespace Core {
                 Shinobu::Frontend::Renderer *renderer;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> scanlines;
 
+                Core::Memory::Controller *memoryController;
+                uint8_t DMA;
+
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
@@ -182,6 +184,7 @@ namespace Core {
                 ~Processor();
 
                 void setRenderer(Shinobu::Frontend::Renderer *renderer);
+                void setMemoryController(std::unique_ptr<Core::Memory::Controller> &memoryController);
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);

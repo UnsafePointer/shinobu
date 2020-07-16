@@ -238,13 +238,8 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         }
         offset = Device::PictureProcessingUnit::AddressRange.contains(address);
         if (offset) {
-            if (Device::PictureProcessingUnit::DMATransferRange.contains(address)) {
-                executeDMA(value);
-                return;
-            } else {
-                PPU->store(*offset, value);
-                return;
-            }
+            PPU->store(*offset, value);
+            return;
         }
         offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
         if (offset) {
@@ -642,4 +637,8 @@ void Controller::storeDoubleWord(uint16_t address, uint16_t value) {
     store(address, lsb);
     uint8_t msb = value >> 8;
     store(address + 1, msb);
+}
+
+void Controller::executeDMA(uint8_t value) {
+    bankController->executeDMA(value);
 }

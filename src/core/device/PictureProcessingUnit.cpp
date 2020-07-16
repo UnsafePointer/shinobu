@@ -8,7 +8,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA() {
 
 }
 
@@ -18,6 +18,10 @@ Processor::~Processor() {
 
 void Processor::setRenderer(Shinobu::Frontend::Renderer *renderer) {
     this->renderer = renderer;
+}
+
+void Processor::setMemoryController(std::unique_ptr<Core::Memory::Controller> &memoryController) {
+    this->memoryController = memoryController.get();
 }
 
 uint8_t Processor::load(uint16_t offset) const {
@@ -34,6 +38,8 @@ uint8_t Processor::load(uint16_t offset) const {
         return LY;
     case 0x5:
         return LYC;
+    case 0x6:
+        return DMA;
     case 0x7:
         return backgroundPalette._value;
     case 0x8:
@@ -78,6 +84,10 @@ void Processor::store(uint16_t offset, uint8_t value) {
         return;
     case 0x5:
         LYC = value;
+        return;
+    case 0x6:
+        DMA = value;
+        memoryController->executeDMA(DMA);
         return;
     case 0x7:
         backgroundPalette._value = value;

@@ -75,7 +75,6 @@ namespace Core {
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
 
-            void executeDMA(uint8_t value);
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:
@@ -93,6 +92,7 @@ namespace Core {
             void saveExternalRAM();
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
+            void executeDMA(uint8_t value);
         };
 
         namespace ROM {
@@ -279,6 +279,7 @@ namespace Core {
             void store(uint16_t address, uint8_t value);
             uint16_t loadDoubleWord(uint16_t address) const;
             void storeDoubleWord(uint16_t address, uint16_t value);
+            void executeDMA(uint8_t value);
         };
     };
 };
