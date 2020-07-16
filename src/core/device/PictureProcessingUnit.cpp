@@ -52,9 +52,14 @@ uint8_t Processor::load(uint16_t offset) const {
 
 void Processor::store(uint16_t offset, uint8_t value) {
     switch (offset) {
-    case 0x0:
+    case 0x0: {
+        uint8_t previousLCDState = control.LCDDisplayEnable;
         control._value = value;
+        if (control.LCDDisplayEnable != previousLCDState) {
+            logger.logWarning("LCD display enabled changed state to: %02x", control.LCDDisplayEnable);
+        }
         return;
+    }
     case 0x1: {
         status._value &= ~0xF8;
         status._value |= value & 0xF8;
