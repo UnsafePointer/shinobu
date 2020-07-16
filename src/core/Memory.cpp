@@ -399,7 +399,7 @@ uint8_t MBC3::Controller::load(uint16_t address) const {
                     return _RTCDH._value;
                 }
             } else {
-                logger.logMessage("Unhandled load at External RAM range with address: %04x", address);
+                logger.logWarning("Unhandled load at External RAM range with address: %04x", address);
             }
         } else {
             return 0xFF;
@@ -467,7 +467,7 @@ void MBC3::Controller::store(uint16_t address, uint8_t value) {
                     break;
                 }
             } else {
-                logger.logMessage("Unhandled store at External RAM range with address: %04x and value: %02x", address, value);
+                logger.logWarning("Unhandled store at External RAM range with address: %04x and value: %02x", address, value);
             }
         }
         return;
