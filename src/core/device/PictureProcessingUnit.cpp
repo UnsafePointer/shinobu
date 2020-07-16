@@ -167,7 +167,7 @@ void Processor::step(uint8_t cycles) {
 }
 
 uint8_t Processor::VRAMLoad(uint16_t offset) const {
-    if (status.mode() == LCDCMode::TransferingData) {
+    if (status.mode() == LCDCMode::TransferingData && control.LCDDisplayEnable) {
         logger.logWarning("Attempting to load from VRAM while inaccessible with mode: %02x at offset: %04x", status.mode(), offset);
         return 0xFF;
     }
@@ -175,7 +175,7 @@ uint8_t Processor::VRAMLoad(uint16_t offset) const {
 }
 
 void Processor::VRAMStore(uint16_t offset, uint8_t value) {
-    if (status.mode() == LCDCMode::TransferingData) {
+    if (status.mode() == LCDCMode::TransferingData && control.LCDDisplayEnable) {
         logger.logWarning("Attempting to store to VRAM while inaccessible with mode: %02x at offset: %04x with value: %02x", status.mode(), offset, value);
         return;
     }
@@ -184,7 +184,7 @@ void Processor::VRAMStore(uint16_t offset, uint8_t value) {
 
 uint8_t Processor::OAMLoad(uint16_t offset) const {
     LCDCMode currentMode = status.mode();
-    if (currentMode == LCDCMode::SearchingOAM || currentMode == LCDCMode::TransferingData) {
+    if ((currentMode == LCDCMode::SearchingOAM || currentMode == LCDCMode::TransferingData) && control.LCDDisplayEnable) {
         logger.logWarning("Attempting to load from OAM while inaccessible with mode: %02x at offset: %04x", currentMode, offset);
         return 0xFF;
     }
@@ -193,7 +193,7 @@ uint8_t Processor::OAMLoad(uint16_t offset) const {
 
 void Processor::OAMStore(uint16_t offset, uint8_t value) {
     LCDCMode currentMode = status.mode();
-    if (currentMode == LCDCMode::SearchingOAM || currentMode == LCDCMode::TransferingData) {
+    if ((currentMode == LCDCMode::SearchingOAM || currentMode == LCDCMode::TransferingData) && control.LCDDisplayEnable) {
         logger.logWarning("Attempting to store to OAM while inaccessible with mode: %02x at offset: %04x with value: %02x", status.mode(), offset, value);
         return;
     }
