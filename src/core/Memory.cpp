@@ -542,6 +542,66 @@ void MBC3::Controller::loadClockData(std::vector<uint8_t> clockData) {
     _RTCDH._value = clockData[16];
 }
 
+uint8_t MBC5::Controller::load(uint16_t address) const {
+    std::optional<uint32_t> offset = ROMBank00.contains(address);
+    if (offset) {
+        uint32_t physicalAddress = address & 0x3FFF;
+        return cartridge->load(physicalAddress);
+    }
+    offset = ROMBank01_N.contains(address);
+    if (offset) {
+        uint32_t upperMask = _ROMB1.ROMBankNumberMSB << 8;
+        upperMask |= ROMB0;
+        uint32_t physicalAddress = ((upperMask << 14) % cartridge->ROMSize()) | (address & 0x3FFF);
+        return cartridge->load(physicalAddress);
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        if ((RAMG & 0xF) == 0b1010) {
+            uint32_t upperMask = _RAMB.RAMBankNumber;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            return externalRAM[physicalAddress];
+        } else {
+            return 0xFF;
+        }
+    }
+    return loadInternal(address);
+}
+
+void MBC5::Controller::store(uint16_t address, uint8_t value) {
+    std::optional<uint32_t> offset = MBC1::RAMGRange.contains(address);
+    if (offset) {
+        RAMG = value;
+        return;
+    }
+    offset = ROMB0Range.contains(address);
+    if (offset) {
+        ROMB0 = value;
+        return;
+    }
+    offset = ROMB1Range.contains(address);
+    if (offset) {
+        _ROMB1._value = value;
+        return;
+    }
+    offset = RAMBRange.contains(address);
+    if (offset) {
+        _RAMB._value = value;
+        return;
+    }
+    offset = ExternalRAM.contains(address);
+    if (offset) {
+        if (RAMG == 0b00001010) {
+            uint32_t upperMask = _RAMB.RAMBankNumber;
+            uint32_t physicalAddress = (upperMask << 13) | (address & 0x1FFF);
+            externalRAM[physicalAddress] = value;
+        }
+        return;
+    }
+    storeInternal(address, value);
+    return;
+}
+
 Controller::Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
                        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
@@ -591,6 +651,11 @@ void Controller::initialize(bool skipBootROM) {
     case Core::ROM::MBC3_TIMER_BATTERY:
     case Core::ROM::MBC3_TIMER_RAM_BATTERY:
         bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, true);
+        break;
+    case Core::ROM::MBC5:
+    case Core::ROM::MBC5_RAM:
+    case Core::ROM::MBC5_RAM_BATTERY:
+        bankController = std::make_unique<MBC5::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);

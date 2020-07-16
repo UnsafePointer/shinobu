@@ -251,6 +251,50 @@ namespace Core {
             };
         };
 
+        namespace MBC5 {
+            const Range ROMB0Range = Range(0x2000, 0x1000);
+            const Range ROMB1Range = Range(0x3000, 0x1000);
+            const Range RAMBRange = Range(0x4000, 0x2000);
+
+            union ROMB1 {
+                uint8_t _value;
+                struct {
+                    uint8_t ROMBankNumberMSB : 1;
+                    uint8_t unused : 7;
+                };
+
+                ROMB1() : _value() {}
+            };
+
+            union RAMB {
+                uint8_t _value;
+                struct {
+                    uint8_t RAMBankNumber : 4;
+                    uint8_t unused : 4;
+                };
+
+                RAMB() : _value() {}
+            };
+
+            class Controller : public BankController {
+                uint8_t RAMG;
+                uint8_t ROMB0;
+                ROMB1 _ROMB1;
+                RAMB _RAMB;
+            public:
+                Controller(Common::Logs::Level logLevel,
+                           std::unique_ptr<Core::ROM::Cartridge> &cartridge,
+                           std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM,
+                           std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU,
+                           std::unique_ptr<Core::Device::Sound::Controller> &sound,
+                           std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                           std::unique_ptr<Core::Device::Timer::Controller> &timer,
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad), RAMG(), ROMB0(0x1), _ROMB1() {};
+                uint8_t load(uint16_t address) const override;
+                void store(uint16_t address, uint8_t value) override;
+            };
+        };
+
         class Controller {
             Common::Logs::Logger logger;
 
