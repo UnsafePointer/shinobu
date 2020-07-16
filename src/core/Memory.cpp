@@ -112,6 +112,9 @@ void BankController::saveExternalRAM() {
 void BankController::executeDMA(uint8_t value) {
     uint16_t source = value;
     source <<= 8;
+    if (source >= 0xFE00) {
+        source -= 0x2000;
+    }
     uint16_t sourceEnd = source + 0x9F;
     uint16_t destination = 0xFE00;
     while (source <= sourceEnd) {
