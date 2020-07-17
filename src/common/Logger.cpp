@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include "common/Formatter.hpp"
 #include "shinobu/Configuration.hpp"
+#include <stdexcept>
 
 using namespace Common::Logs;
 
@@ -105,5 +106,5 @@ void Logger::logError(const char *fmt, ...) const {
     std::cout << formatted << std::endl;
     traceMessage(formatted);
     flush();
-    exit(1);
+    throw std::runtime_error(formatted);
 }

@@ -4,6 +4,7 @@
 #include "shinobu/frontend/opengl/Program.hpp"
 #include "shinobu/frontend/opengl/VertexArrayObject.hpp"
 #include "shinobu/frontend/opengl/Vertex.hpp"
+#include <stdexcept>
 
 using namespace Shinobu::Frontend::OpenGL;
 
@@ -42,8 +43,9 @@ void Buffer<T>::addData(T *data, uint32_t dataSize) {
     unsigned int remainingCapacity = capacity - size;
     if (dataSize > remainingCapacity) {
         // TODO: Use proper logging
-        std::cout << "Renderer buffer out of memory." << std::endl;
-        exit(1);
+        std::string message = "Renderer buffer out of memory.";
+        std::cout << message << std::endl;
+        throw std::runtime_error(message);
     }
     bind();
 

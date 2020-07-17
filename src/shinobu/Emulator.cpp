@@ -8,6 +8,7 @@
 #include "shinobu/frontend/sdl2/Error.hpp"
 #include "common/Performance.hpp"
 #include "shinobu/frontend/performance/Renderer.hpp"
+#include <stdexcept>
 
 using namespace Shinobu;
 
@@ -98,42 +99,46 @@ void Emulator::powerUp() {
 }
 
 void Emulator::emulate() {
-    while (sound->availableSamples() <= AudioBufferSize) {
-        uint8_t cycles;
-        Core::CPU::Instructions::Instruction instruction;
-        if (!processor->isHalted()) {
-            instruction = processor->fetchInstruction();
-            disassembler->disassemble(instruction);
-            Core::CPU::Instructions::InstructionHandler<uint8_t> handler = processor->decodeInstruction<uint8_t>(instruction);
-            cycles = handler(processor, instruction);
-        } else {
-            instruction = Core::CPU::Instructions::Instruction(0x76, false);
-            cycles = 4;
-        }
-        sound->step(cycles);
-        PPU->step(cycles);
-        timer->step(cycles);
-        joypad->updateJoypad();
-        processor->checkPendingInterrupts(instruction);
-        currentFrameCycles += cycles;
-        if (currentFrameCycles >= CyclesPerFrame) {
-            currentFrameCycles %= CyclesPerFrame;
-            frameCounter++;
-            frameTimes += SDL_GetTicks() - frameTime;
-            frameTime = SDL_GetTicks();
-            if (frameCounter >= 60) {
-                frameCounter = 0;
-                float averageFrameTime = (float)frameTimes / 60.0f;
-                Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
-                window->updateWindowTitleWithFramePerformance(frame);
-                if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
-                    dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+    try {
+        while (sound->availableSamples() <= AudioBufferSize) {
+            uint8_t cycles;
+            Core::CPU::Instructions::Instruction instruction;
+            if (!processor->isHalted()) {
+                instruction = processor->fetchInstruction();
+                disassembler->disassemble(instruction);
+                Core::CPU::Instructions::InstructionHandler<uint8_t> handler = processor->decodeInstruction<uint8_t>(instruction);
+                cycles = handler(processor, instruction);
+            } else {
+                instruction = Core::CPU::Instructions::Instruction(0x76, false);
+                cycles = 4;
+            }
+            sound->step(cycles);
+            PPU->step(cycles);
+            timer->step(cycles);
+            joypad->updateJoypad();
+            processor->checkPendingInterrupts(instruction);
+            currentFrameCycles += cycles;
+            if (currentFrameCycles >= CyclesPerFrame) {
+                currentFrameCycles %= CyclesPerFrame;
+                frameCounter++;
+                frameTimes += SDL_GetTicks() - frameTime;
+                frameTime = SDL_GetTicks();
+                if (frameCounter >= 60) {
+                    frameCounter = 0;
+                    float averageFrameTime = (float)frameTimes / 60.0f;
+                    Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
+                    window->updateWindowTitleWithFramePerformance(frame);
+                    if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
+                        dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+                    }
+                    frameTimes = 0;
                 }
-                frameTimes = 0;
             }
         }
+        enqueueSound();
+    } catch(...) {
+        stopEmulation = true;
     }
-    enqueueSound();
 }
 
 void Emulator::handleSDLEvent(SDL_Event event) {
