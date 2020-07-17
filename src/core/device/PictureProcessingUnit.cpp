@@ -8,8 +8,16 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA() {
-
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), blankLCDOutput() {
+    for (int j = 0; j < 144; j++) {
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+        for (int i = 0; i < HorizontalResolution; i++) {
+            Shinobu::Frontend::OpenGL::Color color = colors[0];
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)j }, color};
+            scanline.push_back(vertex);
+        }
+        blankLCDOutput.push_back(scanline);
+    }
 }
 
 Processor::~Processor() {
@@ -66,6 +74,8 @@ void Processor::store(uint16_t offset, uint8_t value) {
             if (!control.LCDDisplayEnable) {
                 LY = 0;
                 status._mode = 0;
+            } else {
+                shouldNextFrameBeBlank = true;
             }
         }
         return;
@@ -567,7 +577,11 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
     return viewPort;
 }
 
-std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getLCDOutput() const {
+std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getLCDOutput() {
+    if (shouldNextFrameBeBlank) {
+        shouldNextFrameBeBlank = false;
+        return blankLCDOutput;
+    }
     return scanlines;
 }
 

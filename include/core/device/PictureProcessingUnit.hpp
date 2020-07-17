@@ -169,6 +169,9 @@ namespace Core {
                 Core::Memory::Controller *memoryController;
                 uint8_t DMA;
 
+                bool shouldNextFrameBeBlank;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankLCDOutput;
+
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
@@ -196,7 +199,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput() const;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();
                 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
             };
         };
