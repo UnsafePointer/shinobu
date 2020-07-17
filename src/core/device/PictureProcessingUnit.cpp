@@ -63,6 +63,10 @@ void Processor::store(uint16_t offset, uint8_t value) {
         control._value = value;
         if (control.LCDDisplayEnable != previousLCDState) {
             logger.logWarning("LCD display enabled changed state to: %02x", control.LCDDisplayEnable);
+            if (!control.LCDDisplayEnable) {
+                LY = 0;
+                status._mode = 0;
+            }
         }
         return;
     }
