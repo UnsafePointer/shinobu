@@ -343,7 +343,7 @@ void Processor::renderScanline() {
         }
         std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
         if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
-            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f }};
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, colors[0]};
             scanline.push_back(vertex);
             continue;
         }
