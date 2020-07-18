@@ -107,15 +107,23 @@ namespace Core {
             };
         };
 
+        enum CGBFlag {
+            DMG = 0x0,
+            DMG_CGB = 0x80,
+            CGB = 0xC0,
+        };
+
         union Title {
             uint8_t _value[0x10];
             struct {
                 uint8_t padding[0xC];
                 uint8_t manufacturerCode[0x3];
-                uint8_t cgbFlag;
+                uint8_t _cgbFlag;
             };
 
             Title() : _value() {}
+
+            CGBFlag cgbFlag() const { return CGBFlag(_cgbFlag); }
         };
 
         enum DestinationCode : uint8_t {
