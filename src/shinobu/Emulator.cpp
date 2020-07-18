@@ -153,11 +153,12 @@ void Emulator::handleSDLEvent(SDL_Event event) {
         return;
     }
     if (joypad->hasGameController()) {
-        if (event.type == SDL_CONTROLLERBUTTONDOWN && event.button.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
+        // TODO: Use Controller events API instead of Joypad
+        if (event.type == SDL_JOYBUTTONDOWN && event.button.which == 260) {
             paletteSelector->backwardSelector();
             return;
         }
-        if (event.type == SDL_CONTROLLERBUTTONDOWN && event.button.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) {
+        if (event.type == SDL_JOYBUTTONDOWN && event.button.which == 261) {
             paletteSelector->forwardSelector();
             return;
         }
