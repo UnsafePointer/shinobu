@@ -5,14 +5,16 @@
 #include "common/System.hpp"
 #include "shinobu/frontend/Renderer.hpp"
 #include <algorithm>
+#include "shinobu/frontend/Palette.hpp"
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), blankLCDOutput() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), blankLCDOutput() {
+    Shinobu::Frontend::OpenGL::Color blankColor = paletteSelector->currentSelection()[0];
     for (int j = 0; j < 144; j++) {
         std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
         for (int i = 0; i < HorizontalResolution; i++) {
-            Shinobu::Frontend::OpenGL::Color color = colors[0];
+            Shinobu::Frontend::OpenGL::Color color = blankColor;
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)j }, color};
             scanline.push_back(vertex);
         }
@@ -341,6 +343,7 @@ void Processor::renderScanline() {
             }
         }
     }
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
@@ -473,6 +476,7 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoor
 }
 
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() const {
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
     for (int y = (VRAMTileDataViewerHeight - 1); y >= 0; y--) {
@@ -497,6 +501,7 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
         backgroundMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
     const std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
@@ -596,6 +601,7 @@ std::vector<Sprite> Processor::getSpriteData() const {
 }
 
 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
+    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
     std::vector<Sprite> sprites = getSpriteData();
     for (int i = 0; i < NumberOfSpritesInOAM; i++) {

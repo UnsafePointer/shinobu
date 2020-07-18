@@ -14,6 +14,7 @@
 #include "core/device/Sound.hpp"
 #include <gb_apu/Sound_Queue.h>
 #include "common/Logger.hpp"
+#include "shinobu/frontend/Palette.hpp"
 
 namespace Shinobu {
     class Emulator {
@@ -21,6 +22,7 @@ namespace Shinobu {
 
         std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
         std::unique_ptr<Shinobu::Frontend::Renderer> renderer;
+        std::unique_ptr<Shinobu::Frontend::Palette::Selector> paletteSelector;
 
         std::unique_ptr<Core::CPU::Processor> processor;
         std::unique_ptr<Core::ROM::Cartridge> cartridge;

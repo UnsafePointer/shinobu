@@ -5,6 +5,7 @@
 #include "shinobu/frontend/opengl/Vertex.hpp"
 #include "core/device/Interrupt.hpp"
 #include <unordered_map>
+#include "shinobu/frontend/Palette.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -16,15 +17,6 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
-            const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = {
-                {
-                    { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f },
-                    { 170.0f / 255.0f, 170.0f / 255.0f, 170.0f / 255.0f },
-                    { 85.0f / 255.0f, 85.0f / 255.0f, 85.0f / 255.0f },
-                    { 0.0f / 255.0f, 0.0f / 255.0f, 0.0f / 255.0f },
-                }
-            };
-
             union SpriteAttributes {
                 uint8_t _value;
                 struct {
@@ -146,6 +138,7 @@ namespace Core {
 
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
+                std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector;
                 std::array<uint8_t, 0x2000> memory;
                 std::array<uint8_t, 0xA0> spriteAttributeTable;
                 LCDControl control;
@@ -183,7 +176,7 @@ namespace Core {
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
                 uint8_t getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
             public:
-                Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
+                Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
 
                 void setRenderer(Shinobu::Frontend::Renderer *renderer);

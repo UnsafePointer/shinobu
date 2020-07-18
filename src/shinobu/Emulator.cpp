@@ -14,6 +14,8 @@ using namespace Shinobu;
 
 Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
+    paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>();
+
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 
     Shinobu::Frontend::Kind frontend = configurationManager->frontendKind();
@@ -28,7 +30,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     setupOpenGL();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
-    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt);
+    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt, paletteSelector);
 
     switch (frontend) {
     case Shinobu::Frontend::Kind::PPU:
