@@ -52,8 +52,26 @@ uint8_t BOOT::ROM::load(uint16_t offset) const {
     return data[offset];
 }
 
-bool BOOT::ROM::isLocked() const {
-    return hasBootROM() && lockRegister.BOOT_OFF == 0x0;
+bool BOOT::ROM::shouldHandleAddress(uint16_t address, Core::ROM::CGBFlag cgbFlag) const {
+    if (!hasBootROM()) {
+        return false;
+    }
+    if (lockRegister.BOOT_OFF == 0x1) {
+        return false;
+    }
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        if (address >= 0x100) {
+            return false;
+        }
+    } else {
+        if (address >= 0x100 && address < 0x200) {
+            return false;
+        }
+        if (address > data.size()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool BOOT::ROM::hasBootROM() const {

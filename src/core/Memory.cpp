@@ -694,21 +694,15 @@ void Controller::saveExternalRAM() const {
 }
 
 uint8_t Controller::load(uint16_t address) const {
-    if (bootROM->isLocked()) {
-        std::optional<uint32_t> offset = Core::ROM::BOOT::AddressRange.contains(address);
-        if (offset) {
-            return bootROM->load(*offset);
-        }
+    if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
+        return bootROM->load(address);
     }
     return bankController->load(address);
 }
 
 void Controller::store(uint16_t address, uint8_t value) {
-    if (bootROM->isLocked()) {
-        std::optional<uint32_t> offset = Core::ROM::BOOT::AddressRange.contains(address);
-        if (offset) {
-            return;
-        }
+    if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
+        return;
     }
     bankController->store(address, value);
 }

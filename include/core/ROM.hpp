@@ -28,7 +28,6 @@ namespace Core {
                 Lock() : _value() {}
             };
 
-            const Core::Memory::Range AddressRange = Core::Memory::Range(0x0, 0x100);
             const Core::Memory::Range BootROMRegisterRange = Core::Memory::Range(0xFF50, 0x1);
 
             const std::filesystem::path DEFAULT_DMG_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
@@ -46,7 +45,7 @@ namespace Core {
 
                 void initialize(bool skip, Core::ROM::CGBFlag cgbFlag);
                 uint8_t load(uint16_t offset) const;
-                bool isLocked() const;
+                bool shouldHandleAddress(uint16_t address, Core::ROM::CGBFlag cgbFlag) const;
                 bool hasBootROM() const;
                 uint8_t loadLockRegister() const;
                 void storeLockRegister(uint8_t value);
