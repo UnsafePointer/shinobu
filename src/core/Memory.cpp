@@ -77,7 +77,7 @@ void BankController::loadExternalRAMFromSaveFile() {
     file.seekg(0, file.beg);
     file.read(reinterpret_cast<char *>(&externalRAM[0]), cartridge->RAMSize());
 
-    if (fileSize > cartridge->RAMSize() && cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+    if (fileSize > cartridge->RAMSize() && cartridge->type() == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
         uint32_t remainingData = (uint32_t)fileSize - cartridge->RAMSize();
         if (remainingData > ClockDataSize) {
             logger.logError("Can't load incompatible clock data of size: %d", remainingData);
@@ -95,13 +95,14 @@ void BankController::saveExternalRAM() {
     if (!cartridge->isOpen()) {
         return;
     }
-    if (cartridge->header.cartridgeType == Core::ROM::Type::MBC1_RAM_BATTERY ||
-        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY ||
-        cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+    Core::ROM::Type cartridgeType = cartridge->type();
+    if (cartridgeType == Core::ROM::Type::MBC1_RAM_BATTERY ||
+        cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY ||
+        cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
         std::ofstream saveFile = std::ofstream();
         saveFile.open(cartridge->saveFilePath(), std::ios::out | std::ios::trunc | std::ios::binary);
         saveFile.write(reinterpret_cast<char *>(&externalRAM[0]), externalRAM.size());
-        if (cartridge->header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
+        if (cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY) {
             std::vector<uint8_t> clockData = dynamic_cast<Core::Memory::MBC3::Controller*>(this)->clockData();
             saveFile.write(reinterpret_cast<char *>(&clockData[0]), clockData.size());
         }
@@ -636,7 +637,7 @@ void Controller::initialize(bool skipBootROM) {
         logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
     }
-    Core::ROM::Type cartridgeType = cartridge->header.cartridgeType;
+    Core::ROM::Type cartridgeType = cartridge->type();
     switch (cartridgeType) {
     case Core::ROM::ROM:
         bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);

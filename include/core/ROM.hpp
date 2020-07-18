@@ -144,8 +144,8 @@ namespace Core {
 
             std::filesystem::path filePath;
             std::vector<uint8_t> memory;
-        public:
             Header header;
+        public:
             Cartridge(Common::Logs::Level logLevel);
             ~Cartridge();
 
@@ -155,6 +155,7 @@ namespace Core {
             uint8_t load(uint32_t address) const;
             uint32_t RAMSize() const;
             uint32_t ROMSize() const;
+            Type type() const;
         };
     }
 }

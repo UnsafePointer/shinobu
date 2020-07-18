@@ -130,3 +130,7 @@ uint32_t Cartridge::RAMSize() const {
 uint32_t Cartridge::ROMSize() const {
     return memory.size();
 }
+
+Type Cartridge::type() const {
+    return header.cartridgeType;
+}
