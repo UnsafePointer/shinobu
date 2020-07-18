@@ -58,14 +58,23 @@ namespace Core {
         const Range I_ORegisters = Range(0xFF00, 0x80);
         const Range HighRAM = Range(0xFF80, 0x7F);
 
+        union SVBK {
+            uint8_t _value;
+            struct {
+                uint8_t WRAMBank : 3;
+                uint8_t unused : 5;
+            };
+
+            SVBK() : _value(0x1) {};
+        };
+
         class BankController {
         protected:
             Common::Logs::Logger logger;
 
             std::unique_ptr<Core::ROM::Cartridge> &cartridge;
             std::unique_ptr<Core::ROM::BOOT::ROM> &bootROM;
-            std::array<uint8_t, 0x1000> WRAMBank00;
-            std::array<uint8_t, 0x1000> WRAMBank01_N;
+            std::vector<uint8_t> WRAMBank;
             std::unique_ptr<Core::Device::SerialDataTransfer::Controller> serialCommController;
             std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU;
             std::unique_ptr<Core::Device::Sound::Controller> &sound;
@@ -74,6 +83,8 @@ namespace Core {
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
+
+            SVBK _SVBK;
 
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);

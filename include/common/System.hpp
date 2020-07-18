@@ -15,3 +15,4 @@ const int SampleRate = 44100;
 const int AudioBufferSize = 2048;
 const int PerformancePlotPoints = 20;
 const int ClockDataSize = 48;
+const int WRAMBankSize = 0x1000;

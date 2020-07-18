@@ -40,16 +40,21 @@ BankController::BankController(Common::Logs::Level logLevel,
                                std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
                                                                                                  cartridge(cartridge),
                                                                                                  bootROM(bootROM),
-                                                                                                 WRAMBank00(),
-                                                                                                 WRAMBank01_N(),
+                                                                                                 WRAMBank(),
                                                                                                  PPU(PPU),
                                                                                                  sound(sound),
                                                                                                  HRAM(),
                                                                                                  externalRAM(),
                                                                                                  interrupt(interrupt),
                                                                                                  timer(timer),
-                                                                                                 joypad(joypad) {
+                                                                                                 joypad(joypad),
+                                                                                                 _SVBK() {
     externalRAM.resize(cartridge->RAMSize());
+    if (cartridge->cgbFlag() == Core::ROM::CGBFlag::DMG) {
+        WRAMBank.resize(WRAMBankSize * 2);
+    } else {
+        WRAMBank.resize(WRAMBankSize * 8);
+    }
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     serialCommController = std::make_unique<Device::SerialDataTransfer::Controller>(configurationManager->serialLogLevel());
 }
@@ -133,15 +138,17 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     }
     offset = WorkRAMBank00.contains(address);
     if (offset) {
-        return WRAMBank00[*offset];
+        return WRAMBank[*offset];
     }
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
-        return WRAMBank01_N[*offset];
+        uint32_t upperMask = _SVBK.WRAMBank;
+        uint32_t physicalAddress = (upperMask << 12) | (address & 0xFFF);
+        return WRAMBank[physicalAddress];
     }
     offset = EchoRAM.contains(address);
     if (offset) {
-        return WRAMBank00[*offset];
+        return WRAMBank[*offset];
     }
     offset = SpriteAttributeTable.contains(address);
     if (offset) {
@@ -205,17 +212,19 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     }
     offset = WorkRAMBank00.contains(address);
     if (offset) {
-        WRAMBank00[*offset] = value;
+        WRAMBank[*offset] = value;
         return;
     }
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
-        WRAMBank01_N[*offset] = value;
+        uint32_t upperMask = _SVBK.WRAMBank;
+        uint32_t physicalAddress = (upperMask << 12) | (address & 0xFFF);
+        WRAMBank[physicalAddress] = value;
         return;
     }
     offset = EchoRAM.contains(address);
     if (offset) {
-        WRAMBank00[*offset] = value;
+        WRAMBank[*offset] = value;
         return;
     }
     offset = SpriteAttributeTable.contains(address);
