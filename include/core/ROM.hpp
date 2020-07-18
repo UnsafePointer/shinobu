@@ -11,6 +11,12 @@ namespace Core {
     const uint16_t HEADER_START_ADDRESS = 0x100;
 
     namespace ROM {
+        enum CGBFlag {
+            DMG = 0x0,
+            DMG_CGB = 0x80,
+            CGB = 0xC0,
+        };
+
         namespace BOOT {
             union Lock {
                 uint8_t _value;
@@ -25,20 +31,20 @@ namespace Core {
             const Core::Memory::Range AddressRange = Core::Memory::Range(0x0, 0x100);
             const Core::Memory::Range BootROMRegisterRange = Core::Memory::Range(0xFF50, 0x1);
 
-            const uint16_t BOOT_ROM_SIZE = 0x100;
-            const std::filesystem::path DEFAULT_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
+            const std::filesystem::path DEFAULT_DMG_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
+            const std::filesystem::path DEFAULT_CGB_BOOT_ROM_FILE_PATH = "CGB_ROM.BIN";
 
             class ROM {
                 Common::Logs::Logger logger;
 
                 Lock lockRegister;
-                std::array<uint8_t, BOOT_ROM_SIZE> data;
+                std::vector<uint8_t> data;
                 bool initialized;
             public:
                 ROM(Common::Logs::Level logLevel);
                 ~ROM();
 
-                void initialize(bool skip);
+                void initialize(bool skip, Core::ROM::CGBFlag cgbFlag);
                 uint8_t load(uint16_t offset) const;
                 bool isLocked() const;
                 bool hasBootROM() const;
@@ -107,12 +113,6 @@ namespace Core {
             };
         };
 
-        enum CGBFlag {
-            DMG = 0x0,
-            DMG_CGB = 0x80,
-            CGB = 0xC0,
-        };
-
         union Title {
             uint8_t _value[0x10];
             struct {
@@ -164,6 +164,7 @@ namespace Core {
             uint32_t RAMSize() const;
             uint32_t ROMSize() const;
             Type type() const;
+            CGBFlag cgbFlag() const;
         };
     }
 }

@@ -628,7 +628,7 @@ Controller::~Controller() {
 }
 
 void Controller::initialize(bool skipBootROM) {
-    bootROM->initialize(skipBootROM);
+    bootROM->initialize(skipBootROM, cartridge->cgbFlag());
     if (!cartridge->isOpen()) {
         if (!bootROM->hasBootROM()) {
             logger.logError("No cartridge or BOOT ROM detected, nothing to execute.");

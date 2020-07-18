@@ -12,22 +12,36 @@ BOOT::ROM::~ROM() {
 
 }
 
-void BOOT::ROM::initialize(bool skip) {
+void BOOT::ROM::initialize(bool skip, Core::ROM::CGBFlag cgbFlag) {
     if (skip) {
         logger.logWarning("Skipping boot ROM");
         return;
     }
-    if (!std::filesystem::exists(DEFAULT_BOOT_ROM_FILE_PATH)) {
-        logger.logWarning("Couldn't find BOOT_ROM at path: %s", DEFAULT_BOOT_ROM_FILE_PATH.string().c_str());
+    std::filesystem::path bootROMFilePath;
+    switch (cgbFlag) {
+    case Core::ROM::CGBFlag::DMG :
+        bootROMFilePath = DEFAULT_DMG_BOOT_ROM_FILE_PATH;
+        break;
+    case Core::ROM::CGBFlag::DMG_CGB:
+        bootROMFilePath = DEFAULT_CGB_BOOT_ROM_FILE_PATH;
+        break;
+    case Core::ROM::CGBFlag::CGB:
+        bootROMFilePath = DEFAULT_CGB_BOOT_ROM_FILE_PATH;
+        break;
+    }
+    if (!std::filesystem::exists(bootROMFilePath)) {
+        logger.logWarning("Couldn't find BOOT_ROM at path: %s", bootROMFilePath.string().c_str());
         return;
     }
     std::ifstream bootROMFile = std::ifstream();
-    bootROMFile.open(DEFAULT_BOOT_ROM_FILE_PATH, std::ios::binary | std::ios::ate);
+    bootROMFile.open(bootROMFilePath, std::ios::binary | std::ios::ate);
     if (!bootROMFile.is_open()) {
-        logger.logError("Unable to open BOOT_ROM at path: %s", DEFAULT_BOOT_ROM_FILE_PATH.string().c_str());
+        logger.logError("Unable to open BOOT_ROM at path: %s", bootROMFilePath.string().c_str());
     }
     std::streampos fileSize = bootROMFile.tellg();
     logger.logMessage("Opened BOOT ROM file of size: %x", fileSize);
+    data.resize(fileSize);
+
     bootROMFile.seekg(0, bootROMFile.beg);
     bootROMFile.read(reinterpret_cast<char *>(&data[0]), fileSize);
     bootROMFile.close();
@@ -133,4 +147,8 @@ uint32_t Cartridge::ROMSize() const {
 
 Type Cartridge::type() const {
     return header.cartridgeType;
+}
+
+CGBFlag Cartridge::cgbFlag() const {
+    return header.title.cgbFlag();
 }
