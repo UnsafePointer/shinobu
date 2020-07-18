@@ -9,17 +9,8 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), blankLCDOutput() {
-    Shinobu::Frontend::OpenGL::Color blankColor = paletteSelector->currentSelection()[0];
-    for (int j = 0; j < 144; j++) {
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
-        for (int i = 0; i < HorizontalResolution; i++) {
-            Shinobu::Frontend::OpenGL::Color color = blankColor;
-            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)j }, color};
-            scanline.push_back(vertex);
-        }
-        blankLCDOutput.push_back(scanline);
-    }
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank() {
+
 }
 
 Processor::~Processor() {
@@ -320,6 +311,21 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     }
 }
 
+std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::blankScanlines() const {
+    std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines = {};
+    Shinobu::Frontend::OpenGL::Color blankColor = paletteSelector->currentSelection()[0];
+    for (int j = 0; j < 144; j++) {
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+        for (int i = 0; i < HorizontalResolution; i++) {
+            Shinobu::Frontend::OpenGL::Color color = blankColor;
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)j }, color};
+            scanline.push_back(vertex);
+        }
+        blankScanlines.push_back(scanline);
+    }
+    return blankScanlines;
+}
+
 bool Core::Device::PictureProcessingUnit::compareSpritesByPriority(const Sprite &a, const Sprite &b) {
     if (a.x == b.x) {
         return a.offset < b.offset;
@@ -585,7 +591,8 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getLCDOutput() {
     if (shouldNextFrameBeBlank) {
         shouldNextFrameBeBlank = false;
-        return blankLCDOutput;
+        logger.logWarning("Rendering blank frame");
+        return blankScanlines();
     }
     return scanlines;
 }

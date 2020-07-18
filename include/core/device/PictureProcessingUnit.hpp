@@ -163,7 +163,6 @@ namespace Core {
                 uint8_t DMA;
 
                 bool shouldNextFrameBeBlank;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankLCDOutput;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
@@ -175,6 +174,7 @@ namespace Core {
                 void renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
                 uint8_t getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines()    const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
