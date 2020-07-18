@@ -274,6 +274,14 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             sound->store(address, value);
             return;
         }
+        offset = Core::Memory::SVBKRegisterRange.contains(address);
+        if (offset) {
+            _SVBK._value = value;
+            if (_SVBK.WRAMBank == 0x0) {
+                _SVBK.WRAMBank = 0x1;
+            }
+            return;
+        }
         logger.logWarning("Unhandled I/O Register write at address: %04x with value: %02x", address, value);
         return;
     }

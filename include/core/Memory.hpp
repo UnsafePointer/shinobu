@@ -68,6 +68,8 @@ namespace Core {
             SVBK() : _value(0x1) {};
         };
 
+        const Core::Memory::Range SVBKRegisterRange = Core::Memory::Range(0xFF70, 0x1);
+
         class BankController {
         protected:
             Common::Logs::Logger logger;
