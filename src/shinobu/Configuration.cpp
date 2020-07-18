@@ -96,6 +96,10 @@ int Configuration::Manager::overlayScale() const {
     return scale;
 }
 
+int Configuration::Manager::paletteIndex() const {
+    return palette;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -106,6 +110,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node &videoConfigurationRef = videoConfiguration;
     videoConfigurationRef["fullscreen"] = "false";
     videoConfigurationRef["overlayScale"] = "1";
+    videoConfigurationRef["palette"] = "0";
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
@@ -154,6 +159,7 @@ void Configuration::Manager::loadConfiguration() {
     mute = configuration["audio"]["mute"].As<bool>();
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     scale = configuration["video"]["overlayScale"].As<int>();
+    palette = configuration["video"]["palette"].As<int>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

@@ -14,7 +14,7 @@ using namespace Shinobu;
 
 Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
-    paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>();
+    paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>(configurationManager->paletteIndex());
 
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
 

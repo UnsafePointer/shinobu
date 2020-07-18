@@ -2,7 +2,7 @@
 
 using namespace Shinobu::Frontend::Palette;
 
-Selector::Selector() : selectedPalette() {
+Selector::Selector(std::array<palette, 10>::size_type selectedPalette) : selectedPalette(selectedPalette) {
 
 }
 

@@ -28,6 +28,7 @@ namespace Shinobu {
             bool mute;
             bool launchFullscreen;
             int scale;
+            int palette;
 
             Manager();
         public:
@@ -49,6 +50,7 @@ namespace Shinobu {
             bool shouldMute() const;
             bool shouldLaunchFullscreen() const;
             int overlayScale() const;
+            int paletteIndex() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

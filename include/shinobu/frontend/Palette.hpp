@@ -123,7 +123,7 @@ namespace Shinobu {
             class Selector {
                 std::array<palette, 10>::size_type selectedPalette;
             public:
-                Selector();
+                Selector(std::array<palette, 10>::size_type selectedPalette);
                 ~Selector();
 
                 palette currentSelection() const;
