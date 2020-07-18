@@ -152,6 +152,25 @@ void Emulator::handleSDLEvent(SDL_Event event) {
         sound->toggleMute();
         return;
     }
+    if (joypad->hasGameController()) {
+        if (event.type == SDL_CONTROLLERBUTTONDOWN && event.button.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) {
+            paletteSelector->backwardSelector();
+            return;
+        }
+        if (event.type == SDL_CONTROLLERBUTTONDOWN && event.button.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) {
+            paletteSelector->forwardSelector();
+            return;
+        }
+    } else {
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_q) {
+            paletteSelector->backwardSelector();
+            return;
+        }
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) {
+            paletteSelector->forwardSelector();
+            return;
+        }
+    }
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
         stopEmulation = true;
         return;

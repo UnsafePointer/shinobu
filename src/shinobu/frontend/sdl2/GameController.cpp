@@ -73,3 +73,7 @@ bool GameController::isButtonPressed(Button button) {
         return isKeyboardBindingForButtonPressed(button);
     }
 }
+
+bool GameController::hasGameController() const {
+    return controller != nullptr;
+}

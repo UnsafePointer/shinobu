@@ -27,6 +27,7 @@ namespace Shinobu {
                 ~GameController();
 
                 bool isButtonPressed(Button button);
+                bool hasGameController() const;
             };
         };
     };

@@ -40,6 +40,7 @@ namespace Core {
                 uint8_t load() const;
                 void store(uint8_t value);
                 void updateJoypad();
+                bool hasGameController() const;
             };
         };
     };

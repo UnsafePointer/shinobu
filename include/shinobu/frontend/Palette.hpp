@@ -126,7 +126,9 @@ namespace Shinobu {
                 Selector();
                 ~Selector();
 
-                palette currentSelection();
+                palette currentSelection() const;
+                void forwardSelector();
+                void backwardSelector();
             };
 
         };

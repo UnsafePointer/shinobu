@@ -75,3 +75,7 @@ void Controller::updateJoypad() {
         interrupt->requestInterrupt(Interrupt::JOYPAD);
     }
 }
+
+bool Controller::hasGameController() const {
+    return gameController.hasGameController();
+}
