@@ -134,7 +134,9 @@ void BankController::executeDMA(uint8_t value) {
 uint8_t BankController::loadInternal(uint16_t address) const {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
-        return PPU->VRAMLoad(*offset);
+        uint16_t mask = (PPU->VRAMBank() << 13);
+        uint16_t physicalAddress = mask | (*offset & 0x1FFF);
+        return PPU->VRAMLoad(physicalAddress);
     }
     offset = WorkRAMBank00.contains(address);
     if (offset) {
@@ -211,7 +213,9 @@ uint8_t BankController::loadInternal(uint16_t address) const {
 void BankController::storeInternal(uint16_t address, uint8_t value) {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
-        PPU->VRAMStore(*offset, value);
+        uint16_t mask = (PPU->VRAMBank() << 13);
+        uint16_t physicalAddress = mask | (*offset & 0x1FFF);
+        PPU->VRAMStore(physicalAddress, value);
         return;
     }
     offset = WorkRAMBank00.contains(address);

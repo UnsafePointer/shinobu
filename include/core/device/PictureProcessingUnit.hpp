@@ -151,7 +151,7 @@ namespace Core {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
                 std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector;
-                std::array<uint8_t, 0x2000> memory;
+                std::array<uint8_t, 0x4000> memory;
                 std::array<uint8_t, 0xA0> spriteAttributeTable;
                 LCDControl control;
                 LCDStatus status;
@@ -212,6 +212,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();
                 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
+                uint8_t VRAMBank() const;
             };
         };
     };

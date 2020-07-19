@@ -668,3 +668,7 @@ std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> P
     }
     return {sprites, vertices};
 }
+
+uint8_t Processor::VRAMBank() const {
+    return _VBK.bank;
+}
