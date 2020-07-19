@@ -9,7 +9,34 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), cgbFlag() {
+Processor::Processor(Common::Logs::Level logLevel,
+                     std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
+                     std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "),
+                                                                                               interrupt(interrupt),
+                                                                                               paletteSelector(paletteSelector),
+                                                                                               memory(),
+                                                                                               spriteAttributeTable(),
+                                                                                               control(),
+                                                                                               status(),
+                                                                                               scrollY(),
+                                                                                               scrollX(),
+                                                                                               LY(),
+                                                                                               LYC(),
+                                                                                               backgroundPalette(),
+                                                                                               object0Palette(),
+                                                                                               object1Palette(),
+                                                                                               windowYPosition(),
+                                                                                               windowXPosition(),
+                                                                                               windowLineCounter(),
+                                                                                               steps(),
+                                                                                               interruptConditions(),
+                                                                                               renderer(nullptr),
+                                                                                               scanlines(),
+                                                                                               memoryController(nullptr),
+                                                                                               DMA(),
+                                                                                               shouldNextFrameBeBlank(),
+                                                                                               cgbFlag(),
+                                                                                               _VBK() {
 
 }
 
@@ -224,6 +251,24 @@ void Processor::OAMStore(uint16_t offset, uint8_t value) {
         return;
     }
     spriteAttributeTable[offset] = value;
+}
+
+uint8_t Processor::VBKLoad(uint16_t offset) const {
+    (void)offset;
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load VBK register on DMG mode");
+        return 0xFF;
+    }
+    return _VBK.bank | 0xFE;
+}
+
+void Processor::VBKStore(uint16_t offset, uint8_t value) {
+    (void)offset;
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to store VBK register on DMG mode");
+        return;
+    }
+    _VBK._value = value;
 }
 
 uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const {

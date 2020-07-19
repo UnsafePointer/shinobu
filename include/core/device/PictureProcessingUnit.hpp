@@ -125,6 +125,7 @@ namespace Core {
             };
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
+            const Core::Memory::Range VBKAddressRange = Core::Memory::Range(0xFF4F, 0x1);
 
             enum LCDCSTATInterruptCondition : uint8_t {
                 None = 0,
@@ -132,6 +133,16 @@ namespace Core {
                 Mode1 = 1 << 1,
                 Mode0 = 1 << 2,
                 Coincidence = 1 << 3,
+            };
+
+            union VBK {
+                uint8_t _value;
+                struct {
+                    uint8_t bank : 1;
+                    uint8_t unused : 7;
+                };
+
+                VBK() : _value(0) {};
             };
 
             class Processor {
@@ -166,6 +177,7 @@ namespace Core {
                 bool shouldNextFrameBeBlank;
 
                 Core::ROM::CGBFlag cgbFlag;
+                VBK _VBK;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
@@ -192,6 +204,8 @@ namespace Core {
                 void VRAMStore(uint16_t offset, uint8_t value);
                 uint8_t OAMLoad(uint16_t offset) const;
                 void OAMStore(uint16_t offset, uint8_t value);
+                uint8_t VBKLoad(uint16_t offset) const;
+                void VBKStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
