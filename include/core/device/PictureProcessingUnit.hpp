@@ -126,6 +126,7 @@ namespace Core {
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
             const Core::Memory::Range VBKAddressRange = Core::Memory::Range(0xFF4F, 0x1);
+            const Core::Memory::Range ColorPaletteRange = Core::Memory::Range(0xFF68, 0x4);
 
             enum LCDCSTATInterruptCondition : uint8_t {
                 None = 0,
@@ -143,6 +144,28 @@ namespace Core {
                 };
 
                 VBK() : _value(0) {};
+            };
+
+            union BGPI {
+                uint8_t _value;
+                struct {
+                    uint8_t index : 6;
+                    uint8_t unused : 1;
+                    uint8_t autoIncrement : 1;
+                };
+
+                BGPI() : _value(0) {};
+            };
+
+            union OBPI {
+                uint8_t _value;
+                struct {
+                    uint8_t index : 6;
+                    uint8_t unused : 1;
+                    uint8_t autoIncrement : 1;
+                };
+
+                OBPI() : _value(0) {};
             };
 
             class Processor {
@@ -178,6 +201,10 @@ namespace Core {
 
                 Core::ROM::CGBFlag cgbFlag;
                 VBK _VBK;
+                std::array<uint8_t, 0x40> backgroundPaletteData;
+                BGPI _BGPI;
+                std::array<uint8_t, 0x40> objectPaletteData;
+                OBPI _OBPI;
 
                 uint16_t physicalAddressForAddress(uint16_t address) const;
 
@@ -208,6 +235,8 @@ namespace Core {
                 void OAMStore(uint16_t offset, uint8_t value);
                 uint8_t VBKLoad(uint16_t offset) const;
                 void VBKStore(uint16_t offset, uint8_t value);
+                uint8_t colorPaletteLoad(uint16_t offset) const;
+                void colorPaletteStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;

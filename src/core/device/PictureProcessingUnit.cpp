@@ -36,7 +36,11 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                DMA(),
                                                                                                shouldNextFrameBeBlank(),
                                                                                                cgbFlag(),
-                                                                                               _VBK() {
+                                                                                               _VBK(),
+                                                                                               backgroundPaletteData(),
+                                                                                               _BGPI(),
+                                                                                               objectPaletteData(),
+                                                                                               _OBPI() {
 
 }
 
@@ -269,6 +273,56 @@ void Processor::VBKStore(uint16_t offset, uint8_t value) {
         return;
     }
     _VBK._value = value;
+}
+
+uint8_t Processor::colorPaletteLoad(uint16_t offset) const {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load LCD color palette register at offset: %04x on DMG mode", offset);
+        return 0xFF;
+    }
+    switch (offset) {
+    case 0x0:
+        return _BGPI._value;
+    case 0x1:
+        return backgroundPaletteData[_BGPI.index];
+    case 0x2:
+        return _OBPI._value;
+    case 0x3:
+        return objectPaletteData[_OBPI.index];
+    default:
+        logger.logWarning("Unhandled color palette load at offset: %04x", offset);
+        return 0xFF;
+    }
+}
+
+void Processor::colorPaletteStore(uint16_t offset, uint8_t value) {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to store LCD color palette register at offset: %04x with value: %02x on DMG mode", offset, value);
+        return;
+    }
+    switch (offset) {
+    case 0x0:
+        _BGPI._value = value;
+        break;
+    case 0x1:
+        backgroundPaletteData[_BGPI.index] = value;
+        if (_BGPI.autoIncrement == 0x1) {
+            _BGPI.index++;
+        }
+        break;
+    case 0x2:
+        _OBPI._value = value;
+        break;
+    case 0x3:
+        objectPaletteData[_OBPI.index] = value;
+        if (_OBPI.autoIncrement == 0x1) {
+            _OBPI.index++;
+        }
+        break;
+    default:
+        logger.logWarning("Unhandled color palette store at offset: %04x with value %02x", offset, value);
+        break;
+    }
 }
 
 uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const {

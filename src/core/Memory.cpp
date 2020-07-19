@@ -179,6 +179,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return PPU->VBKLoad(*offset);
         }
+        offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
+        if (offset) {
+            return PPU->colorPaletteLoad(*offset);
+        }
         offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
         if (offset) {
             return bootROM->loadLockRegister();
@@ -265,6 +269,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         offset = Device::PictureProcessingUnit::VBKAddressRange.contains(address);
         if (offset) {
             PPU->VBKStore(*offset, value);
+            return;
+        }
+        offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
+        if (offset) {
+            PPU->colorPaletteStore(*offset, value);
             return;
         }
         offset = Core::ROM::BOOT::BootROMRegisterRange.contains(address);
