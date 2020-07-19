@@ -89,6 +89,7 @@ void Emulator::enqueueSound() {
 
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
+    PPU->setCGBFlag(cartridge->cgbFlag());
 }
 
 void Emulator::setShouldSkipBootROM(bool skipBootROM) {

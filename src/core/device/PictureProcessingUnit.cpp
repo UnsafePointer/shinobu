@@ -9,7 +9,7 @@
 
 using namespace Core::Device::PictureProcessingUnit;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank() {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector) : logger(logLevel, "  [PPU]: "), interrupt(interrupt), paletteSelector(paletteSelector), memory(), spriteAttributeTable(), control(), status(), scrollY(), scrollX(), LY(), LYC(), backgroundPalette(), object0Palette(), object1Palette(), windowYPosition(), windowXPosition(), windowLineCounter(), steps(), interruptConditions(), renderer(nullptr), scanlines(), memoryController(nullptr), DMA(), shouldNextFrameBeBlank(), cgbFlag() {
 
 }
 
@@ -23,6 +23,10 @@ void Processor::setRenderer(Shinobu::Frontend::Renderer *renderer) {
 
 void Processor::setMemoryController(std::unique_ptr<Core::Memory::Controller> &memoryController) {
     this->memoryController = memoryController.get();
+}
+
+void Processor::setCGBFlag(Core::ROM::CGBFlag cgbFlag) {
+    this->cgbFlag = cgbFlag;
 }
 
 uint8_t Processor::load(uint16_t offset) const {

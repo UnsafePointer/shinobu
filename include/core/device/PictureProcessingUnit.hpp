@@ -6,6 +6,7 @@
 #include "core/device/Interrupt.hpp"
 #include <unordered_map>
 #include "shinobu/frontend/Palette.hpp"
+#include "core/ROM.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -164,6 +165,8 @@ namespace Core {
 
                 bool shouldNextFrameBeBlank;
 
+                Core::ROM::CGBFlag cgbFlag;
+
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
@@ -174,13 +177,14 @@ namespace Core {
                 void renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
                 uint8_t getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines()    const;
+                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
 
                 void setRenderer(Shinobu::Frontend::Renderer *renderer);
                 void setMemoryController(std::unique_ptr<Core::Memory::Controller> &memoryController);
+                void setCGBFlag(Core::ROM::CGBFlag cgbFlag);
 
                 uint8_t load(uint16_t offset) const;
                 void store(uint16_t offset, uint8_t value);
