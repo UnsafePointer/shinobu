@@ -18,6 +18,32 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
+            union BackgroundMapAttributes {
+                uint8_t _value;
+                struct {
+                    uint8_t paletteNumber : 3;
+                    uint8_t VRAMBankNumber : 1;
+                    uint8_t unused : 1;
+                    uint8_t xFlip : 1;
+                    uint8_t yFlip : 1;
+                    uint8_t _priority : 1;
+                };
+                BackgroundMapAttributes() : _value() {}
+                BackgroundMapAttributes(uint8_t value) : _value(value) {}
+            };
+
+            union BackgroundPaletteData {
+                uint16_t _value;
+                struct {
+                    uint16_t red : 5;
+                    uint16_t green : 5;
+                    uint16_t blue : 5;
+                    uint16_t unused : 1;
+                };
+
+                BackgroundPaletteData(uint8_t low, uint8_t high) : _value((high << 8) | low) {}
+            };
+
             union SpriteAttributes {
                 uint8_t _value;
                 struct {
@@ -217,8 +243,10 @@ namespace Core {
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
-                uint8_t getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
+                std::pair<uint8_t, BackgroundMapAttributes> getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
+
+                std::array<Shinobu::Frontend::OpenGL::Color, 4> cgbPaletteAtIndex(uint8_t index) const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
