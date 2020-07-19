@@ -288,8 +288,8 @@ uint8_t Processor::getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprit
     }
     uint16_t lowAddress = yInTile * 2 + offset;
     uint16_t highAddress = (yInTile * 2 + 1) + offset;
-    uint8_t low = memory[lowAddress];
-    uint8_t high = memory[highAddress];
+    uint8_t low = memory[physicalAddressForAddress(lowAddress)];
+    uint8_t high = memory[physicalAddressForAddress(highAddress)];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
     uint8_t colorDataIndex = screenPositionX - sprite.positionX();
     if (sprite.attributes.xFlip) {
@@ -335,10 +335,10 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     }
     uint16_t tileIndex;
     if (tileDataLocation == _8000_8FFF) {
-        uint8_t indexOffset = memory[addressStart + tileIndexInMap];
+        uint8_t indexOffset = memory[physicalAddressForAddress(addressStart + tileIndexInMap)];
         tileIndex = indexOffset;
     } else {
-        int8_t indexOffset = memory[addressStart + tileIndexInMap];
+        int8_t indexOffset = memory[physicalAddressForAddress(addressStart + tileIndexInMap)];
         tileIndex = 256 + indexOffset;
     }
     uint16_t offset = (0x10 * tileIndex);
@@ -350,8 +350,8 @@ uint8_t Processor::getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t
     }
     uint16_t lowAddress = yInTile * 2 + offset;
     uint16_t highAddress = (yInTile * 2 + 1) + offset;
-    uint8_t low = memory[lowAddress];
-    uint8_t high = memory[highAddress];
+    uint8_t low = memory[physicalAddressForAddress(lowAddress)];
+    uint8_t high = memory[physicalAddressForAddress(highAddress)];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
     if (drawWindow) {
         return colorData[(screenPositionX - windowXPosition.position()) % VRAMTileDataSide];
@@ -467,6 +467,12 @@ DRAW_SPRITE:
     scanlines.push_back(scanline);
 }
 
+uint16_t Processor::physicalAddressForAddress(uint16_t address) const {
+    uint16_t mask = (VRAMBank() << 13);
+    uint16_t physicalAddress = mask | (address & 0x1FFF);
+    return physicalAddress;
+}
+
 std::array<uint8_t, 8> Processor::getTileRowPixelsColorIndicesWithData(uint8_t low, uint8_t high) const {
     std::array<uint8_t, 8> tileRowPixelsColorIndices = {};
     std::bitset<8> lowBits = std::bitset<8>(low);
@@ -486,8 +492,8 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_
         uint16_t offset = (0x10 * index);
         uint16_t lowAddress = i * 2 + offset;
         uint16_t highAddress = (i * 2 + 1) + offset;
-        uint8_t low = memory[lowAddress];
-        uint8_t high = memory[highAddress];
+        uint8_t low = memory[physicalAddressForAddress(lowAddress)];
+        uint8_t high = memory[physicalAddressForAddress(highAddress)];
         auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
         for (int j = 0; j < VRAMTileDataSide; j++) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)j, (GLfloat)(7 - i) }, paletteColors[colorData[j]] };
@@ -565,10 +571,10 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
         for (int x = 0; x < VRAMTileBackgroundMapSide; x++) {
             std::vector<Shinobu::Frontend::OpenGL::Vertex> tile;
             if (tileDataLocation == _8000_8FFF) {
-                uint8_t tileIndex = memory[backgroundMapAddressStart + index];
+                uint8_t tileIndex = memory[physicalAddressForAddress(backgroundMapAddressStart + index)];
                 tile = getTileByIndex(tileIndex, paletteColors);
             } else {
-                int8_t tileIndex = memory[backgroundMapAddressStart + index];
+                int8_t tileIndex = memory[physicalAddressForAddress(backgroundMapAddressStart + index)];
                 tile = getTileByIndex(256 + tileIndex, paletteColors);
             }
             tile = translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(tile, x, y);
