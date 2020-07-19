@@ -435,13 +435,17 @@ std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::blankScan
     return blankScanlines;
 }
 
-std::array<Shinobu::Frontend::OpenGL::Color, 4> Processor::cgbPaletteAtIndex(uint8_t index) const {
+std::array<Shinobu::Frontend::OpenGL::Color, 4> Processor::cgbPaletteAtIndex(uint8_t index, bool isBackground) const {
     std::array<Shinobu::Frontend::OpenGL::Color, 4> palette = {};
     uint16_t offset = index * 8;
+    std::array<uint8_t, 64UL> paletteDataSource = backgroundPaletteData;
+    if (!isBackground) {
+        paletteDataSource = objectPaletteData;
+    }
     for (int i = 0; i < 4; i++) {
-        uint8_t low = backgroundPaletteData[offset + (i * 2)];
-        uint8_t high = backgroundPaletteData[offset + (i * 2) + 1];
-        BackgroundPaletteData paletteData = BackgroundPaletteData(low, high);
+        uint8_t low = paletteDataSource[offset + (i * 2)];
+        uint8_t high = paletteDataSource[offset + (i * 2) + 1];
+        PaletteData paletteData = PaletteData(low, high);
         Shinobu::Frontend::OpenGL::Color color = { paletteData.red / 32.0f, paletteData.green / 32.0f, paletteData.blue / 32.0f };
         palette[i] = color;
     }
@@ -495,7 +499,7 @@ void Processor::renderScanline() {
         if (spritesToDraw.empty()) {
             std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
             if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber);
+                Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                 color = tilePalette[colorIndex];
             } else {
                 color = backgroundPaletteColors[colorIndex];
@@ -506,10 +510,15 @@ DRAW_SPRITE:
             if (spriteToDraw.attributes._priority == 0) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
-                    if (spriteToDraw.attributes.DMGPalette) {
-                        color = object1PaletteColors[colorIndex];
+                    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                        color = tilePalette[colorIndex];
                     } else {
-                        color = object0PaletteColors[colorIndex];
+                        if (spriteToDraw.attributes.DMGPalette) {
+                            color = object1PaletteColors[colorIndex];
+                        } else {
+                            color = object0PaletteColors[colorIndex];
+                        }
                     }
                 } else {
                     if (spriteIndex < (spritesToDraw.size() - 1)) {
@@ -518,7 +527,7 @@ DRAW_SPRITE:
                     }
                     std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
                     if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber);
+                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                         color = tilePalette[colorIndex];
                     } else {
                         color = backgroundPaletteColors[colorIndex];
@@ -529,14 +538,19 @@ DRAW_SPRITE:
                 if (colorIndex == 0) {
                     colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                     if (colorIndex != 0) {
-                        if (spriteToDraw.attributes.DMGPalette) {
-                            color = object1PaletteColors[colorIndex];
+                        if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+                            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                            color = tilePalette[colorIndex];
                         } else {
-                            color = object0PaletteColors[colorIndex];
+                            if (spriteToDraw.attributes.DMGPalette) {
+                                color = object1PaletteColors[colorIndex];
+                            } else {
+                                color = object0PaletteColors[colorIndex];
+                            }
                         }
                     } else {
                         if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber);
+                            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                             color = tilePalette[colorIndex];
                         } else {
                             color = backgroundPaletteColors[colorIndex];
@@ -544,7 +558,7 @@ DRAW_SPRITE:
                     }
                 } else {
                     if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber);
+                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                         color = tilePalette[colorIndex];
                     } else {
                         color = backgroundPaletteColors[colorIndex];

@@ -32,7 +32,7 @@ namespace Core {
                 BackgroundMapAttributes(uint8_t value) : _value(value) {}
             };
 
-            union BackgroundPaletteData {
+            union PaletteData {
                 uint16_t _value;
                 struct {
                     uint16_t red : 5;
@@ -41,7 +41,7 @@ namespace Core {
                     uint16_t unused : 1;
                 };
 
-                BackgroundPaletteData(uint8_t low, uint8_t high) : _value((high << 8) | low) {}
+                PaletteData(uint8_t low, uint8_t high) : _value((high << 8) | low) {}
             };
 
             union SpriteAttributes {
@@ -246,7 +246,7 @@ namespace Core {
                 std::pair<uint8_t, BackgroundMapAttributes> getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
 
-                std::array<Shinobu::Frontend::OpenGL::Color, 4> cgbPaletteAtIndex(uint8_t index) const;
+                std::array<Shinobu::Frontend::OpenGL::Color, 4> cgbPaletteAtIndex(uint8_t index, bool isBackground) const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
