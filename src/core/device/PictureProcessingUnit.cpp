@@ -579,52 +579,43 @@ void Processor::DMG_renderScanline() {
             scanline.push_back(vertex);
             continue;
         }
-        uint8_t colorIndex;
         Shinobu::Frontend::OpenGL::Color color;
-        uint8_t spriteIndex = 0;
+        uint8_t backgroundColorIndex;
+        std::tie(backgroundColorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+        Shinobu::Frontend::OpenGL::Color backgroundColor = backgroundPaletteColors[backgroundColorIndex];
         if (spritesToDraw.empty()) {
-            std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-            color = backgroundPaletteColors[colorIndex];
+            color = backgroundColor;
         } else {
-DMG_DRAW_SPRITE:
-            Sprite spriteToDraw = spritesToDraw[spriteIndex];
-            if (spriteToDraw.attributes.priority() == SpritePriority::SpriteAboveBackground) {
-                colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
-                if (colorIndex != 0) {
-                    if (spriteToDraw.attributes.DMGPalette) {
-                        color = object1PaletteColors[colorIndex];
-                    } else {
-                        color = object0PaletteColors[colorIndex];
-                    }
-                } else {
-                    if (spriteIndex < (spritesToDraw.size() - 1)) {
-                        spriteIndex++;
-                        goto DMG_DRAW_SPRITE;
-                    }
-                    if (!control.background_WindowDisplayEnable) {
-                        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, colors[0]};
-                        scanline.push_back(vertex);
-                        continue;
-                    } else {
-                        std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                        color = backgroundPaletteColors[colorIndex];
-                    }
-                }
+            uint8_t spriteColorIndex = 0;
+            uint8_t spriteIndex = 0;
+            Sprite spriteToDraw;
+            do {
+                spriteToDraw = spritesToDraw[spriteIndex];
+                spriteColorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                spriteIndex++;
+            } while (spriteColorIndex == 0 && spriteIndex < (spritesToDraw.size() - 1));
+
+            Shinobu::Frontend::OpenGL::Color spriteColor;
+            if (spriteToDraw.attributes.DMGPalette) {
+                spriteColor = object1PaletteColors[spriteColorIndex];
             } else {
-                std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                if (colorIndex == 0) {
-                    colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
-                    if (colorIndex != 0) {
-                        if (spriteToDraw.attributes.DMGPalette) {
-                            color = object1PaletteColors[colorIndex];
-                        } else {
-                            color = object0PaletteColors[colorIndex];
-                        }
+                spriteColor = object0PaletteColors[spriteColorIndex];
+            }
+            if (!control.background_WindowDisplayEnable) {
+                color = spriteColor;
+            } else {
+                if (spriteToDraw.attributes.priority() == SpriteBehindBackground) {
+                    if (backgroundColorIndex == 0) {
+                        color = spriteColor;
                     } else {
-                        color = backgroundPaletteColors[colorIndex];
+                        color = backgroundColor;
                     }
                 } else {
-                    color = backgroundPaletteColors[colorIndex];
+                    if (spriteColorIndex == 0) {
+                        color = backgroundColor;
+                    } else {
+                        color = spriteColor;
+                    }
                 }
             }
         }
