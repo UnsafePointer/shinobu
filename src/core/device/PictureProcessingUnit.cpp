@@ -475,8 +475,12 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     }
     uint16_t lowAddress = yInTile * 2 + offset;
     uint16_t highAddress = (yInTile * 2 + 1) + offset;
-    uint8_t low = memory[physicalAddressForAddress(lowAddress)];
-    uint8_t high = memory[physicalAddressForAddress(highAddress)];
+    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+        lowAddress = (attributes.VRAMBankNumber << 13) | (lowAddress & 0x1FFF);
+        highAddress = (attributes.VRAMBankNumber << 13) | (highAddress & 0x1FFF);
+    }
+    uint8_t low = memory[lowAddress];
+    uint8_t high = memory[highAddress];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
     uint8_t colorDataIndex;
     if (drawWindow) {
