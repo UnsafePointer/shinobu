@@ -644,11 +644,6 @@ void Processor::CGB_renderScanline() {
             }
         }
         std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
-        if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
-            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 1.0, 1.0, 1.0 }};
-            scanline.push_back(vertex);
-            continue;
-        }
         uint8_t colorIndex;
         BackgroundMapAttributes backgroundAttr;
         Shinobu::Frontend::OpenGL::Color color;
