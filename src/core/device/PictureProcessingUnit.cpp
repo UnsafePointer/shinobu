@@ -648,49 +648,49 @@ void Processor::CGB_renderScanline() {
             }
         }
         std::sort(spritesToDraw.begin(), spritesToDraw.end(), CGB_compareSpritesByPriority);
-        uint8_t colorIndex;
         BackgroundMapAttributes backgroundAttr;
         Shinobu::Frontend::OpenGL::Color color;
-        uint8_t spriteIndex = 0;
+        uint8_t backgroundColorIndex;
+        std::tie(backgroundColorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+        const palette backgroundPalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+        Shinobu::Frontend::OpenGL::Color backgroundColor = backgroundPalette[backgroundColorIndex];
         if (spritesToDraw.empty()) {
-            std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-            const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-            color = tilePalette[colorIndex];
+            color = backgroundColor;
         } else {
-CGB_DRAW_SPRITE:
-            Sprite spriteToDraw = spritesToDraw[spriteIndex];
-            if (spriteToDraw.attributes.priority() == SpritePriority::SpriteAboveBackground) {
-                colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
-                if (colorIndex != 0) {
-                    const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                    color = tilePalette[colorIndex];
-                } else {
-                    if (spriteIndex < (spritesToDraw.size() - 1)) {
-                        spriteIndex++;
-                        goto CGB_DRAW_SPRITE;
-                    }
-                    std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                    const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                    color = tilePalette[colorIndex];
-                }
+            uint8_t spriteColorIndex = 0;
+            uint8_t spriteIndex = 0;
+            Sprite spriteToDraw;
+            do {
+                spriteToDraw = spritesToDraw[spriteIndex];
+                spriteColorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                spriteIndex++;
+            } while (spriteColorIndex == 0 && spriteIndex < (spritesToDraw.size() - 1));
+
+            if (spriteColorIndex == 0) {
+                color = backgroundColor;
             } else {
+                const palette spritePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                Shinobu::Frontend::OpenGL::Color spriteColor = spritePalette[spriteColorIndex];
+
                 if (!control.background_WindowDisplayEnable) {
-                    const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                    color = tilePalette[colorIndex];
+                    color = spriteColor;
                 } else {
-                    std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                    if (colorIndex == 0) {
-                        colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
-                        if (colorIndex != 0) {
-                            const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                            color = tilePalette[colorIndex];
+                    if (backgroundAttr.priority() == UseSpritePriority) {
+                        if (spriteToDraw.attributes.priority() == SpriteBehindBackground) {
+                            if (backgroundColorIndex == 0) {
+                                color = spriteColor;
+                            } else {
+                                color = backgroundColor;
+                            }
                         } else {
-                            const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                            color = tilePalette[colorIndex];
+                            color = spriteColor;
                         }
                     } else {
-                        const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                        color = tilePalette[colorIndex];
+                        if (backgroundColorIndex == 0) {
+                            color = spriteColor;
+                        } else {
+                            color = backgroundColor;
+                        }
                     }
                 }
             }
