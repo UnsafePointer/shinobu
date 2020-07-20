@@ -670,19 +670,24 @@ CGB_DRAW_SPRITE:
                     color = tilePalette[colorIndex];
                 }
             } else {
-                std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                if (colorIndex == 0) {
-                    colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
-                    if (colorIndex != 0) {
-                        const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                        color = tilePalette[colorIndex];
+                if (!control.background_WindowDisplayEnable) {
+                    const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                    color = tilePalette[colorIndex];
+                } else {
+                    std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                    if (colorIndex == 0) {
+                        colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                        if (colorIndex != 0) {
+                            const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                            color = tilePalette[colorIndex];
+                        } else {
+                            const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                            color = tilePalette[colorIndex];
+                        }
                     } else {
                         const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                         color = tilePalette[colorIndex];
                     }
-                } else {
-                    const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                    color = tilePalette[colorIndex];
                 }
             }
         }
