@@ -252,7 +252,7 @@ namespace Core {
                 uint16_t physicalAddressForAddress(uint16_t address) const;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, Shinobu::Frontend::Palette::palette paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
@@ -265,7 +265,7 @@ namespace Core {
                 std::pair<uint8_t, BackgroundMapAttributes> getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
 
-                std::array<Shinobu::Frontend::OpenGL::Color, 4> cgbPaletteAtIndex(uint8_t index, bool isBackground) const;
+                Shinobu::Frontend::Palette::palette cgbPaletteAtIndex(uint8_t index, bool isBackground) const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();

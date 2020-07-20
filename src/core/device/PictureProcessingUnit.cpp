@@ -8,6 +8,7 @@
 #include "shinobu/frontend/Palette.hpp"
 
 using namespace Core::Device::PictureProcessingUnit;
+using namespace Shinobu::Frontend::Palette;
 
 Processor::Processor(Common::Logs::Level logLevel,
                      std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
@@ -496,8 +497,8 @@ std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::blankScan
     return blankScanlines;
 }
 
-std::array<Shinobu::Frontend::OpenGL::Color, 4> Processor::cgbPaletteAtIndex(uint8_t index, bool isBackground) const {
-    std::array<Shinobu::Frontend::OpenGL::Color, 4> palette = {};
+Shinobu::Frontend::Palette::palette Processor::cgbPaletteAtIndex(uint8_t index, bool isBackground) const {
+    palette palette = {};
     uint16_t offset = index * 8;
     std::array<uint8_t, 64UL> paletteDataSource = backgroundPaletteData;
     if (!isBackground) {
@@ -536,10 +537,10 @@ void Processor::DMG_renderScanline() {
             }
         }
     }
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
+    const palette colors = paletteSelector->currentSelection();
+    const palette backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
+    const palette object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
+    const palette object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
     for (int i = 0; i < HorizontalResolution; i++) {
         std::vector<Sprite> spritesToDraw = {};
         for (auto const& sprite : visibleSprites) {
@@ -641,7 +642,7 @@ void Processor::CGB_renderScanline() {
         uint8_t spriteIndex = 0;
         if (spritesToDraw.empty()) {
             std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+            const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
             color = tilePalette[colorIndex];
         } else {
 CGB_DRAW_SPRITE:
@@ -649,7 +650,7 @@ CGB_DRAW_SPRITE:
             if (spriteToDraw.attributes._priority == 0) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
-                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                    const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
                     color = tilePalette[colorIndex];
                 } else {
                     if (spriteIndex < (spritesToDraw.size() - 1)) {
@@ -657,7 +658,7 @@ CGB_DRAW_SPRITE:
                         goto CGB_DRAW_SPRITE;
                     }
                     std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                    const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                     color = tilePalette[colorIndex];
                 }
             } else {
@@ -665,14 +666,14 @@ CGB_DRAW_SPRITE:
                 if (colorIndex == 0) {
                     colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                     if (colorIndex != 0) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                        const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
                         color = tilePalette[colorIndex];
                     } else {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                        const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                         color = tilePalette[colorIndex];
                     }
                 } else {
-                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                    const palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
                     color = tilePalette[colorIndex];
                 }
             }
@@ -713,7 +714,7 @@ std::array<uint8_t, 8> Processor::getTileRowPixelsColorIndicesWithData(uint8_t l
     return tileRowPixelsColorIndices;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_t index, std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors) const {
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_t index, Shinobu::Frontend::Palette::palette paletteColors) const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = {};
     for (int i = 0; i < VRAMTileDataSide; i++) {
         uint16_t offset = (0x10 * index);
@@ -764,7 +765,7 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoor
 }
 
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() const {
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
+    const palette colors = paletteSelector->currentSelection();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
     for (int y = (VRAMTileDataViewerHeight - 1); y >= 0; y--) {
@@ -789,8 +790,8 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
         backgroundMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> paletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
+    const palette colors = paletteSelector->currentSelection();
+    const palette paletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
@@ -890,7 +891,7 @@ std::vector<Sprite> Processor::getSpriteData() const {
 }
 
 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
-    const std::array<Shinobu::Frontend::OpenGL::Color, 4> colors = paletteSelector->currentSelection();
+    const palette colors = paletteSelector->currentSelection();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
     std::vector<Sprite> sprites = getSpriteData();
     for (int i = 0; i < NumberOfSpritesInOAM; i++) {
