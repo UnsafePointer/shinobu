@@ -470,16 +470,24 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     } else {
         yInTile = screenPositionYWithScroll % VRAMTileDataSide;
     }
+    if (cgbFlag != Core::ROM::CGBFlag::DMG && attributes.yFlip) {
+        yInTile = (VRAMTileDataSide - 1) - yInTile;
+    }
     uint16_t lowAddress = yInTile * 2 + offset;
     uint16_t highAddress = (yInTile * 2 + 1) + offset;
     uint8_t low = memory[physicalAddressForAddress(lowAddress)];
     uint8_t high = memory[physicalAddressForAddress(highAddress)];
     auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
+    uint8_t colorDataIndex;
     if (drawWindow) {
-        return {colorData[(screenPositionX - windowXPosition.position()) % VRAMTileDataSide], attributes};
+        colorDataIndex = (screenPositionX - windowXPosition.position()) % VRAMTileDataSide;
     } else {
-        return {colorData[screenPositionXWithScroll % VRAMTileDataSide], attributes};
+        colorDataIndex = screenPositionXWithScroll % VRAMTileDataSide;
     }
+    if (cgbFlag != Core::ROM::CGBFlag::DMG && attributes.xFlip) {
+        colorDataIndex = (VRAMTileDataSide - 1) - colorDataIndex;
+    }
+    return {colorData[colorDataIndex], attributes};
 }
 
 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::blankScanlines() const {
