@@ -521,8 +521,7 @@ bool Core::Device::PictureProcessingUnit::compareSpritesByPriority(const Sprite 
     return a.x < b.x;
 }
 
-void Processor::DMG_renderScanline() {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+std::vector<Sprite> Processor::getVisibleSprites() const {
     SpriteSize spriteSize = control.spriteSize();
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
     std::vector<Sprite> visibleSprites = {};
@@ -537,6 +536,12 @@ void Processor::DMG_renderScanline() {
             }
         }
     }
+    return visibleSprites;
+}
+
+void Processor::DMG_renderScanline() {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+    const std::vector<Sprite> visibleSprites = getVisibleSprites();
     const palette colors = paletteSelector->currentSelection();
     const palette backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
     const palette object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
@@ -609,20 +614,7 @@ DMG_DRAW_SPRITE:
 
 void Processor::CGB_renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
-    SpriteSize spriteSize = control.spriteSize();
-    uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
-    std::vector<Sprite> visibleSprites = {};
-    std::vector<Sprite> sprites = getSpriteData();
-    if (control.spriteDisplayEnable) {
-        for (auto const& sprite : sprites) {
-            if ((LY >= sprite.positionY() && LY < (sprite.positionY() + spriteHeight)) && sprite.positionX() >= -8 && sprite.positionX() < 168) {
-                visibleSprites.push_back(sprite);
-            }
-            if (visibleSprites.size() >= 10) {
-                break;
-            }
-        }
-    }
+    const std::vector<Sprite> visibleSprites = getVisibleSprites();
     for (int i = 0; i < HorizontalResolution; i++) {
         std::vector<Sprite> spritesToDraw = {};
         for (auto const& sprite : visibleSprites) {

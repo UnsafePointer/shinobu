@@ -259,6 +259,7 @@ namespace Core {
 
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
+                std::vector<Sprite> getVisibleSprites() const;
                 void DMG_renderScanline();
                 void CGB_renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
