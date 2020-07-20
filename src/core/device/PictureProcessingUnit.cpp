@@ -530,11 +530,15 @@ Shinobu::Frontend::Palette::palette Processor::cgbPaletteAtIndex(uint8_t index, 
     return palette;
 }
 
-bool Core::Device::PictureProcessingUnit::compareSpritesByPriority(const Sprite &a, const Sprite &b) {
+bool Core::Device::PictureProcessingUnit::DMG_compareSpritesByPriority(const Sprite &a, const Sprite &b) {
     if (a.x == b.x) {
         return a.offset < b.offset;
     }
     return a.x < b.x;
+}
+
+bool Core::Device::PictureProcessingUnit::CGB_compareSpritesByPriority(const Sprite &a, const Sprite &b) {
+    return a.offset < b.offset;
 }
 
 std::vector<Sprite> Processor::getVisibleSprites() const {
@@ -569,7 +573,7 @@ void Processor::DMG_renderScanline() {
                 spritesToDraw.push_back(sprite);
             }
         }
-        std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
+        std::sort(spritesToDraw.begin(), spritesToDraw.end(), DMG_compareSpritesByPriority);
         if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, colors[0]};
             scanline.push_back(vertex);
@@ -643,7 +647,7 @@ void Processor::CGB_renderScanline() {
                 spritesToDraw.push_back(sprite);
             }
         }
-        std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
+        std::sort(spritesToDraw.begin(), spritesToDraw.end(), CGB_compareSpritesByPriority);
         uint8_t colorIndex;
         BackgroundMapAttributes backgroundAttr;
         Shinobu::Frontend::OpenGL::Color color;

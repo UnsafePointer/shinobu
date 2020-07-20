@@ -77,7 +77,8 @@ namespace Core {
                 int16_t positionX() const { return ((int16_t)x) - 8; }
             };
 
-            bool compareSpritesByPriority(const Sprite &a, const Sprite &b);
+            bool DMG_compareSpritesByPriority(const Sprite &a, const Sprite &b);
+            bool CGB_compareSpritesByPriority(const Sprite &a, const Sprite &b);
 
             enum Background_WindowTileMapLocation : uint8_t {
                 _9800_9BFF = 0,
