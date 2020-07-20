@@ -259,6 +259,8 @@ namespace Core {
 
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
+                void DMG_renderScanline();
+                void CGB_renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
                 std::pair<uint8_t, BackgroundMapAttributes> getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;

@@ -520,7 +520,7 @@ bool Core::Device::PictureProcessingUnit::compareSpritesByPriority(const Sprite 
     return a.x < b.x;
 }
 
-void Processor::renderScanline() {
+void Processor::DMG_renderScanline() {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     SpriteSize spriteSize = control.spriteSize();
     uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
@@ -559,71 +559,41 @@ void Processor::renderScanline() {
         uint8_t spriteIndex = 0;
         if (spritesToDraw.empty()) {
             std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-            if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                color = tilePalette[colorIndex];
-            } else {
-                color = backgroundPaletteColors[colorIndex];
-            }
+            color = backgroundPaletteColors[colorIndex];
         } else {
-DRAW_SPRITE:
+DMG_DRAW_SPRITE:
             Sprite spriteToDraw = spritesToDraw[spriteIndex];
             if (spriteToDraw.attributes._priority == 0) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
-                    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                        color = tilePalette[colorIndex];
+                    if (spriteToDraw.attributes.DMGPalette) {
+                        color = object1PaletteColors[colorIndex];
                     } else {
-                        if (spriteToDraw.attributes.DMGPalette) {
-                            color = object1PaletteColors[colorIndex];
-                        } else {
-                            color = object0PaletteColors[colorIndex];
-                        }
+                        color = object0PaletteColors[colorIndex];
                     }
                 } else {
                     if (spriteIndex < (spritesToDraw.size() - 1)) {
                         spriteIndex++;
-                        goto DRAW_SPRITE;
+                        goto DMG_DRAW_SPRITE;
                     }
                     std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                        color = tilePalette[colorIndex];
-                    } else {
-                        color = backgroundPaletteColors[colorIndex];
-                    }
+                    color = backgroundPaletteColors[colorIndex];
                 }
             } else {
                 std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
                 if (colorIndex == 0) {
                     colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                     if (colorIndex != 0) {
-                        if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
-                            color = tilePalette[colorIndex];
+                        if (spriteToDraw.attributes.DMGPalette) {
+                            color = object1PaletteColors[colorIndex];
                         } else {
-                            if (spriteToDraw.attributes.DMGPalette) {
-                                color = object1PaletteColors[colorIndex];
-                            } else {
-                                color = object0PaletteColors[colorIndex];
-                            }
+                            color = object0PaletteColors[colorIndex];
                         }
-                    } else {
-                        if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                            color = tilePalette[colorIndex];
-                        } else {
-                            color = backgroundPaletteColors[colorIndex];
-                        }
-                    }
-                } else {
-                    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
-                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
-                        color = tilePalette[colorIndex];
                     } else {
                         color = backgroundPaletteColors[colorIndex];
                     }
+                } else {
+                    color = backgroundPaletteColors[colorIndex];
                 }
             }
         }
@@ -634,6 +604,94 @@ DRAW_SPRITE:
         windowLineCounter++;
     }
     scanlines.push_back(scanline);
+}
+
+void Processor::CGB_renderScanline() {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
+    SpriteSize spriteSize = control.spriteSize();
+    uint8_t spriteHeight = spriteSize == SpriteSize::_8x16 ? 16 : 8;
+    std::vector<Sprite> visibleSprites = {};
+    std::vector<Sprite> sprites = getSpriteData();
+    if (control.spriteDisplayEnable) {
+        for (auto const& sprite : sprites) {
+            if ((LY >= sprite.positionY() && LY < (sprite.positionY() + spriteHeight)) && sprite.positionX() >= -8 && sprite.positionX() < 168) {
+                visibleSprites.push_back(sprite);
+            }
+            if (visibleSprites.size() >= 10) {
+                break;
+            }
+        }
+    }
+    for (int i = 0; i < HorizontalResolution; i++) {
+        std::vector<Sprite> spritesToDraw = {};
+        for (auto const& sprite : visibleSprites) {
+            if (i >= sprite.positionX() && i < sprite.positionX() + 8) {
+                spritesToDraw.push_back(sprite);
+            }
+        }
+        std::sort(spritesToDraw.begin(), spritesToDraw.end(), compareSpritesByPriority);
+        if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, { 1.0, 1.0, 1.0 }};
+            scanline.push_back(vertex);
+            continue;
+        }
+        uint8_t colorIndex;
+        BackgroundMapAttributes backgroundAttr;
+        Shinobu::Frontend::OpenGL::Color color;
+        uint8_t spriteIndex = 0;
+        if (spritesToDraw.empty()) {
+            std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+            Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+            color = tilePalette[colorIndex];
+        } else {
+CGB_DRAW_SPRITE:
+            Sprite spriteToDraw = spritesToDraw[spriteIndex];
+            if (spriteToDraw.attributes._priority == 0) {
+                colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                if (colorIndex != 0) {
+                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                    color = tilePalette[colorIndex];
+                } else {
+                    if (spriteIndex < (spritesToDraw.size() - 1)) {
+                        spriteIndex++;
+                        goto CGB_DRAW_SPRITE;
+                    }
+                    std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                    color = tilePalette[colorIndex];
+                }
+            } else {
+                std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                if (colorIndex == 0) {
+                    colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
+                    if (colorIndex != 0) {
+                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);
+                        color = tilePalette[colorIndex];
+                    } else {
+                        Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                        color = tilePalette[colorIndex];
+                    }
+                } else {
+                    Shinobu::Frontend::Palette::palette tilePalette = cgbPaletteAtIndex(backgroundAttr.paletteNumber, true);
+                    color = tilePalette[colorIndex];
+                }
+            }
+        }
+        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
+        scanline.push_back(vertex);
+    }
+    if (control.windowDisplayEnable && LY >= windowYPosition && windowXPosition.position() <= 160) {
+        windowLineCounter++;
+    }
+    scanlines.push_back(scanline);
+}
+
+void Processor::renderScanline() {
+    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+        CGB_renderScanline();
+    } else {
+        DMG_renderScanline();
+    }
 }
 
 uint16_t Processor::physicalAddressForAddress(uint16_t address) const {
