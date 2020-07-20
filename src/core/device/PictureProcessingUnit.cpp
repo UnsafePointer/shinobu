@@ -560,11 +560,10 @@ void Processor::DMG_renderScanline() {
             continue;
         }
         uint8_t colorIndex;
-        BackgroundMapAttributes backgroundAttr;
         Shinobu::Frontend::OpenGL::Color color;
         uint8_t spriteIndex = 0;
         if (spritesToDraw.empty()) {
-            std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+            std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
             color = backgroundPaletteColors[colorIndex];
         } else {
 DMG_DRAW_SPRITE:
@@ -582,11 +581,11 @@ DMG_DRAW_SPRITE:
                         spriteIndex++;
                         goto DMG_DRAW_SPRITE;
                     }
-                    std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                    std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
                     color = backgroundPaletteColors[colorIndex];
                 }
             } else {
-                std::tie(colorIndex, backgroundAttr) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
                 if (colorIndex == 0) {
                     colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                     if (colorIndex != 0) {
