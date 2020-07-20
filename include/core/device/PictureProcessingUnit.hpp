@@ -18,6 +18,11 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
+            enum BackgroundPriority {
+                UseSpritePriority = 0,
+                BackgroundAboveSprite = 1,
+            };
+
             union BackgroundMapAttributes {
                 uint8_t _value;
                 struct {
@@ -30,6 +35,7 @@ namespace Core {
                 };
                 BackgroundMapAttributes() : _value() {}
                 BackgroundMapAttributes(uint8_t value) : _value(value) {}
+                BackgroundPriority priority() { return BackgroundPriority(_priority); }
             };
 
             union PaletteData {
