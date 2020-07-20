@@ -40,7 +40,12 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                backgroundPaletteData(),
                                                                                                _BGPI(),
                                                                                                objectPaletteData(),
-                                                                                               _OBPI() {
+                                                                                               _OBPI(),
+                                                                                               HDMA1(),
+                                                                                               HDMA2(),
+                                                                                               HDMA3(),
+                                                                                               HDMA4(),
+                                                                                               _HDMA5() {
 
 }
 
@@ -321,6 +326,55 @@ void Processor::colorPaletteStore(uint16_t offset, uint8_t value) {
         break;
     default:
         logger.logWarning("Unhandled color palette store at offset: %04x with value %02x", offset, value);
+        break;
+    }
+}
+
+uint8_t Processor::HDMALoad(uint16_t offset) const {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load HDMA register at offset: %04x on DMG mode", offset);
+        return 0xFF;
+    }
+    switch (offset) {
+    case 0x0:
+        return HDMA1;
+    case 0x1:
+        return HDMA2;
+    case 0x2:
+        return HDMA3;
+    case 0x3:
+        return HDMA4;
+    case 0x4:
+        return _HDMA5._value;
+    default:
+        logger.logWarning("Unhandled HDMA register load at offset: %04x", offset);
+        return 0xFF;
+    }
+}
+
+void Processor::HDMAStore(uint16_t offset, uint8_t value) {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load HDMA register at offset: %04x with value: %02x on DMG mode", offset, value);
+        return;
+    }
+    switch (offset) {
+    case 0x0:
+        HDMA1 = value;
+        break;
+    case 0x1:
+        HDMA2 = value;
+        break;
+    case 0x2:
+        HDMA3 = value;
+        break;
+    case 0x3:
+        HDMA4 = value;
+        break;
+    case 0x4:
+        _HDMA5._value = value;
+        break;
+    default:
+        logger.logWarning("Unhandled HDMA register store at offset: %04x with value %02x", offset, value);
         break;
     }
 }

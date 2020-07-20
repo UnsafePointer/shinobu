@@ -179,6 +179,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return PPU->VBKLoad(*offset);
         }
+        offset = Device::PictureProcessingUnit::HDMARange.contains(address);
+        if (offset) {
+            return PPU->HDMALoad(*offset);
+        }
         offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
         if (offset) {
             return PPU->colorPaletteLoad(*offset);
@@ -269,6 +273,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
         offset = Device::PictureProcessingUnit::VBKAddressRange.contains(address);
         if (offset) {
             PPU->VBKStore(*offset, value);
+            return;
+        }
+        offset = Device::PictureProcessingUnit::HDMARange.contains(address);
+        if (offset) {
+            PPU->HDMAStore(*offset, value);
             return;
         }
         offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
