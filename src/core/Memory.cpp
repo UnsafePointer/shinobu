@@ -131,6 +131,16 @@ void BankController::executeDMA(uint8_t value) {
     }
 }
 
+void BankController::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
+    uint16_t sourceEnd = source + length;
+    while (source <= sourceEnd) {
+        uint8_t value = load(source);
+        store(destination, value);
+        source++;
+        destination++;
+    }
+}
+
 uint8_t BankController::loadInternal(uint16_t address) const {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
@@ -753,4 +763,8 @@ void Controller::storeDoubleWord(uint16_t address, uint16_t value) {
 
 void Controller::executeDMA(uint8_t value) {
     bankController->executeDMA(value);
+}
+
+void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
+    bankController->executeHDMA(source, destination, length);
 }

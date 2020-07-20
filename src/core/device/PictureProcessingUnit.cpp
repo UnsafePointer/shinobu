@@ -370,9 +370,16 @@ void Processor::HDMAStore(uint16_t offset, uint8_t value) {
     case 0x3:
         HDMA4 = value;
         break;
-    case 0x4:
+    case 0x4: {
         _HDMA5._value = value;
+        uint16_t source = (((uint16_t)HDMA1) << 8) | HDMA2;
+        source &= 0xFFF0;
+        uint16_t destination = (((uint16_t)HDMA3) << 8) | HDMA4;
+        source &= 0x0FF0;
+        uint16_t length = (((uint16_t)_HDMA5.length) + 1) * 0x10;
+        memoryController->executeHDMA(source, destination, length);
         break;
+    }
     default:
         logger.logWarning("Unhandled HDMA register store at offset: %04x with value %02x", offset, value);
         break;

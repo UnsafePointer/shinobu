@@ -106,6 +106,7 @@ namespace Core {
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
             void executeDMA(uint8_t value);
+            void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
         };
 
         namespace ROM {
@@ -337,6 +338,7 @@ namespace Core {
             uint16_t loadDoubleWord(uint16_t address) const;
             void storeDoubleWord(uint16_t address, uint16_t value);
             void executeDMA(uint8_t value);
+            void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
         };
     };
 };
