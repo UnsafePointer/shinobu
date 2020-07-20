@@ -593,7 +593,7 @@ void Processor::DMG_renderScanline() {
                 spriteToDraw = spritesToDraw[spriteIndex];
                 spriteColorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 spriteIndex++;
-            } while (spriteColorIndex == 0 && spriteIndex < (spritesToDraw.size() - 1));
+            } while (spriteColorIndex == 0 && spriteIndex <= (spritesToDraw.size() - 1));
 
             Shinobu::Frontend::OpenGL::Color spriteColor;
             if (spriteToDraw.attributes.DMGPalette) {
@@ -655,7 +655,7 @@ void Processor::CGB_renderScanline() {
                 spriteToDraw = spritesToDraw[spriteIndex];
                 spriteColorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 spriteIndex++;
-            } while (spriteColorIndex == 0 && spriteIndex < (spritesToDraw.size() - 1));
+            } while (spriteColorIndex == 0 && spriteIndex <= (spritesToDraw.size() - 1));
 
             if (spriteColorIndex == 0) {
                 color = backgroundColor;
