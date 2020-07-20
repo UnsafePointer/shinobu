@@ -597,8 +597,14 @@ DMG_DRAW_SPRITE:
                         spriteIndex++;
                         goto DMG_DRAW_SPRITE;
                     }
-                    std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
-                    color = backgroundPaletteColors[colorIndex];
+                    if (!control.background_WindowDisplayEnable) {
+                        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, colors[0]};
+                        scanline.push_back(vertex);
+                        continue;
+                    } else {
+                        std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
+                        color = backgroundPaletteColors[colorIndex];
+                    }
                 }
             } else {
                 std::tie(colorIndex, std::ignore) = getColorIndexForBackgroundAtScreenHorizontalPosition(i);
