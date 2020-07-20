@@ -213,6 +213,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return sound->load(address);
         }
+        offset = Core::Memory::SVBKRegisterRange.contains(address);
+        if (offset) {
+            return _SVBK._value;
+        }
         logger.logWarning("Unhandled I/O Register load at address: %04x", address);
         return 0;
     }
