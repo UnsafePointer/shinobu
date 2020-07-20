@@ -584,7 +584,7 @@ void Processor::DMG_renderScanline() {
         } else {
 DMG_DRAW_SPRITE:
             Sprite spriteToDraw = spritesToDraw[spriteIndex];
-            if (spriteToDraw.attributes._priority == 0) {
+            if (spriteToDraw.attributes.priority() == SpritePriority::SpriteAboveBackground) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
                     if (spriteToDraw.attributes.DMGPalette) {
@@ -660,7 +660,7 @@ void Processor::CGB_renderScanline() {
         } else {
 CGB_DRAW_SPRITE:
             Sprite spriteToDraw = spritesToDraw[spriteIndex];
-            if (spriteToDraw.attributes._priority == 0) {
+            if (spriteToDraw.attributes.priority() == SpritePriority::SpriteAboveBackground) {
                 colorIndex = getColorIndexForSpriteAtScreenHorizontalPosition(spriteToDraw, i);
                 if (colorIndex != 0) {
                     const palette tilePalette = cgbPaletteAtIndex(spriteToDraw.attributes.CGBPalette, false);

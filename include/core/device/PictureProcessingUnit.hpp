@@ -44,6 +44,11 @@ namespace Core {
                 PaletteData(uint8_t low, uint8_t high) : _value((high << 8) | low) {}
             };
 
+            enum SpritePriority {
+                SpriteAboveBackground = 0,
+                SpriteBehindBackground = 1,
+            };
+
             union SpriteAttributes {
                 uint8_t _value;
                 struct {
@@ -55,6 +60,7 @@ namespace Core {
                     uint8_t _priority : 1;
                 };
                 SpriteAttributes(uint8_t value) : _value(value) {}
+                SpritePriority priority() { return SpritePriority(_priority); }
             };
 
             struct Sprite {
