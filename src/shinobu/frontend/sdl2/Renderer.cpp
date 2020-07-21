@@ -20,7 +20,6 @@ void Renderer::update() {
     auto scanlines = PPU->getLCDOutput();
     for (const auto& scanline : scanlines) {
         renderer->addPixels(scanline);
-        renderer->render();
     }
     renderer->render();
 

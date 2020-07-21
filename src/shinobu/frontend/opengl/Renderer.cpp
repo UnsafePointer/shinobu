@@ -13,10 +13,7 @@ Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderT
     GLuint heightUniform = program->findProgramUniform("height");
     glUniform1f(heightUniform, height);
 
-    uint32_t bufferCapacity =  width * scale * 6;
-    if (renderToFramebuffer) {
-        bufferCapacity = width * height * scale * 6;
-    }
+    uint32_t bufferCapacity =  width * 6;
 
     buffer = std::make_unique<Buffer<Vertex>>(program, bufferCapacity);
     framebufferTexture = std::make_unique<Texture>(width * scale, height * scale);
@@ -39,14 +36,20 @@ std::array<Vertex, 6> Renderer::verticesForPixel(Vertex pixel) const {
 }
 
 void Renderer::addPixels(std::vector<Vertex> pixels) {
-    std::vector<Vertex> vertices = std::vector<Vertex>(pixels.size() * 6);
-    for (const auto& pixel : pixels) {
-        std::array<Vertex, 6> verticesForPixel = this->verticesForPixel(pixel);
-        vertices.insert(vertices.end(), verticesForPixel.begin(), verticesForPixel.end());
+    uint32_t step = width;
+    uint32_t index = 0;
+    while (index < pixels.size()) {
+        std::vector<Vertex> vertices = std::vector<Vertex>();
+        for (uint32_t i = index; i < index + step; i++) {
+            Vertex pixel = pixels[i];
+            std::array<Vertex, 6> verticesForPixel = this->verticesForPixel(pixel);
+            vertices.insert(vertices.end(), verticesForPixel.begin(), verticesForPixel.end());
+        }
+        checkForceDraw(vertices.size(), GL_TRIANGLES);
+        mode = GL_TRIANGLES;
+        buffer->addData(vertices.data(), vertices.size());
+        index += step;
     }
-    mode = GL_TRIANGLES;
-    checkForceDraw(vertices.size(), GL_TRIANGLES);
-    buffer->addData(vertices.data(), vertices.size());
 }
 
 void Renderer::addViewPort(std::vector<Vertex> vertices) {
