@@ -44,7 +44,10 @@ void Renderer::update() {
         }
         ImGui::End();
         if (ImGui::Begin("VRAM Background Map", NULL, ImGuiWindowFlags_NoResize)) {
-            backgroundMapRenderer->addPixels(PPU->getBackgroundMap(Core::Device::PictureProcessingUnit::BackgroundType::Normal));
+            static int selection = Core::Device::PictureProcessingUnit::BackgroundType::Normal;
+            ImGui::RadioButton("Background", &selection, Core::Device::PictureProcessingUnit::BackgroundType::Normal); ImGui::SameLine();
+            ImGui::RadioButton("Window", &selection, Core::Device::PictureProcessingUnit::BackgroundType::Window);
+            backgroundMapRenderer->addPixels(PPU->getBackgroundMap(Core::Device::PictureProcessingUnit::BackgroundType(selection)));
             backgroundMapRenderer->addViewPort(PPU->getScrollingViewPort());
             backgroundMapRenderer->render();
             ImVec2 size = ImVec2(static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale));

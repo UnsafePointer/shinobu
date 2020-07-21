@@ -18,9 +18,9 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
-            enum BackgroundType {
-                Normal,
-                Window,
+            enum BackgroundType : int {
+                Normal = 0,
+                Window = 1,
             };
 
             enum BackgroundPriority {
