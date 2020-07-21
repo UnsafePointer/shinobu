@@ -37,7 +37,10 @@ void Renderer::update() {
     ImGui::NewFrame();
     {
         if (ImGui::Begin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoResize)) {
-            tileDataRenderer->addPixels(PPU->getTileDataPixels());
+            static int selection = 0;
+            ImGui::RadioButton("Bank 0", &selection, 0); ImGui::SameLine();
+            ImGui::RadioButton("Bank 1", &selection, 1);
+            tileDataRenderer->addPixels(PPU->getTileDataPixels(selection));
             tileDataRenderer->render();
             ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale));
             ImGui::Image(reinterpret_cast<ImTextureID>(tileDataRenderer->framebufferTextureObject()), size, ImVec2(0, 1), ImVec2(1, 0));

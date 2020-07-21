@@ -270,7 +270,7 @@ namespace Core {
                 uint16_t physicalAddressForAddress(uint16_t address) const;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, Shinobu::Frontend::Palette::palette paletteColors) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, uint8_t bank, Shinobu::Frontend::Palette::palette paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
@@ -308,7 +308,7 @@ namespace Core {
                 uint8_t HDMALoad(uint16_t offset) const;
                 void HDMAStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels(uint8_t bank) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap(BackgroundType type) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();

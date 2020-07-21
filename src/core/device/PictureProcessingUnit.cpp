@@ -750,14 +750,18 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundTileByInd
     return tile;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_t index, Shinobu::Frontend::Palette::palette paletteColors) const {
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_t index, uint8_t bank, Shinobu::Frontend::Palette::palette paletteColors) const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = {};
     for (int i = 0; i < VRAMTileDataSide; i++) {
         uint16_t offset = (0x10 * index);
         uint16_t lowAddress = i * 2 + offset;
         uint16_t highAddress = (i * 2 + 1) + offset;
-        uint8_t low = memory[physicalAddressForAddress(lowAddress)];
-        uint8_t high = memory[physicalAddressForAddress(highAddress)];
+        if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+            lowAddress = (bank << 13) | (lowAddress & 0x1FFF);
+            highAddress = (bank << 13) | (highAddress & 0x1FFF);
+        }
+        uint8_t low = memory[lowAddress];
+        uint8_t high = memory[highAddress];
         auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
         for (int j = 0; j < VRAMTileDataSide; j++) {
             Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)j, (GLfloat)(7 - i) }, paletteColors[colorData[j]] };
@@ -800,13 +804,13 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoor
     return pixels;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() const {
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels(uint8_t bank) const {
     const palette colors = paletteSelector->currentSelection();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     uint16_t index = 0;
     for (int y = (VRAMTileDataViewerHeight - 1); y >= 0; y--) {
         for (int x = 0; x < VRAMTileDataViewerWidth; x++) {
-            std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(index, colors);
+            std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(index, bank, colors);
             tile = translateTileOwnCoordinatesToTileDataViewerCoordinates(tile, x, y);
             pixels.insert(pixels.end(), tile.begin(), tile.end());
             index++;
@@ -941,7 +945,7 @@ std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> P
     std::vector<Sprite> sprites = getSpriteData();
     for (int i = 0; i < NumberOfSpritesInOAM; i++) {
         Sprite sprite = sprites[i];
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(sprite.tileNumber, colors);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(sprite.tileNumber, 0, colors);
         tile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(tile, i);
         vertices.insert(vertices.end(), tile.begin(), tile.end());
     }

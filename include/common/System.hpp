@@ -2,10 +2,9 @@
 #include <cstdint>
 
 const int PixelScale = 3;
-const int NumberOfVRAMTileDataTiles = 384;
 const int VRAMTileDataSide = 8;
 const int VRAMTileDataViewerWidth = 16;
-const int VRAMTileDataViewerHeight = NumberOfVRAMTileDataTiles / VRAMTileDataViewerWidth;
+const int VRAMTileDataViewerHeight = 32;
 const int VRAMTileBackgroundMapSide = 32;
 const int TileMapResolution = VRAMTileDataSide * VRAMTileBackgroundMapSide;
 const int HorizontalResolution = 160;
