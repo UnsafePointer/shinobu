@@ -722,6 +722,34 @@ std::array<uint8_t, 8> Processor::getTileRowPixelsColorIndicesWithData(uint8_t l
     return tileRowPixelsColorIndices;
 }
 
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundTileByIndex(uint16_t index, BackgroundMapAttributes attributes) const {
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = {};
+    palette palette;
+    if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+        palette = cgbPaletteAtIndex(attributes.paletteNumber, true);
+    } else {
+        auto currentPalette = paletteSelector->currentSelection();
+        palette = { currentPalette[backgroundPalette.color0], currentPalette[backgroundPalette.color1], currentPalette[backgroundPalette.color2], currentPalette[backgroundPalette.color3] };
+    }
+    for (int i = 0; i < VRAMTileDataSide; i++) {
+        uint16_t offset = (0x10 * index);
+        uint16_t lowAddress = i * 2 + offset;
+        uint16_t highAddress = (i * 2 + 1) + offset;
+        if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+            lowAddress = (attributes.VRAMBankNumber << 13) | (lowAddress & 0x1FFF);
+            highAddress = (attributes.VRAMBankNumber << 13) | (highAddress & 0x1FFF);
+        }
+        uint8_t low = memory[lowAddress];
+        uint8_t high = memory[highAddress];
+        auto colorData = getTileRowPixelsColorIndicesWithData(low, high);
+        for (int j = 0; j < VRAMTileDataSide; j++) {
+            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)j, (GLfloat)(7 - i) }, palette[colorData[j]] };
+            tile.push_back(vertex);
+        }
+    }
+    return tile;
+}
+
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_t index, Shinobu::Frontend::Palette::palette paletteColors) const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = {};
     for (int i = 0; i < VRAMTileDataSide; i++) {
@@ -787,10 +815,15 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels() co
     return pixels;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixels() const {
-    Background_WindowTileMapLocation backgroundMapLocation = control.backgroundTileMapDisplaySelect();
-    uint32_t backgroundMapAddressStart;
-    switch (backgroundMapLocation) {
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap(BackgroundType type) const {
+    Background_WindowTileMapLocation location;
+    if (type == BackgroundType::Normal) {
+        location = control.backgroundTileMapDisplaySelect();
+    } else {
+        location = control.windowTileMapDisplaySelect();
+    }
+    uint16_t backgroundMapAddressStart;
+    switch (location) {
     case _9800_9BFF:
         backgroundMapAddressStart = 0x9800 - 0x8000;
         break;
@@ -798,20 +831,24 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap01Pixe
         backgroundMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
-    const palette colors = paletteSelector->currentSelection();
-    const palette paletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
-    Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     uint16_t index = 0;
     for (int y = (VRAMTileBackgroundMapSide - 1); y >= 0; y--) {
         for (int x = 0; x < VRAMTileBackgroundMapSide; x++) {
+            uint16_t addressInBackgroundMap = backgroundMapAddressStart + index;
+            BackgroundMapAttributes attributes;
+            if (cgbFlag != Core::ROM::CGBFlag::DMG) {
+                uint16_t addressInBackgroundMapAttributes = (0x1 << 13) | (addressInBackgroundMap & 0x1FFF);
+                attributes = BackgroundMapAttributes(memory[addressInBackgroundMapAttributes]);
+            }
             std::vector<Shinobu::Frontend::OpenGL::Vertex> tile;
             if (tileDataLocation == _8000_8FFF) {
-                uint8_t tileIndex = memory[physicalAddressForAddress(backgroundMapAddressStart + index)];
-                tile = getTileByIndex(tileIndex, paletteColors);
+                uint8_t tileIndex = memory[backgroundMapAddressStart + index];
+                tile = getBackgroundTileByIndex(tileIndex, attributes);
             } else {
-                int8_t tileIndex = memory[physicalAddressForAddress(backgroundMapAddressStart + index)];
-                tile = getTileByIndex(256 + tileIndex, paletteColors);
+                int8_t tileIndex = memory[backgroundMapAddressStart + index];
+                tile = getBackgroundTileByIndex(256 + tileIndex, attributes);
             }
             tile = translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(tile, x, y);
             pixels.insert(pixels.end(), tile.begin(), tile.end());

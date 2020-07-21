@@ -18,6 +18,11 @@ namespace Shinobu {
 namespace Core {
     namespace Device {
         namespace PictureProcessingUnit {
+            enum BackgroundType {
+                Normal,
+                Window,
+            };
+
             enum BackgroundPriority {
                 UseSpritePriority = 0,
                 BackgroundAboveSprite = 1,
@@ -280,6 +285,8 @@ namespace Core {
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
 
                 Shinobu::Frontend::Palette::palette cgbPaletteAtIndex(uint8_t index, bool isBackground) const;
+
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundTileByIndex(uint16_t index, BackgroundMapAttributes attributes) const;
             public:
                 Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
                 ~Processor();
@@ -302,7 +309,7 @@ namespace Core {
                 void HDMAStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels() const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap01Pixels() const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap(BackgroundType type) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();
                 std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
