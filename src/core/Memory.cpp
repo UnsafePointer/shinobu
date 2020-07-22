@@ -155,7 +155,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
         uint32_t upperMask = _SVBK.WRAMBank;
-        uint32_t physicalAddress = (upperMask << 12) | (address & 0xFFF);
+        uint32_t physicalAddress = (upperMask << 12) | (*offset & 0xFFF);
         return WRAMBank[physicalAddress];
     }
     offset = EchoRAM.contains(address);
@@ -248,7 +248,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
     offset = WorkRAMBank01_N.contains(address);
     if (offset) {
         uint32_t upperMask = _SVBK.WRAMBank;
-        uint32_t physicalAddress = (upperMask << 12) | (address & 0xFFF);
+        uint32_t physicalAddress = (upperMask << 12) | (*offset & 0xFFF);
         WRAMBank[physicalAddress] = value;
         return;
     }
