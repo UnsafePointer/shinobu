@@ -136,9 +136,7 @@ void Emulator::emulate() {
                 instruction = Core::CPU::Instructions::Instruction(0x76, false);
                 cycles = 4;
             }
-            sound->step(cycles);
-            PPU->step(cycles);
-            timer->step(cycles);
+            memoryController->stepRemainingCycles(cycles);
             joypad->updateJoypad();
             processor->checkPendingInterrupts(instruction);
             updateCurrentFrameCycles(cycles);

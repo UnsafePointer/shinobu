@@ -680,13 +680,26 @@ Controller::Controller(Common::Logs::Level logLevel,
                                                                                          sound(sound),
                                                                                          interrupt(interrupt),
                                                                                          timer(timer),
-                                                                                         joypad(joypad) {
+                                                                                         joypad(joypad),
+                                                                                         cyclesCurrentInstruction(0) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
 
 Controller::~Controller() {
 
+}
+
+void Controller::step(uint8_t cycles, bool shouldCount) {
+    if (cycles == 0) {
+        return;
+    }
+    sound->step(cycles);
+    PPU->step(cycles);
+    timer->step(cycles);
+    if (shouldCount) {
+        cyclesCurrentInstruction += cycles;
+    }
 }
 
 void Controller::initialize(bool skipBootROM) {
@@ -738,31 +751,37 @@ void Controller::saveExternalRAM() const {
     bankController->saveExternalRAM();
 }
 
-uint8_t Controller::load(uint16_t address) const {
+uint8_t Controller::load(uint16_t address, bool shouldStep) {
+    if (shouldStep) {
+        step(4);
+    }
     if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
         return bootROM->load(address);
     }
     return bankController->load(address);
 }
 
-void Controller::store(uint16_t address, uint8_t value) {
+void Controller::store(uint16_t address, uint8_t value, bool shouldStep) {
+    if (shouldStep) {
+        step(4);
+    }
     if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
         return;
     }
     bankController->store(address, value);
 }
 
-uint16_t Controller::loadDoubleWord(uint16_t address) const {
-    uint16_t lsb = load(address);
-    uint16_t msb = load(address + 1);
+uint16_t Controller::loadDoubleWord(uint16_t address, bool shouldStep) {
+    uint16_t lsb = load(address, shouldStep);
+    uint16_t msb = load(address + 1, shouldStep);
     return (msb << 8) | lsb;
 }
 
-void Controller::storeDoubleWord(uint16_t address, uint16_t value) {
+void Controller::storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep) {
     uint8_t lsb = value & 0xFF;
-    store(address, lsb);
+    store(address, lsb, shouldStep);
     uint8_t msb = value >> 8;
-    store(address + 1, msb);
+    store(address + 1, msb, shouldStep);
 }
 
 void Controller::executeDMA(uint8_t value) {
@@ -771,4 +790,11 @@ void Controller::executeDMA(uint8_t value) {
 
 void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
     bankController->executeHDMA(source, destination, length);
+}
+
+void Controller::stepRemainingCycles(uint8_t totalCycles) {
+    assert(totalCycles >= cyclesCurrentInstruction);
+    totalCycles -= cyclesCurrentInstruction;
+    cyclesCurrentInstruction = 0;
+    step(totalCycles, false);
 }

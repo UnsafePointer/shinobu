@@ -320,6 +320,10 @@ namespace Core {
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
+
+            uint8_t cyclesCurrentInstruction;
+
+            void step(uint8_t cycles, bool shouldCount = true);
         public:
             Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
@@ -333,12 +337,13 @@ namespace Core {
             void initialize(bool skipBootROM);
             bool hasBootROM() const;
             void saveExternalRAM() const;
-            uint8_t load(uint16_t address) const;
-            void store(uint16_t address, uint8_t value);
-            uint16_t loadDoubleWord(uint16_t address) const;
-            void storeDoubleWord(uint16_t address, uint16_t value);
+            uint8_t load(uint16_t address, bool shouldStep = true);
+            void store(uint16_t address, uint8_t value, bool shouldStep = true);
+            uint16_t loadDoubleWord(uint16_t address, bool shouldStep = true);
+            void storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep = true);
             void executeDMA(uint8_t value);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
+            void stepRemainingCycles(uint8_t totalCycles);
         };
     };
 };

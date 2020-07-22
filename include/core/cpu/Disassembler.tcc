@@ -65,14 +65,14 @@ std::string Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruc
 template<>
 std::string Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string R = Disassembler::RTable[instruction.code.y];
-    uint8_t value = processor->memory->load(processor->registers.pc + 1);
+    uint8_t value = processor->memory->load(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD %s,$%02x", R.c_str(), value);
 }
 
 template<>
 std::string Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint8_t value = processor->memory->load(processor->registers.pc + 1);
+    uint8_t value = processor->memory->load(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD ($FF00+$%02x),A", value);
 }
 
@@ -102,7 +102,7 @@ std::string Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruct
 template<>
 std::string Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    int8_t value = processor->memory->load(processor->registers.pc + 1, false);
     uint16_t destination = processor->registers.pc + 2 + value;
     return Common::Formatter::format("JR $%04x", destination);
 }
@@ -173,7 +173,7 @@ std::string Instructions::OR(std::unique_ptr<Processor> &processor, Instruction 
 template<>
 std::string Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string compare = Disassembler::CCTable[instruction.code.y - 4];
-    int8_t immediate = processor->memory->load(processor->registers.pc + 1);
+    int8_t immediate = processor->memory->load(processor->registers.pc + 1, false);
     uint16_t destinationAddress = processor->registers.pc + immediate + 2;
     return Common::Formatter::format("JR %s,$%04x", compare.c_str(), destinationAddress);
 }
@@ -276,7 +276,7 @@ std::string Instructions::CP_A(std::unique_ptr<Processor> &processor, Instructio
 template<>
 std::string Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint8_t value = processor->memory->load(processor->registers.pc + 1);
+    uint8_t value = processor->memory->load(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD A,($FF00+$%02x)", value);
 }
 
@@ -370,7 +370,7 @@ std::string Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instru
 template<>
 std::string Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    int8_t value = processor->memory->load(processor->registers.pc + 1, false);
     uint16_t result = processor->registers.sp + value;
     return Common::Formatter::format("LD HL,$%04x", result);
 }
@@ -406,7 +406,7 @@ std::string Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instru
 template<>
 std::string Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    int8_t value = processor->memory->load(processor->registers.pc + 1);
+    int8_t value = processor->memory->load(processor->registers.pc + 1, false);
     return Common::Formatter::format("ADD SP,$%02x", value);
 }
 
