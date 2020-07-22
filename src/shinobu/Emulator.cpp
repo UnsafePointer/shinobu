@@ -87,6 +87,27 @@ void Emulator::enqueueSound() {
     soundQueue.write(buffer, count);
 }
 
+void Emulator::updateCurrentFrameCycles(uint8_t cycles) {
+    currentFrameCycles += cycles;
+    if (currentFrameCycles < CyclesPerFrame) {
+        return;
+    }
+    currentFrameCycles %= CyclesPerFrame;
+    frameCounter++;
+    frameTimes += SDL_GetTicks() - frameTime;
+    frameTime = SDL_GetTicks();
+    if (frameCounter >= 60) {
+        frameCounter = 0;
+        float averageFrameTime = (float)frameTimes / 60.0f;
+        Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
+        window->updateWindowTitleWithFramePerformance(frame);
+        if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
+            dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+        }
+        frameTimes = 0;
+    }
+}
+
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
     PPU->setCGBFlag(cartridge->cgbFlag());
@@ -120,23 +141,7 @@ void Emulator::emulate() {
             timer->step(cycles);
             joypad->updateJoypad();
             processor->checkPendingInterrupts(instruction);
-            currentFrameCycles += cycles;
-            if (currentFrameCycles >= CyclesPerFrame) {
-                currentFrameCycles %= CyclesPerFrame;
-                frameCounter++;
-                frameTimes += SDL_GetTicks() - frameTime;
-                frameTime = SDL_GetTicks();
-                if (frameCounter >= 60) {
-                    frameCounter = 0;
-                    float averageFrameTime = (float)frameTimes / 60.0f;
-                    Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
-                    window->updateWindowTitleWithFramePerformance(frame);
-                    if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
-                        dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
-                    }
-                    frameTimes = 0;
-                }
-            }
+            updateCurrentFrameCycles(cycles);
         }
         enqueueSound();
     } catch(...) {

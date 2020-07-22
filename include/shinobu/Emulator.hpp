@@ -48,6 +48,7 @@ namespace Shinobu {
         void setupSDL(bool debug) const;
         void setupOpenGL() const;
         void enqueueSound();
+        void updateCurrentFrameCycles(uint8_t cycles);
     public:
         Emulator();
         ~Emulator();
