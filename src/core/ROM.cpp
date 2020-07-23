@@ -4,6 +4,18 @@
 
 using namespace Core::ROM;
 
+bool Core::ROM::cartridgeTypeHasRAM(Type type) {
+    if (type == MBC1_RAM         || type == MBC1_RAM_BATTERY  || type == MBC2_RAM ||
+        type == MBC2_RAM_BATTERY || type == ROM_RAM           || type == ROM_RAM_BATTERY ||
+        type == MMM01_RAM        || type == MMM01_RAM_BATTERY || type == MBC3_TIMER_RAM_BATTERY ||
+        type == MBC3_RAM         || type == MBC3_RAM_BATTERY  || type == MBC5_RAM ||
+        type == MBC5_RAM_BATTERY || type == MBC5_RUMBLE_RAM   || type == MBC5_RUMBLE_RAM_BATTERY ||
+        type == MBC7_SENSOR_RUMBLE_RAM_BATTERY || type == HUC1_RAM_BATTERY) {
+        return true;
+    }
+    return false;
+}
+
 BOOT::ROM::ROM(Common::Logs::Level logLevel) : logger(logLevel, "  [BOOTROM]: "), lockRegister(), data(), initialized(false) {
 
 }
@@ -143,6 +155,9 @@ uint8_t Cartridge::load(uint32_t address) const {
 uint32_t Cartridge::RAMSize() const {
     switch (header._RAMSize) {
     case RAMSize::Size::_0KB:
+        if (ROM::cartridgeTypeHasRAM(header.cartridgeType)) {
+            return 1024 * 8;
+        }
         return 0;
     case RAMSize::Size::_2KB:
         return 1024 * 2;

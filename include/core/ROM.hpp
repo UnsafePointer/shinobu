@@ -84,6 +84,8 @@ namespace Core {
             HUC1_RAM_BATTERY = 0xFF,
         };
 
+        bool cartridgeTypeHasRAM(Type type);
+
         namespace ROMSize {
             enum Size : uint8_t {
                 _32KB = 0x0,
