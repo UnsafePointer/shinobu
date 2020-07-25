@@ -45,6 +45,10 @@ void Controller::step(uint8_t cycles) {
             break;
         }
 
+        requests.erase(std::remove_if(requests.begin(), requests.end(), [](Request request) {
+            return request.remainingTransfers <= 0 || request.canceling;
+        }), requests.end());
+
         steps--;
 
         for (auto& request : requests) {
@@ -60,10 +64,6 @@ void Controller::step(uint8_t cycles) {
             request.currentDestinationAddress++;
             request.remainingTransfers--;
         }
-
-        requests.erase(std::remove_if(requests.begin(), requests.end(), [](Request request) {
-            return request.remainingTransfers <= 0 || request.canceling;
-        }), requests.end());
     }
 }
 
