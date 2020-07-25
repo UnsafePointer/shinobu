@@ -771,21 +771,36 @@ void Controller::saveExternalRAM() const {
     bankController->saveExternalRAM();
 }
 
-uint8_t Controller::load(uint16_t address, bool shouldStep) {
+uint8_t Controller::load(uint16_t address, bool shouldStep, bool hasPriority) {
     if (shouldStep) {
         step(4);
     }
     if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
         return bootROM->load(address);
     }
+    if (DMA->isActive() && !hasPriority) {
+        auto offset = HighRAM.contains(address);
+        if (offset) {
+            return bankController->load(address);
+        } else {
+            return 0xFF;
+        }
+    }
     return bankController->load(address);
 }
 
-void Controller::store(uint16_t address, uint8_t value, bool shouldStep) {
+void Controller::store(uint16_t address, uint8_t value, bool shouldStep, bool hasPriority) {
     if (shouldStep) {
         step(4);
     }
     if (bootROM->shouldHandleAddress(address, cartridge->cgbFlag())) {
+        return;
+    }
+    if (DMA->isActive() && !hasPriority) {
+        auto offset = HighRAM.contains(address);
+        if (offset) {
+            bankController->store(address, value);
+        }
         return;
     }
     bankController->store(address, value);

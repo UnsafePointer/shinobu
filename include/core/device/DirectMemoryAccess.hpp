@@ -20,6 +20,7 @@ namespace Core {
                 void setMemoryController(std::unique_ptr<Core::Memory::Controller> &memoryController);
                 void execute(uint8_t value);
                 void step(uint8_t cycles);
+                bool isActive() const;
             };
         };
     };

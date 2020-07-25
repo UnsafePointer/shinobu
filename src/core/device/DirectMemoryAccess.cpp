@@ -32,8 +32,8 @@ void Controller::step(uint8_t cycles) {
             break;
         }
 
-        uint8_t value = memoryController->load(currentSourceAddress, false);
-        memoryController->store(currentDestinationAddress, value, false);
+        uint8_t value = memoryController->load(currentSourceAddress, false, true);
+        memoryController->store(currentDestinationAddress, value, false, true);
 
         currentSourceAddress++;
         currentDestinationAddress++;
@@ -41,4 +41,8 @@ void Controller::step(uint8_t cycles) {
 
         steps--;
     }
+}
+
+bool Controller::isActive() const {
+    return remainingTransfers > 0;
 }

@@ -377,8 +377,8 @@ namespace Core {
             void initialize(bool skipBootROM);
             bool hasBootROM() const;
             void saveExternalRAM() const;
-            uint8_t load(uint16_t address, bool shouldStep = true);
-            void store(uint16_t address, uint8_t value, bool shouldStep = true);
+            uint8_t load(uint16_t address, bool shouldStep = true, bool hasPriority = false);
+            void store(uint16_t address, uint8_t value, bool shouldStep = true, bool hasPriority = false);
             uint16_t loadDoubleWord(uint16_t address, bool shouldStep = true);
             void storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep = true);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
