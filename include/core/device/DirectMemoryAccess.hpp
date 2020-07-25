@@ -13,6 +13,7 @@ namespace Core {
                 uint16_t currentSourceAddress;
                 uint16_t currentDestinationAddress;
                 uint8_t remainingTransfers;
+                bool preparing;
 
                 Request(uint8_t value);
             };

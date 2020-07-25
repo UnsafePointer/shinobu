@@ -13,6 +13,7 @@ Request::Request(uint8_t value) {
     currentSourceAddress = source;
     currentDestinationAddress = 0xFE00;
     remainingTransfers = 0xA0;
+    preparing = true;
 }
 
 Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests() {
@@ -39,7 +40,13 @@ void Controller::step(uint8_t cycles) {
             break;
         }
 
+        steps--;
+
         Request &request = requests.front();
+        if (request.preparing) {
+            request.preparing = false;
+            continue;
+        }
 
         uint8_t value = memoryController->load(request.currentSourceAddress, false, true);
         memoryController->store(request.currentDestinationAddress, value, false, true);
@@ -51,8 +58,6 @@ void Controller::step(uint8_t cycles) {
         if (request.remainingTransfers <= 0) {
             requests.pop_back();
         }
-
-        steps--;
     }
 }
 
