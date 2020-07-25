@@ -68,5 +68,15 @@ void Controller::step(uint8_t cycles) {
 }
 
 bool Controller::isActive() const {
-    return !requests.empty();
+    if (requests.empty()) {
+        return false;
+    }
+    bool active = false;
+    for (const auto& request : requests) {
+        if (!request.preparing) {
+            active = true;
+            break;
+        }
+    }
+    return active;
 }
