@@ -15,7 +15,7 @@ std::string Instructions::NOP(std::unique_ptr<Core::CPU::Processor> &processor, 
 template<>
 std::string Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint16_t destinaton = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t destinaton = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("JP $%04x", destinaton);
 }
 
@@ -29,7 +29,7 @@ std::string Instructions::DI(std::unique_ptr<Processor> &processor, Instruction 
 template<>
 std::string Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string RR = Disassembler::RPTable[instruction.code.p];
-    uint16_t value = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t value = processor->memory->loadDoubleWord(processor->registers.pc + 1,false);
     return Common::Formatter::format("LD %s,$%04x", RR.c_str(), value);
 }
 
@@ -58,7 +58,7 @@ std::string Instructions::RET(std::unique_ptr<Processor> &processor, Instruction
 template<>
 std::string Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD ($%04x),A", address);
 }
 
@@ -87,7 +87,7 @@ std::string Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruct
 template<>
 std::string Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("CALL $%04x", address);
 }
 
@@ -188,7 +188,7 @@ std::string Instructions::STOP(std::unique_ptr<Processor> &processor, Instructio
 template<>
 std::string Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string compare = Disassembler::CCTable[instruction.code.y];
-    uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("CALL %s,$%04x", compare.c_str(), destination);
 }
 
@@ -200,7 +200,7 @@ std::string Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction
 template<>
 std::string Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD ($%04x),SP", address);
 }
 
@@ -214,7 +214,7 @@ std::string Instructions::RLCA(std::unique_ptr<Processor> &processor, Instructio
 template<>
 std::string Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
-    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("LD A,$%04x", address);
 }
 
@@ -363,7 +363,7 @@ std::string Instructions::SWAP(std::unique_ptr<Processor> &processor, Instructio
 template<>
 std::string Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::string compare = Disassembler::CCTable[instruction.code.y];
-    uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    uint16_t destination = processor->memory->loadDoubleWord(processor->registers.pc + 1, false);
     return Common::Formatter::format("JP %s,$%04x", compare.c_str(), destination);
 }
 
