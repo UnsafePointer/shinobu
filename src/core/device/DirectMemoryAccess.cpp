@@ -2,7 +2,7 @@
 
 using namespace Core::Device::DirectMemoryAccess;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr) {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), remainingTransfers(0), currentSourceAddress(0), currentDestinationAddress(0) {
 
 }
 

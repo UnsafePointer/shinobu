@@ -779,12 +779,15 @@ uint8_t Controller::load(uint16_t address, bool shouldStep, bool hasPriority) {
         return bootROM->load(address);
     }
     if (DMA->isActive() && !hasPriority) {
-        auto offset = HighRAM.contains(address);
+        auto offset = I_ORegisters.contains(address);
         if (offset) {
             return bankController->load(address);
-        } else {
-            return 0xFF;
         }
+        offset = HighRAM.contains(address);
+        if (offset) {
+            return bankController->load(address);
+        }
+        return 0xFF;
     }
     return bankController->load(address);
 }
@@ -797,7 +800,11 @@ void Controller::store(uint16_t address, uint8_t value, bool shouldStep, bool ha
         return;
     }
     if (DMA->isActive() && !hasPriority) {
-        auto offset = HighRAM.contains(address);
+        auto offset = I_ORegisters.contains(address);
+        if (offset) {
+            bankController->store(address, value);
+        }
+        offset = HighRAM.contains(address);
         if (offset) {
             bankController->store(address, value);
         }
