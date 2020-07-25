@@ -2,7 +2,20 @@
 
 using namespace Core::Device::DirectMemoryAccess;
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), remainingTransfers(0), currentSourceAddress(0), currentDestinationAddress(0) {
+Request::Request(uint8_t value) {
+    uint16_t source = value;
+    source <<= 8;
+    if (source >= 0xFE00) {
+        source -= 0x2000;
+    }
+    startSourceAddress = source;
+    startDestinationAddress = 0xFE00;
+    currentSourceAddress = source;
+    currentDestinationAddress = 0xFE00;
+    remainingTransfers = 0xA0;
+}
+
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests() {
 
 }
 
@@ -15,34 +28,34 @@ void Controller::setMemoryController(std::unique_ptr<Core::Memory::Controller> &
 }
 
 void Controller::execute(uint8_t value) {
-    uint16_t source = value;
-    source <<= 8;
-    if (source >= 0xFE00) {
-        source -= 0x2000;
-    }
-    currentSourceAddress = source;
-    remainingTransfers = 0xA0;
-    currentDestinationAddress = 0xFE00;
+    Request request = Request(value);
+    requests.push_back(request);
 }
 
 void Controller::step(uint8_t cycles) {
     uint8_t steps = cycles / 4;
     while (steps > 0) {
-        if (remainingTransfers <= 0) {
+        if (requests.empty()) {
             break;
         }
 
-        uint8_t value = memoryController->load(currentSourceAddress, false, true);
-        memoryController->store(currentDestinationAddress, value, false, true);
+        Request &request = requests.front();
 
-        currentSourceAddress++;
-        currentDestinationAddress++;
-        remainingTransfers--;
+        uint8_t value = memoryController->load(request.currentSourceAddress, false, true);
+        memoryController->store(request.currentDestinationAddress, value, false, true);
+
+        request.currentSourceAddress++;
+        request.currentDestinationAddress++;
+        request.remainingTransfers--;
+
+        if (request.remainingTransfers <= 0) {
+            requests.pop_back();
+        }
 
         steps--;
     }
 }
 
 bool Controller::isActive() const {
-    return remainingTransfers > 0;
+    return !requests.empty();
 }
