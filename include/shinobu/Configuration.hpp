@@ -23,6 +23,7 @@ namespace Shinobu {
             Common::Logs::Level openGL;
             Common::Logs::Level joypad;
             Common::Logs::Level sound;
+            Common::Logs::Level DMA;
             bool trace;
             Shinobu::Frontend::Kind frontend;
             bool mute;
@@ -45,6 +46,7 @@ namespace Shinobu {
             Common::Logs::Level openGLLogLevel() const;
             Common::Logs::Level joypadLogLevel() const;
             Common::Logs::Level soundLogLevel() const;
+            Common::Logs::Level DMALogLevel() const;
             bool shouldTraceLogs() const;
             Shinobu::Frontend::Kind frontendKind() const;
             bool shouldMute() const;

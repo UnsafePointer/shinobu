@@ -37,19 +37,21 @@ BankController::BankController(Common::Logs::Level logLevel,
                                std::unique_ptr<Core::Device::Sound::Controller> &sound,
                                std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                                std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                               std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
-                                                                                                 cartridge(cartridge),
-                                                                                                 bootROM(bootROM),
-                                                                                                 WRAMBank(),
-                                                                                                 PPU(PPU),
-                                                                                                 sound(sound),
-                                                                                                 HRAM(),
-                                                                                                 externalRAM(),
-                                                                                                 interrupt(interrupt),
-                                                                                                 timer(timer),
-                                                                                                 joypad(joypad),
-                                                                                                 _SVBK(),
-                                                                                                 _KEY1() {
+                               std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                               std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA) : logger(logLevel, "  [Memory]: "),
+                                                                                                     cartridge(cartridge),
+                                                                                                     bootROM(bootROM),
+                                                                                                     WRAMBank(),
+                                                                                                     PPU(PPU),
+                                                                                                     sound(sound),
+                                                                                                     HRAM(),
+                                                                                                     externalRAM(),
+                                                                                                     interrupt(interrupt),
+                                                                                                     timer(timer),
+                                                                                                     joypad(joypad),
+                                                                                                     DMA(DMA),
+                                                                                                     _SVBK(),
+                                                                                                     _KEY1() {
     externalRAM.resize(cartridge->RAMSize());
     if (cartridge->cgbFlag() == Core::ROM::CGBFlag::DMG) {
         WRAMBank.resize(WRAMBankSize * 2);
@@ -679,14 +681,16 @@ Controller::Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::Device::Sound::Controller> &sound,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                        std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : logger(logLevel, "  [Memory]: "),
-                                                                                         cartridge(cartridge),
-                                                                                         PPU(PPU),
-                                                                                         sound(sound),
-                                                                                         interrupt(interrupt),
-                                                                                         timer(timer),
-                                                                                         joypad(joypad),
-                                                                                         cyclesCurrentInstruction(0) {
+                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                       std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA) : logger(logLevel, "  [Memory]: "),
+                                                                                             cartridge(cartridge),
+                                                                                             PPU(PPU),
+                                                                                             sound(sound),
+                                                                                             interrupt(interrupt),
+                                                                                             timer(timer),
+                                                                                             joypad(joypad),
+                                                                                             DMA(DMA),
+                                                                                             cyclesCurrentInstruction(0) {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     bootROM = std::make_unique<Core::ROM::BOOT::ROM>(configurationManager->ROMLogLevel());
 }
@@ -723,33 +727,33 @@ void Controller::initialize(bool skipBootROM) {
         if (!bootROM->hasBootROM()) {
             logger.logError("No cartridge or BOOT ROM detected, nothing to execute.");
         }
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA);
         logger.logWarning("ROM file not open, unable to initialize memory.");
         return;
     }
     Core::ROM::Type cartridgeType = cartridge->type();
     switch (cartridgeType) {
     case Core::ROM::ROM:
-        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        bankController = std::make_unique<ROM::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA);
         break;
     case Core::ROM::MBC1:
     case Core::ROM::MBC1_RAM:
     case Core::ROM::MBC1_RAM_BATTERY:
-        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        bankController = std::make_unique<MBC1::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA);
         break;
     case Core::ROM::MBC3:
     case Core::ROM::MBC3_RAM:
     case Core::ROM::MBC3_RAM_BATTERY:
-        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, false);
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA, false);
         break;
     case Core::ROM::MBC3_TIMER_BATTERY:
     case Core::ROM::MBC3_TIMER_RAM_BATTERY:
-        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, true);
+        bankController = std::make_unique<MBC3::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA, true);
         break;
     case Core::ROM::MBC5:
     case Core::ROM::MBC5_RAM:
     case Core::ROM::MBC5_RAM_BATTERY:
-        bankController = std::make_unique<MBC5::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad);
+        bankController = std::make_unique<MBC5::Controller>(logger.logLevel(), cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA);
         break;
     default:
         logger.logError("Unhandled cartridge type: %02x", cartridgeType);
@@ -797,22 +801,6 @@ void Controller::storeDoubleWord(uint16_t address, uint16_t value, bool shouldSt
     store(address, lsb, shouldStep);
     uint8_t msb = value >> 8;
     store(address + 1, msb, shouldStep);
-}
-
-void Controller::executeDMA(uint8_t value) {
-    uint16_t source = value;
-    source <<= 8;
-    if (source >= 0xFE00) {
-        source -= 0x2000;
-    }
-    uint16_t sourceEnd = source + 0x9F;
-    uint16_t destination = 0xFE00;
-    while (source <= sourceEnd) {
-        uint8_t value = load(source, false);
-        store(destination, value, false);
-        source++;
-        destination++;
-    }
 }
 
 void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {

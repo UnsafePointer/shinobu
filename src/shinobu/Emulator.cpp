@@ -30,7 +30,8 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     setupOpenGL();
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
-    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt, paletteSelector);
+    DMA = std::make_unique<Core::Device::DirectMemoryAccess::Controller>(configurationManager->DMALogLevel());
+    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), interrupt, paletteSelector, DMA);
 
     switch (frontend) {
     case Shinobu::Frontend::Kind::PPU:
@@ -53,11 +54,12 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt);
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
-    memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, sound, interrupt, timer, joypad);
+    memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, sound, interrupt, timer, joypad, DMA);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);
     interrupt->setProcessor(processor);
     PPU->setMemoryController(memoryController);
+    DMA->setMemoryController(memoryController);
 
     soundQueue.start(SampleRate, 2);
 }

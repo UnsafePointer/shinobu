@@ -15,6 +15,7 @@
 #include <gb_apu/Sound_Queue.h>
 #include "common/Logger.hpp"
 #include "shinobu/frontend/Palette.hpp"
+#include "core/device/DirectMemoryAccess.hpp"
 
 namespace Shinobu {
     class Emulator {
@@ -33,6 +34,7 @@ namespace Shinobu {
         std::unique_ptr<Core::Device::Timer::Controller> timer;
         std::unique_ptr<Core::Device::JoypadInput::Controller> joypad;
         std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
+        std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> DMA;
 
         bool shouldSkipBootROM;
         uint32_t currentFrameCycles;

@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "shinobu/frontend/Palette.hpp"
 #include "core/ROM.hpp"
+#include "core/device/DirectMemoryAccess.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -229,6 +230,7 @@ namespace Core {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
                 std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector;
+                std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController;
                 std::array<uint8_t, 0x4000> memory;
                 std::array<uint8_t, 0xA0> spriteAttributeTable;
                 LCDControl control;
@@ -288,7 +290,7 @@ namespace Core {
 
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundTileByIndex(uint16_t index, BackgroundMapAttributes attributes) const;
             public:
-                Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector);
+                Processor(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector, std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController);
                 ~Processor();
 
                 void setRenderer(Shinobu::Frontend::Renderer *renderer);

@@ -27,6 +27,9 @@ namespace Core {
         namespace Sound {
             class Controller;
         };
+        namespace DirectMemoryAccess {
+            class Controller;
+        };
     }
     namespace ROM {
         class Cartridge;
@@ -113,6 +116,7 @@ namespace Core {
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
+            std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA;
 
             SVBK _SVBK;
 
@@ -128,7 +132,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                           std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA);
             ~BankController();
 
             void loadExternalRAMFromSaveFile();
@@ -151,7 +156,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                           std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -217,7 +223,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad) {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                           std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -285,7 +292,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad, bool hasRTC) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad),
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                           std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA, bool hasRTC) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA),
                             _RAMG(), _ROMBANK(), _RAMBANK_RTCRegister(), latchClockData(), _RTCS(), _RTCM(), _RTCH(), _RTCDL(), _RTCDH(), lastTimePoint(std::chrono::system_clock::now()), calculationRemainder(), hasRTC(hasRTC) {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
@@ -334,7 +342,8 @@ namespace Core {
                            std::unique_ptr<Core::Device::Sound::Controller> &sound,
                            std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                            std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad), RAMG(), ROMB0(0x1), _ROMB1() {};
+                           std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                           std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA) : BankController(logLevel, cartridge, bootROM, PPU, sound, interrupt, timer, joypad, DMA), RAMG(), ROMB0(0x1), _ROMB1() {};
                 uint8_t load(uint16_t address) const override;
                 void store(uint16_t address, uint8_t value) override;
             };
@@ -351,6 +360,7 @@ namespace Core {
             std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
             std::unique_ptr<Core::Device::Timer::Controller> &timer;
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
+            std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA;
 
             uint8_t cyclesCurrentInstruction;
         public:
@@ -360,7 +370,8 @@ namespace Core {
                        std::unique_ptr<Core::Device::Sound::Controller> &sound,
                        std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                        std::unique_ptr<Core::Device::Timer::Controller> &timer,
-                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad);
+                       std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad,
+                       std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMA);
             ~Controller();
 
             void initialize(bool skipBootROM);
@@ -370,7 +381,6 @@ namespace Core {
             void store(uint16_t address, uint8_t value, bool shouldStep = true);
             uint16_t loadDoubleWord(uint16_t address, bool shouldStep = true);
             void storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep = true);
-            void executeDMA(uint8_t value);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
             void beginCurrentInstruction();
             void step(uint8_t cycles);

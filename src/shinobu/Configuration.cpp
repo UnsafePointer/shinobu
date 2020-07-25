@@ -15,6 +15,7 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     openGL(Common::Logs::Level::NoLog),
     joypad(Common::Logs::Level::NoLog),
     sound(Common::Logs::Level::NoLog),
+    DMA(Common::Logs::Level::NoLog),
     trace(),
     frontend(Shinobu::Frontend::Kind::Unknown),
     mute(),
@@ -76,6 +77,10 @@ Common::Logs::Level Configuration::Manager::soundLogLevel() const {
     return sound;
 }
 
+Common::Logs::Level Configuration::Manager::DMALogLevel() const {
+    return DMA;
+}
+
 bool Configuration::Manager::shouldTraceLogs() const {
     return trace;
 }
@@ -131,6 +136,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["openGL"] = "NOLOG";
     logConfigurationRef["joypad"] = "NOLOG";
     logConfigurationRef["sound"] = "NOLOG";
+    logConfigurationRef["DMA"] = "NOLOG";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -154,6 +160,7 @@ void Configuration::Manager::loadConfiguration() {
     openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
+    sound = Common::Logs::levelWithValue(configuration["log"]["DMA"].As<std::string>());
     trace = configuration["log"]["trace"].As<bool>();
     frontend = Shinobu::Frontend::kindWithValue(configuration["frontend"]["kind"].As<std::string>());
     mute = configuration["audio"]["mute"].As<bool>();
