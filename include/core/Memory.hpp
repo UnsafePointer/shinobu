@@ -135,7 +135,6 @@ namespace Core {
             void saveExternalRAM();
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
-            void executeDMA(uint8_t value);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
             void handleSpeedSwitch();
             SpeedSwitch::Speed currentSpeed() const;

@@ -116,22 +116,6 @@ void BankController::saveExternalRAM() {
     }
 }
 
-void BankController::executeDMA(uint8_t value) {
-    uint16_t source = value;
-    source <<= 8;
-    if (source >= 0xFE00) {
-        source -= 0x2000;
-    }
-    uint16_t sourceEnd = source + 0x9F;
-    uint16_t destination = 0xFE00;
-    while (source <= sourceEnd) {
-        uint8_t value = load(source);
-        store(destination, value);
-        source++;
-        destination++;
-    }
-}
-
 void BankController::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
     uint16_t sourceEnd = source + length;
     while (source <= sourceEnd) {
@@ -816,7 +800,19 @@ void Controller::storeDoubleWord(uint16_t address, uint16_t value, bool shouldSt
 }
 
 void Controller::executeDMA(uint8_t value) {
-    bankController->executeDMA(value);
+    uint16_t source = value;
+    source <<= 8;
+    if (source >= 0xFE00) {
+        source -= 0x2000;
+    }
+    uint16_t sourceEnd = source + 0x9F;
+    uint16_t destination = 0xFE00;
+    while (source <= sourceEnd) {
+        uint8_t value = load(source, false);
+        store(destination, value, false);
+        source++;
+        destination++;
+    }
 }
 
 void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
