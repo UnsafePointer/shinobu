@@ -20,12 +20,25 @@ void Controller::execute(uint8_t value) {
     if (source >= 0xFE00) {
         source -= 0x2000;
     }
-    uint16_t sourceEnd = source + 0x9F;
-    uint16_t destination = 0xFE00;
-    while (source <= sourceEnd) {
-        uint8_t value = memoryController->load(source, false);
-        memoryController->store(destination, value, false);
-        source++;
-        destination++;
+    currentSourceAddress = source;
+    remainingTransfers = 0xA0;
+    currentDestinationAddress = 0xFE00;
+}
+
+void Controller::step(uint8_t cycles) {
+    uint8_t steps = cycles / 4;
+    while (steps > 0) {
+        if (remainingTransfers <= 0) {
+            break;
+        }
+
+        uint8_t value = memoryController->load(currentSourceAddress, false);
+        memoryController->store(currentDestinationAddress, value, false);
+
+        currentSourceAddress++;
+        currentDestinationAddress++;
+        remainingTransfers--;
+
+        steps--;
     }
 }

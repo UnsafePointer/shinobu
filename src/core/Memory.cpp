@@ -711,6 +711,7 @@ void Controller::step(uint8_t cycles) {
     sound->step(cycles);
     PPU->step(cycles);
     timer->step(cycles);
+    DMA->step(cycles);
 }
 
 uint8_t Controller::elapsedCycles() const {
