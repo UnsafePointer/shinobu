@@ -125,21 +125,13 @@ void Emulator::powerUp() {
 void Emulator::emulate() {
     try {
         while (sound->availableSamples() <= AudioBufferSize) {
-            uint8_t cycles;
-            Core::CPU::Instructions::Instruction instruction;
-            if (!processor->isHalted()) {
-                instruction = processor->fetchInstruction();
-                disassembler->disassemble(instruction);
-                Core::CPU::Instructions::InstructionHandler<uint8_t> handler = processor->decodeInstruction<uint8_t>(instruction);
-                cycles = handler(processor, instruction);
-            } else {
-                instruction = Core::CPU::Instructions::Instruction(0x76, false);
-                cycles = 4;
-            }
-            memoryController->stepRemainingCycles(cycles);
+            Core::CPU::Instructions::Instruction instruction = processor->fetchInstruction();
+            disassembler->disassemble(instruction);
+            Core::CPU::Instructions::InstructionHandler<void> handler = processor->decodeInstruction<void>(instruction);
+            handler(processor, instruction);
             joypad->updateJoypad();
             processor->checkPendingInterrupts(instruction);
-            updateCurrentFrameCycles(cycles);
+            updateCurrentFrameCycles(memoryController->elapsedCycles());
         }
         enqueueSound();
     } catch(...) {

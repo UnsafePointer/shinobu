@@ -690,16 +690,22 @@ Controller::~Controller() {
 
 }
 
-void Controller::step(uint8_t cycles, bool shouldCount) {
+void Controller::beginCurrentInstruction() {
+    cyclesCurrentInstruction = 0;
+}
+
+void Controller::step(uint8_t cycles) {
     if (cycles == 0) {
         return;
     }
+    cyclesCurrentInstruction += cycles;
     sound->step(cycles);
     PPU->step(cycles);
     timer->step(cycles);
-    if (shouldCount) {
-        cyclesCurrentInstruction += cycles;
-    }
+}
+
+uint8_t Controller::elapsedCycles() const {
+    return cyclesCurrentInstruction;
 }
 
 void Controller::initialize(bool skipBootROM) {
@@ -790,11 +796,4 @@ void Controller::executeDMA(uint8_t value) {
 
 void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
     bankController->executeHDMA(source, destination, length);
-}
-
-void Controller::stepRemainingCycles(uint8_t totalCycles) {
-    assert(totalCycles >= cyclesCurrentInstruction);
-    totalCycles -= cyclesCurrentInstruction;
-    cyclesCurrentInstruction = 0;
-    step(totalCycles, false);
 }

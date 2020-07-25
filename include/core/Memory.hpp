@@ -322,8 +322,6 @@ namespace Core {
             std::unique_ptr<Core::Device::JoypadInput::Controller> &joypad;
 
             uint8_t cyclesCurrentInstruction;
-
-            void step(uint8_t cycles, bool shouldCount = true);
         public:
             Controller(Common::Logs::Level logLevel,
                        std::unique_ptr<Core::ROM::Cartridge> &cartridge,
@@ -343,7 +341,9 @@ namespace Core {
             void storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep = true);
             void executeDMA(uint8_t value);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
-            void stepRemainingCycles(uint8_t totalCycles);
+            void beginCurrentInstruction();
+            void step(uint8_t cycles);
+            uint8_t elapsedCycles() const;
         };
     };
 };

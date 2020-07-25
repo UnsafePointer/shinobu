@@ -238,6 +238,8 @@ namespace Core {
             friend T CPU::Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction);
             template<typename T>
             friend T CPU::Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction);
+            template<typename T>
+            friend T CPU::Instructions::HALTED(std::unique_ptr<Processor> &processor, Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt);
             ~Processor();

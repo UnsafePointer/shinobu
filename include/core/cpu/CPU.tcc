@@ -6,50 +6,46 @@
 using namespace Core::CPU;
 
 template<>
-uint8_t Instructions::NOP(std::unique_ptr<Core::CPU::Processor> &processor, Instruction instruction) {
+void Instructions::NOP(std::unique_ptr<Core::CPU::Processor> &processor, Instruction instruction) {
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t destinaton = processor->memory->loadDoubleWord(processor->registers.pc + 1);
+    processor->memory->step(4);
     processor->registers.pc = destinaton;
-    return 16;
 }
 
 template<>
-uint8_t Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->shouldClearIME = false;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t RR = Instructions::RPTable[instruction.code.p];
     uint16_t value = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->registers._value16[RR] = value;
     processor->advanceProgramCounter(instruction);
-    return 12;
 }
 
 template<>
-uint8_t Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t N = instruction.code.y * 8;
+    processor->memory->step(4);
     processor->pushIntoStack(processor->registers.pc + 1);
     processor->registers.pc = N;
-    return 16;
 }
 
 template<>
-uint8_t Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.y];
     uint8_t augend;
     uint8_t addend = 1;
     uint8_t result;
-    uint8_t cycles;
     if (R != 0xFF) {
         augend = processor->registers._value8[R];
     } else {
@@ -61,106 +57,92 @@ uint8_t Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction i
     processor->registers.flag.calculateAdditionHalfCarry(augend, addend, 0x0);
     if (R != 0xFF) {
         processor->registers._value8[R] = result;
-        cycles = 4;
     } else {
         processor->memory->store(processor->registers.hl, result);
-        cycles = 12;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::RET(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RET(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->popFromStack();
+    processor->memory->step(4);
     processor->registers.pc = address;
-    return 16;
 }
 
 template<>
-uint8_t Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->memory->store(address, processor->registers.a);
     processor->advanceProgramCounter(instruction);
-    return 16;
 }
 
 template<>
-uint8_t Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.y];
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
-    uint8_t cycles;
     if (R != 0xFF) {
         processor->registers._value8[R] = value;
-        cycles = 8;
     } else {
         processor->memory->store(processor->registers.hl, value);
-        cycles = 12;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
     uint16_t address = 0xFF00 | value;
     processor->memory->store(address, processor->registers.a);
     processor->advanceProgramCounter(instruction);
-    return 12;
 }
 
 template<>
-uint8_t Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->memory->step(4);
     uint8_t RR = RPTable[instruction.code.p];
     processor->registers._value16[RR]--;
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
+    processor->memory->step(4);
     processor->pushIntoStack(processor->registers.pc);
     processor->registers.pc = address;
-    return 24;
 }
 
 template<>
-uint8_t Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = RTable[instruction.code.y];
     uint8_t R2 = RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         if (R2 != 0xFF) {
             processor->registers._value8[R] = processor->registers._value8[R2];
-            cycles = 4;
         } else {
             uint8_t value = processor->memory->load(processor->registers.hl);
             processor->registers._value8[R] = value;
-            cycles = 8;
         }
     } else {
         uint8_t value = processor->registers._value8[R2];
         processor->memory->store(processor->registers.hl, value);
-        cycles = 8;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     int8_t value = processor->memory->load(processor->registers.pc + 1);
+    processor->memory->step(4);
     processor->advanceProgramCounter(instruction);
     processor->registers.pc += value;
-    return 12;
 }
 
 template<>
-uint8_t Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction) {
     if (instruction.code.q) {
         switch (instruction.code.p) {
         case 0:
@@ -197,19 +179,18 @@ uint8_t Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruc
         }
     }
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t RR = Instructions::RP2Table[instruction.code.p];
+    processor->memory->step(4);
     processor->pushIntoStack(processor->registers._value16[RR]);
     processor->advanceProgramCounter(instruction);
-    return 16;
 }
 
 template<>
-uint8_t Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t RR = RP2Table[instruction.code.p];
     uint16_t value = processor->popFromStack();
     if (RR == 0x0) {
@@ -222,27 +203,25 @@ uint8_t Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction 
         processor->registers._value16[RR] = value;
     }
     processor->advanceProgramCounter(instruction);
-    return 12;
 }
 
 template<>
-uint8_t Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->memory->step(4);
     uint8_t RR = RPTable[instruction.code.p];
     processor->registers._value16[RR]++;
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->shouldSetIME = true;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 | operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -251,43 +230,39 @@ uint8_t Instructions::OR(std::unique_ptr<Processor> &processor, Instruction inst
         flags.carry = 0;
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::function<bool(Flag&)> compare = CCTable[instruction.code.y - 4];
     int8_t value = processor->memory->load(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
     if (compare(processor->registers.flag)) {
+        processor->memory->step(4);
         processor->registers.pc += value;
-        return 12;
     }
-    return 8;
 }
 
 template<>
-uint8_t Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::function<bool(Flag&)> compare = CCTable[instruction.code.y];
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
     if (compare(processor->registers.flag)) {
+        processor->memory->step(4);
         processor->pushIntoStack(processor->registers.pc);
         processor->registers.pc = address;
-        return 24;
     }
-    return 12;
 }
 
 template<>
-uint8_t Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 + operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -296,19 +271,17 @@ uint8_t Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction ins
         flags.calculateAdditionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
     processor->memory->storeDoubleWord(address, processor->registers.sp);
-    return 20;
 }
 
 template<>
-uint8_t Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t result = (processor->registers.a & 0x80) >> 7;
     processor->registers.flag.zero = 0;
     processor->registers.flag.n = 0;
@@ -317,23 +290,21 @@ uint8_t Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction in
     processor->registers.a <<= 1;
     processor->registers.a |= result;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     uint8_t value = processor->memory->load(address);
     processor->registers.a = value;
     processor->advanceProgramCounter(instruction);
-    return 16;
 }
 
 template<>
-uint8_t Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t carry = processor->registers.flag.carry;
-    uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t minuend, uint8_t subtrahend) {
+    processor->executeArithmetic(instruction, [carry](uint8_t minuend, uint8_t subtrahend) {
         uint8_t result = minuend - (subtrahend + carry);
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -342,16 +313,14 @@ uint8_t Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction i
         flags.calculateSubtractionCarry(minuend, subtrahend, carry);
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.y];
     uint8_t minuend;
     uint8_t subtrahend = 1;
     uint8_t result;
-    uint8_t cycles;
     if (R != 0xFF) {
         minuend = processor->registers._value8[R];
     } else {
@@ -363,18 +332,15 @@ uint8_t Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction i
     processor->registers.flag.calculateSubtractionHalfCarry(minuend, subtrahend, 0x0);
     if (R != 0xFF) {
         processor->registers._value8[R] = result;
-        cycles = 4;
     } else {
         processor->memory->store(processor->registers.hl, result);
-        cycles = 12;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 ^ operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -383,13 +349,12 @@ uint8_t Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction i
         flags.carry = 0;
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t carry = processor->registers.flag.carry;
-    uint8_t cycles = processor->executeArithmetic(instruction, [carry](uint8_t operand1, uint8_t operand2) {
+    processor->executeArithmetic(instruction, [carry](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 + operand2 + carry;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -398,18 +363,16 @@ uint8_t Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction i
         flags.calculateAdditionCarry(operand1, operand2, carry);
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     processor->registers.pc = processor->registers.hl;
-    return 4;
 }
 
 template<>
-uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t carry = processor->registers.flag.carry;
     carry <<= 7;
     uint8_t result = processor->registers.a & 0x1;
@@ -420,25 +383,24 @@ uint8_t Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->registers.a >>= 1;
     processor->registers.a |= carry;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::function<bool(Flag&)> compare = CCTable[instruction.code.y];
+    processor->memory->step(4);
     if (compare(processor->registers.flag)) {
         uint16_t address = processor->popFromStack();
+        processor->memory->step(4);
         processor->registers.pc = address;
-        return 20;
+        return;
     }
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
         processor->registers._value8[R] <<= 1;
@@ -447,7 +409,6 @@ uint8_t Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lastBit = (value & 0x80) >> 7;
@@ -458,15 +419,13 @@ uint8_t Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 - operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -475,29 +434,25 @@ uint8_t Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction in
         flags.calculateSubtractionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     }, false);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t value = processor->memory->load(processor->registers.pc + 1);
     uint16_t address = 0xFF00 | value;
     processor->registers.a = processor->memory->load(address);
     processor->advanceProgramCounter(instruction);
-    return 12;
 }
 
 template<>
-uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
         bool isSet = bits.test(instruction.code.y);
         processor->registers.flag.zero = isSet ? 0 : 1;
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 1;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         std::bitset<8> bits = std::bitset<8>(value);
@@ -505,32 +460,27 @@ uint8_t Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.zero = isSet ? 0 : 1;
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 1;
-        cycles = 12;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint16_t address = 0xFF00 | processor->registers.c;
     processor->memory->store(address, processor->registers.a);
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint16_t address = 0xFF00 | processor->registers.c;
     processor->registers.a = processor->memory->load(address);
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
         uint8_t carry = processor->registers.flag.carry;
@@ -540,7 +490,6 @@ uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction inst
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lastBit = (value & 0x80) >> 7;
@@ -552,14 +501,12 @@ uint8_t Instructions::RL(std::unique_ptr<Processor> &processor, Instruction inst
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t result = (processor->registers.a & 0x80) >> 7;
     uint8_t carry = processor->registers.flag.carry;
     processor->registers.flag.zero = 0;
@@ -569,12 +516,11 @@ uint8_t Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->registers.a <<= 1;
     processor->registers.a |= carry;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 - operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -583,12 +529,11 @@ uint8_t Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction ins
         flags.calculateSubtractionCarry(operand1, operand2, 0x0);
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    uint8_t cycles = processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
+void Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->executeArithmetic(instruction, [](uint8_t operand1, uint8_t operand2) {
         uint8_t result = operand1 & operand2;
         Flag flags = Flag();
         flags.calculateZero(result);
@@ -597,31 +542,27 @@ uint8_t Instructions::AND(std::unique_ptr<Processor> &processor, Instruction ins
         flags.carry = 0;
         return std::tuple(result, flags);
     });
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
         bits.set(instruction.code.y);
         processor->registers._value8[R] = bits.to_ulong();
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         std::bitset<8> bits = std::bitset<8>(value);
         bits.set(instruction.code.y);
         processor->memory->store(processor->registers.hl, bits.to_ulong());
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->memory->step(4);
     uint8_t RR = Instructions::RPTable[instruction.code.p];
     uint16_t augend = processor->registers.hl;
     uint16_t addend = processor->registers._value16[RR];
@@ -630,33 +571,27 @@ uint8_t Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instructi
     processor->registers.flag.halfcarry = ((((uint32_t)augend & 0xFFF) + ((uint32_t)addend & 0xFFF)) & 0x1000) == 0x1000;
     processor->registers.flag.carry = ((((uint32_t)augend & 0xFFFF) + ((uint32_t)addend & 0xFFFF)) & 0x10000) == 0x10000;
     processor->advanceProgramCounter(instruction);
-    return 8;
 }
 
 template<>
-uint8_t Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         std::bitset<8> bits = std::bitset<8>(processor->registers._value8[R]);
         bits.reset(instruction.code.y);
         processor->registers._value8[R] = bits.to_ulong();
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         std::bitset<8> bits = std::bitset<8>(value);
         bits.reset(instruction.code.y);
         processor->memory->store(processor->registers.hl, bits.to_ulong());
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t lastBitMask = processor->registers._value8[R] & 0x80;
         uint8_t firstBit = (processor->registers._value8[R] & 0x1);
@@ -666,7 +601,6 @@ uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lastBitMask = value & 0x80;
@@ -678,16 +612,13 @@ uint8_t Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t lsb = (processor->registers._value8[R] & 0x0F);
         lsb <<= 4;
@@ -698,7 +629,6 @@ uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction in
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = 0;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lsb = (value & 0x0F);
@@ -711,27 +641,26 @@ uint8_t Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction in
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = 0;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction) {
     std::function<bool(Flag&)> compare = CCTable[instruction.code.y];
     uint16_t address = processor->memory->loadDoubleWord(processor->registers.pc + 1);
     processor->advanceProgramCounter(instruction);
     if (compare(processor->registers.flag)) {
+        processor->memory->step(4);
         processor->registers.pc = address;
-        return 16;
+        return;
     }
-    return 12;
 }
 
 template<>
-uint8_t Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     int8_t value = processor->memory->load(processor->registers.pc + 1);
+    processor->memory->step(4);
     processor->advanceProgramCounter(instruction);
     uint16_t result = processor->registers.sp + value;
     processor->registers.flag.zero = 0;
@@ -744,13 +673,11 @@ uint8_t Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruc
         processor->registers.flag.calculateSubtractionCarry(result, processor->registers.sp, 0x0);
     }
     processor->registers.hl = result;
-    return 12;
 }
 
 template<>
-uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t lastBit = (processor->registers._value8[R] & 0x80) >> 7;
         processor->registers._value8[R] <<= 1;
@@ -758,7 +685,6 @@ uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t lastBit = (value & 0x80) >> 7;
@@ -768,16 +694,13 @@ uint8_t Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = lastBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RR(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t firstBit = (processor->registers._value8[R] & 0x1);
         uint8_t carryMask = processor->registers.flag.carry << 7;
@@ -787,7 +710,6 @@ uint8_t Instructions::RR(std::unique_ptr<Processor> &processor, Instruction inst
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t firstBit = (value & 0x1);
@@ -799,16 +721,13 @@ uint8_t Instructions::RR(std::unique_ptr<Processor> &processor, Instruction inst
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t firstBit = (processor->registers._value8[R] & 0x1);
         uint8_t firstBitMask = firstBit << 7;
@@ -818,7 +737,6 @@ uint8_t Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t firstBit = (value & 0x1);
@@ -830,22 +748,21 @@ uint8_t Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    processor->memory->step(4);
     processor->advanceProgramCounter(instruction);
     processor->registers.sp = processor->registers.hl;
-    return 8;
 }
 
 template<>
-uint8_t Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction) {
     int8_t value = processor->memory->load(processor->registers.pc + 1);
+    processor->memory->step(8);
     processor->advanceProgramCounter(instruction);
     uint16_t result = processor->registers.sp + value;
     processor->registers.flag.zero = 0;
@@ -858,20 +775,19 @@ uint8_t Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instructi
         processor->registers.flag.calculateSubtractionCarry(result, processor->registers.sp, 0x0);
     }
     processor->registers.sp = result;
-    return 16;
 }
 
 template<>
-uint8_t Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instruction) {
     (void)instruction;
     uint16_t address = processor->popFromStack();
+    processor->memory->step(4);
     processor->registers.pc = address;
     processor->interrupt->updateIME(true);
-    return 16;
 }
 
 template<>
-uint8_t Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     if (!processor->registers.flag.n) {
         if (processor->registers.flag.carry || processor->registers.a > 0x99) {
             processor->registers.a += 0x60;
@@ -891,38 +807,34 @@ uint8_t Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction ins
     processor->registers.flag.calculateZero(processor->registers.a);
     processor->registers.flag.halfcarry = 0;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->registers.a = ~processor->registers.a;
     processor->registers.flag.n = 1;
     processor->registers.flag.halfcarry = 1;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->registers.flag.n = 0;
     processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = 1;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->registers.flag.n = 0;
     processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = !processor->registers.flag.carry;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t lastBit = processor->registers.a & 0x1;
     uint8_t lastBitMask = lastBit << 7;
     processor->registers.a >>= 1;
@@ -932,13 +844,11 @@ uint8_t Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction in
     processor->registers.flag.halfcarry = 0;
     processor->registers.flag.carry = lastBit;
     processor->advanceProgramCounter(instruction);
-    return 4;
 }
 
 template<>
-uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction) {
     uint8_t R = Instructions::RTable[instruction.code.z];
-    uint8_t cycles;
     if (R != 0xFF) {
         uint8_t firstBit = (processor->registers._value8[R] & 0x1);
         processor->registers._value8[R] >>= 1;
@@ -946,7 +856,6 @@ uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 8;
     } else {
         uint8_t value = processor->memory->load(processor->registers.hl);
         uint8_t firstBit = (value & 0x1);
@@ -956,15 +865,18 @@ uint8_t Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction ins
         processor->registers.flag.n = 0;
         processor->registers.flag.halfcarry = 0;
         processor->registers.flag.carry = firstBit;
-        cycles = 16;
     }
     processor->advanceProgramCounter(instruction);
-    return cycles;
 }
 
 template<>
-uint8_t Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction) {
+void Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->halted = true;
     processor->advanceProgramCounter(instruction);
-    return 4;
+}
+
+template<>
+void Instructions::HALTED(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)instruction;
+    processor->memory->step(4);
 }

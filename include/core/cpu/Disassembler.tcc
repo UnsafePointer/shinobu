@@ -465,3 +465,10 @@ std::string Instructions::HALT(std::unique_ptr<Processor> &processor, Instructio
     (void)instruction;
     return "HALT";
 }
+
+template<>
+std::string Instructions::HALTED(std::unique_ptr<Processor> &processor, Instruction instruction) {
+    (void)processor;
+    (void)instruction;
+    return "HALTED";
+}

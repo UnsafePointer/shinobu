@@ -43,7 +43,6 @@ std::string Processor::disassembleArithmetic(Instructions::Instruction instructi
 
 uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator) {
     advanceProgramCounter(instruction);
-    uint8_t cycles;
     if (instruction.code.x == 2) {
         uint8_t R = Instructions::RTable[instruction.code.z];
         if (R != 0xFF) {
@@ -55,7 +54,6 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
                 registers.a = result;
             }
             registers.flag = flags;
-            cycles = 4;
         } else {
             uint8_t HLValue = memory->load(registers.hl);
             uint8_t result;
@@ -65,7 +63,6 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
                 registers.a = result;
             }
             registers.flag = flags;
-            cycles = 8;
         }
     } else if (instruction.code.x == 3) {
         uint8_t NValue = memory->load(registers.pc - 1); // PC is already at next instruction
@@ -76,12 +73,11 @@ uint8_t Processor::executeArithmetic(Instructions::Instruction instruction, std:
             registers.a = result;
         }
         registers.flag = flags;
-        cycles = 8;
     } else {
         logger.logError("Invalid instruction decoding");
         return 0;
     }
-    return cycles;
+    return 0;
 }
 
 void Processor::initialize() {
@@ -129,6 +125,10 @@ void Processor::initialize() {
 }
 
 Instructions::Instruction Processor::fetchInstruction() const {
+    memory->beginCurrentInstruction();
+    if (halted) {
+        return Core::CPU::Instructions::Instruction(0x76, false);
+    }
     uint8_t code = memory->load(registers.pc);
     if (code == Instructions::InstructionPrefix) {
         uint16_t immediateAddress = registers.pc + 1;
@@ -167,6 +167,9 @@ void Processor::unhalt() {
 
 template<typename T>
 Instructions::InstructionHandler<T> Processor::decodeInstruction(Instructions::Instruction instruction) const {
+    if (halted) {
+        return Instructions::HALTED;
+    }
     std::vector<Instructions::InstructionHandler<T>> table;
     if (instruction.isPrefixed) {
         table = Instructions::PrefixedInstructionHandlerTable<T>;
@@ -183,5 +186,5 @@ Instructions::InstructionHandler<T> Processor::decodeInstruction(Instructions::I
     return handler;
 }
 
-template Instructions::InstructionHandler<uint8_t> Processor::decodeInstruction<uint8_t>(Instructions::Instruction instruction) const;
+template Instructions::InstructionHandler<void> Processor::decodeInstruction<void>(Instructions::Instruction instruction) const;
 template Instructions::InstructionHandler<std::string> Processor::decodeInstruction<std::string>(Instructions::Instruction instruction) const;
