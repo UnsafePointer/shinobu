@@ -14,6 +14,7 @@ Request::Request(uint8_t value) {
     currentSourceAddress = source;
     currentDestinationAddress = 0xFE00;
     remainingTransfers = 0xA0;
+    active = false;
     preparing = true;
     canceling = false;
 }
@@ -56,6 +57,7 @@ void Controller::step(uint8_t cycles) {
                 request.preparing = false;
                 continue;
             }
+            request.active = true;
 
             uint8_t value = memoryController->load(request.currentSourceAddress, false, true);
             memoryController->store(request.currentDestinationAddress, value, false, true);
@@ -73,7 +75,7 @@ bool Controller::isActive() const {
     }
     bool active = false;
     for (const auto& request : requests) {
-        if (!request.preparing) {
+        if (request.active) {
             active = true;
             break;
         }
