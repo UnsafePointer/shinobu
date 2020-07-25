@@ -48,7 +48,8 @@ BankController::BankController(Common::Logs::Level logLevel,
                                                                                                  interrupt(interrupt),
                                                                                                  timer(timer),
                                                                                                  joypad(joypad),
-                                                                                                 _SVBK() {
+                                                                                                 _SVBK(),
+                                                                                                 _KEY1() {
     externalRAM.resize(cartridge->RAMSize());
     if (cartridge->cgbFlag() == Core::ROM::CGBFlag::DMG) {
         WRAMBank.resize(WRAMBankSize * 2);
@@ -141,6 +142,17 @@ void BankController::executeHDMA(uint16_t source, uint16_t destination, uint16_t
     }
 }
 
+void BankController::handleSpeedSwitch() {
+    if (_KEY1.prepareSwitch() == SpeedSwitch::PrepareSwitch::No) {
+        return;
+    }
+    _KEY1.toggleSpeed();
+}
+
+SpeedSwitch::Speed BankController::currentSpeed() const {
+    return _KEY1.currentSpeed();
+}
+
 uint8_t BankController::loadInternal(uint16_t address) const {
     std::optional<uint32_t> offset = VideoRAM.contains(address);
     if (offset) {
@@ -216,6 +228,10 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         offset = Core::Memory::SVBKRegisterRange.contains(address);
         if (offset) {
             return _SVBK._value;
+        }
+        offset = Core::Memory::KEY1AddressRange.contains(address);
+        if (offset) {
+            return _KEY1._value;
         }
         logger.logWarning("Unhandled I/O Register load at address: %04x", address);
         return 0;
@@ -325,6 +341,11 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             if (_SVBK.WRAMBank == 0x0) {
                 _SVBK.WRAMBank = 0x1;
             }
+            return;
+        }
+        offset = Core::Memory::KEY1AddressRange.contains(address);
+        if (offset) {
+            _KEY1._value = value;
             return;
         }
         logger.logWarning("Unhandled I/O Register write at address: %04x with value: %02x", address, value);
@@ -706,6 +727,10 @@ void Controller::step(uint8_t cycles) {
 
 uint8_t Controller::elapsedCycles() const {
     return cyclesCurrentInstruction;
+}
+
+void Controller::handleSpeedSwitch() {
+    bankController->handleSpeedSwitch();
 }
 
 void Controller::initialize(bool skipBootROM) {

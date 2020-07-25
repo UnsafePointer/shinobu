@@ -246,6 +246,7 @@ void Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction i
 template<>
 void Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction) {
     processor->advanceProgramCounter(instruction);
+    processor->memory->handleSpeedSwitch();
 }
 
 template<>

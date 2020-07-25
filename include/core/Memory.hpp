@@ -58,6 +58,34 @@ namespace Core {
         const Range I_ORegisters = Range(0xFF00, 0x80);
         const Range HighRAM = Range(0xFF80, 0x7F);
 
+        namespace SpeedSwitch {
+            enum PrepareSwitch {
+                No = 0x0,
+                Prepare = 0x1,
+            };
+
+            enum Speed {
+                Normal = 0x0,
+                Double = 0x1,
+            };
+
+            union KEY1 {
+                uint8_t _value;
+                struct {
+                    uint8_t _prepareSwitch : 1;
+                    uint8_t unused : 6;
+                    uint8_t _currentSpeed : 1;
+                };
+
+                KEY1() : _value(0x0) {};
+                PrepareSwitch prepareSwitch() const { return PrepareSwitch(_prepareSwitch); }
+                Speed currentSpeed() const { return Speed(_currentSpeed); }
+                void toggleSpeed() { _prepareSwitch = 0; _currentSpeed = !_currentSpeed; }
+            };
+        };
+
+        const Range KEY1AddressRange = Range(0xFF4D, 0x1);
+
         union SVBK {
             uint8_t _value;
             struct {
@@ -88,6 +116,8 @@ namespace Core {
 
             SVBK _SVBK;
 
+            SpeedSwitch::KEY1 _KEY1;
+
             uint8_t loadInternal(uint16_t address) const;
             void storeInternal(uint16_t address, uint8_t value);
         public:
@@ -107,6 +137,8 @@ namespace Core {
             virtual void store(uint16_t address, uint8_t value) = 0;
             void executeDMA(uint8_t value);
             void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
+            void handleSpeedSwitch();
+            SpeedSwitch::Speed currentSpeed() const;
         };
 
         namespace ROM {
@@ -344,6 +376,7 @@ namespace Core {
             void beginCurrentInstruction();
             void step(uint8_t cycles);
             uint8_t elapsedCycles() const;
+            void handleSpeedSwitch();
         };
     };
 };
