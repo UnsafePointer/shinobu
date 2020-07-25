@@ -1,4 +1,5 @@
 #include "core/device/DirectMemoryAccess.hpp"
+#include <algorithm>
 
 using namespace Core::Device::DirectMemoryAccess;
 
@@ -14,6 +15,7 @@ Request::Request(uint8_t value) {
     currentDestinationAddress = 0xFE00;
     remainingTransfers = 0xA0;
     preparing = true;
+    canceling = false;
 }
 
 Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests() {
@@ -29,6 +31,9 @@ void Controller::setMemoryController(std::unique_ptr<Core::Memory::Controller> &
 }
 
 void Controller::execute(uint8_t value) {
+    for (auto& request : requests) {
+        request.canceling = true;
+    }
     Request request = Request(value);
     requests.push_back(request);
 }
@@ -42,22 +47,23 @@ void Controller::step(uint8_t cycles) {
 
         steps--;
 
-        Request &request = requests.front();
-        if (request.preparing) {
-            request.preparing = false;
-            continue;
+        for (auto& request : requests) {
+            if (request.preparing) {
+                request.preparing = false;
+                continue;
+            }
+
+            uint8_t value = memoryController->load(request.currentSourceAddress, false, true);
+            memoryController->store(request.currentDestinationAddress, value, false, true);
+
+            request.currentSourceAddress++;
+            request.currentDestinationAddress++;
+            request.remainingTransfers--;
         }
 
-        uint8_t value = memoryController->load(request.currentSourceAddress, false, true);
-        memoryController->store(request.currentDestinationAddress, value, false, true);
-
-        request.currentSourceAddress++;
-        request.currentDestinationAddress++;
-        request.remainingTransfers--;
-
-        if (request.remainingTransfers <= 0) {
-            requests.pop_back();
-        }
+        requests.erase(std::remove_if(requests.begin(), requests.end(), [](Request request) {
+            return request.remainingTransfers <= 0 || request.canceling;
+        }), requests.end());
     }
 }
 

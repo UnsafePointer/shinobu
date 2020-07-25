@@ -14,6 +14,7 @@ namespace Core {
                 uint16_t currentDestinationAddress;
                 uint8_t remainingTransfers;
                 bool preparing;
+                bool canceling;
 
                 Request(uint8_t value);
             };
