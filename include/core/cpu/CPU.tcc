@@ -20,7 +20,7 @@ void Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction ins
 
 template<>
 void Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    processor->shouldClearIME = false;
+    processor->shouldClearIME = true;
     processor->advanceProgramCounter(instruction);
 }
 
