@@ -18,7 +18,7 @@ void Disassembler::disassemble(Instructions::Instruction instruction) const {
     Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler = processor->decodeInstruction<std::string>(instruction);
     std::string disassembledInstruction = disassemblerHandler(processor, instruction);
     std::string separator = std::string(20 - disassembledInstruction.length(), ' ');
-    logger.logMessage("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
+    logger.logDebug("A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X | %s",
         processor->registers.a,
         processor->registers.f,
         processor->registers.b,
@@ -30,4 +30,8 @@ void Disassembler::disassemble(Instructions::Instruction instruction) const {
         processor->registers.sp,
         processor->registers.pc,
         disassembledInstruction.c_str());
+}
+
+void Disassembler::toggleEnabled() {
+    enabled = !enabled;
 }

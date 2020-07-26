@@ -18,6 +18,7 @@ namespace Core {
                 ~Disassembler();
 
                 void disassemble(Instructions::Instruction instruction) const;
+                void toggleEnabled();
             };
         };
     };

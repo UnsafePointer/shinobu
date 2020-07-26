@@ -150,6 +150,10 @@ void Emulator::handleSDLEvent(SDL_Event event) {
         sound->toggleMute();
         return;
     }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_d) {
+        disassembler->toggleEnabled();
+        return;
+    }
     if (joypad->hasGameController()) {
         // TODO: Use Controller events API instead of Joypad
         if (event.type == SDL_JOYBUTTONDOWN && event.button.which == 260) {
