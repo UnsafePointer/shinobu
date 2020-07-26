@@ -113,7 +113,7 @@ void Emulator::updateCurrentFrameCycles(uint8_t cycles) {
 void Emulator::setROMFilePath(std::filesystem::path &filePath) {
     cartridge->open(filePath);
     PPU->setCGBFlag(cartridge->cgbFlag());
-    window->setROMFilename(filePath.filename());
+    window->setROMFilename(filePath.filename().string());
 }
 
 void Emulator::setShouldSkipBootROM(bool skipBootROM) {
