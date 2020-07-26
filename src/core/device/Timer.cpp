@@ -4,7 +4,7 @@
 
 using namespace Core::Device::Timer;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), DIV(), TIMA(), TMA(), control(), lastResult(), overflown() {
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Timer]: "), interrupt(interrupt), DIV(), TIMA(), TMA(), control(), lastResult(), overflowStep(OverflowStep::Unknown) {
 
 }
 
@@ -28,16 +28,35 @@ uint8_t Controller::load(uint16_t offset) const {
     }
 }
 
+// TIMA Overflow Behavior from: https://hacktix.github.io/GBEDG/timers/#tima-overflow-behavior
 void Controller::store(uint16_t offset, uint8_t value) {
     switch (offset) {
     case 0x0:
         DIV = 0;
         return;
     case 0x1:
+        // If TIMA is written to on the same T-cycle on which the reload from
+        // TMA occurs the write is ignored and the value in TMA will be loaded
+        // into TIMA
+        if (overflowStep == Overflown) {
+            TIMA = TMA;
+            return;
+        }
         TIMA = value;
+        // The reload of the TMA value as well as the interrupt request can
+        // be aborted by writing any value to TIMA during the four T-cycles
+        // until it is supposed to be reloaded.
+        if (overflowStep == Overflowing) {
+            overflowStep = Unknown;
+        }
         return;
     case 0x2:
         TMA = value;
+        // However, if TMA is written to on the same T-cycle on which the reload
+        // occurs, TMA is updated before its value is loaded into TIMA
+        if (overflowStep == Overflown) {
+            TIMA = TMA;
+        }
         return;
     case 0x3:
         control._value = value;
@@ -54,10 +73,17 @@ void Controller::step(uint8_t cycles) {
         DIV += 4;
         steps--;
 
-        if (overflown) {
-            overflown = false;
+        switch (overflowStep) {
+        case Overflowing:
+            overflowStep = Overflown;
+            break;
+        case Overflown:
+            overflowStep = Unknown;
             TIMA = TMA;
             interrupt->requestInterrupt(Interrupt::TIMER);
+            break;
+        case Unknown:
+            break;
         }
 
         uint8_t bitPositionForCurrentClock = clocks[control._clock];
@@ -66,7 +92,7 @@ void Controller::step(uint8_t cycles) {
         if (lastResult && !result) {
             TIMA++;
             if (TIMA == 0) {
-                overflown = true;
+                overflowStep = Overflowing;
             }
         }
         lastResult = result;

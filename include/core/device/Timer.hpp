@@ -21,6 +21,12 @@ namespace Core {
                 Control() : _value(0x0) {}
             };
 
+            enum OverflowStep {
+                Unknown = 0x0,
+                Overflowing = 0x1,
+                Overflown = 0x2,
+            };
+
             class Controller {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
@@ -31,7 +37,7 @@ namespace Core {
                 Control control;
 
                 bool lastResult;
-                bool overflown;
+                OverflowStep overflowStep;
             public:
                 Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
                 ~Controller();
