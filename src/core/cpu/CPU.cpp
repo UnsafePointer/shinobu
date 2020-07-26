@@ -153,7 +153,10 @@ void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction
 void Processor::executeInterrupt(Device::Interrupt::Interrupt interrupt) {
     halted = false;
     uint16_t address = Device::Interrupt::VECTOR[interrupt];
+    memory->step(4);
+    memory->step(4);
     pushIntoStack(registers.pc);
+    memory->step(4);
     registers.pc = address;
 }
 

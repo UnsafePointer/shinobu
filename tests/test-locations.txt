@@ -1,6 +1,7 @@
 /home/unsafepointer/GitHub/retrio/gb-test-roms/cpu_instrs/cpu_instrs.gb
 /home/unsafepointer/GitHub/retrio/gb-test-roms/instr_timing/instr_timing.gb
 /home/unsafepointer/GitHub/retrio/gb-test-roms/mem_timing/mem_timing.gb
+/home/unsafepointer/GitHub/retrio/gb-test-roms/interrupt_time/interrupt_time.gb
 /home/unsafepointer/GitHub/Gekkio/mooneye-gb/tests/build/acceptance/oam_dma/basic.gb
 /home/unsafepointer/GitHub/Gekkio/mooneye-gb/tests/build/acceptance/oam_dma/reg_read.gb
 /home/unsafepointer/GitHub/Gekkio/mooneye-gb/tests/build/acceptance/oam_dma/sources-GS.gb

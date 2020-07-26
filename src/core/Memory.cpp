@@ -708,10 +708,15 @@ void Controller::step(uint8_t cycles) {
         return;
     }
     cyclesCurrentInstruction += cycles;
-    sound->step(cycles);
-    PPU->step(cycles);
     timer->step(cycles);
     DMA->step(cycles);
+    if (bankController->currentSpeed() == SpeedSwitch::Double) {
+        sound->step(cycles / 2);
+        PPU->step(cycles / 2);
+    } else {
+        sound->step(cycles);
+        PPU->step(cycles);
+    }
 }
 
 uint8_t Controller::elapsedCycles() const {
