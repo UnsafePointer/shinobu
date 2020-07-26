@@ -183,8 +183,9 @@ Type Cartridge::type() const {
 }
 
 CGBFlag Cartridge::cgbFlag() const {
-    if (shouldOverrideCGBFlag) {
+    CGBFlag flag = header.title.cgbFlag();
+    if (flag == CGBFlag::DMG_CGB && shouldOverrideCGBFlag) {
         return CGBFlag::DMG;
     }
-    return header.title.cgbFlag();
+    return flag;
 }
