@@ -25,9 +25,9 @@ namespace Core {
                 Common::Logs::Logger logger;
                 std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt;
 
-                uint16_t divider;
-                uint8_t counter;
-                uint8_t modulo;
+                uint16_t DIV;
+                uint8_t TIMA;
+                uint8_t TMA;
                 Control control;
 
                 bool lastResult;
