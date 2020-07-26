@@ -140,7 +140,6 @@ namespace Core {
             void saveExternalRAM();
             virtual uint8_t load(uint16_t address) const = 0;
             virtual void store(uint16_t address, uint8_t value) = 0;
-            void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
             void handleSpeedSwitch();
             SpeedSwitch::Speed currentSpeed() const;
         };
@@ -381,7 +380,6 @@ namespace Core {
             void store(uint16_t address, uint8_t value, bool shouldStep = true, bool hasPriority = false);
             uint16_t loadDoubleWord(uint16_t address, bool shouldStep = true);
             void storeDoubleWord(uint16_t address, uint16_t value, bool shouldStep = true);
-            void executeHDMA(uint16_t source, uint16_t destination, uint16_t length);
             void beginCurrentInstruction();
             void step(uint8_t cycles);
             uint8_t elapsedCycles() const;

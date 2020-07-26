@@ -118,18 +118,6 @@ void BankController::saveExternalRAM() {
     }
 }
 
-void BankController::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
-    uint16_t sourceEnd = source + length;
-    while (source <= sourceEnd) {
-        uint8_t value = load(source);
-        uint16_t mask = (PPU->VRAMBank() << 13);
-        uint16_t physicalAddress = mask | (destination & 0x1FFF);
-        PPU->VRAMStore(physicalAddress, value);
-        source++;
-        destination++;
-    }
-}
-
 void BankController::handleSpeedSwitch() {
     if (_KEY1.prepareSwitch() == SpeedSwitch::PrepareSwitch::No) {
         return;
@@ -189,9 +177,9 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return PPU->VBKLoad(*offset);
         }
-        offset = Device::PictureProcessingUnit::HDMARange.contains(address);
+        offset = Device::DirectMemoryAccess::HDMARange.contains(address);
         if (offset) {
-            return PPU->HDMALoad(*offset);
+            return DMA->HDMALoad(*offset);
         }
         offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
         if (offset) {
@@ -293,9 +281,9 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             PPU->VBKStore(*offset, value);
             return;
         }
-        offset = Device::PictureProcessingUnit::HDMARange.contains(address);
+        offset = Device::DirectMemoryAccess::HDMARange.contains(address);
         if (offset) {
-            PPU->HDMAStore(*offset, value);
+            DMA->HDMAStore(*offset, value);
             return;
         }
         offset = Device::PictureProcessingUnit::ColorPaletteRange.contains(address);
@@ -831,8 +819,4 @@ void Controller::storeDoubleWord(uint16_t address, uint16_t value, bool shouldSt
     store(address, lsb, shouldStep);
     uint8_t msb = value >> 8;
     store(address + 1, msb, shouldStep);
-}
-
-void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
-    bankController->executeHDMA(source, destination, length);
 }

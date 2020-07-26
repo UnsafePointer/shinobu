@@ -19,7 +19,7 @@ Request::Request(uint8_t value) {
     canceling = false;
 }
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests() {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests(), HDMA1(), HDMA2(), HDMA3(), HDMA4(), _HDMA5() {
 
 }
 
@@ -81,4 +81,72 @@ bool Controller::isActive() const {
         }
     }
     return active;
+}
+
+uint8_t Controller::HDMALoad(uint16_t offset) const {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load HDMA register at offset: %04x on DMG mode", offset);
+        return 0xFF;
+    }
+    switch (offset) {
+    case 0x0:
+        return HDMA1;
+    case 0x1:
+        return HDMA2;
+    case 0x2:
+        return HDMA3;
+    case 0x3:
+        return HDMA4;
+    case 0x4:
+        return _HDMA5._value;
+    default:
+        logger.logWarning("Unhandled HDMA register load at offset: %04x", offset);
+        return 0xFF;
+    }
+}
+
+void Controller::HDMAStore(uint16_t offset, uint8_t value) {
+    if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+        logger.logWarning("Attempting to load HDMA register at offset: %04x with value: %02x on DMG mode", offset, value);
+        return;
+    }
+    switch (offset) {
+    case 0x0:
+        HDMA1 = value;
+        break;
+    case 0x1:
+        HDMA2 = value;
+        break;
+    case 0x2:
+        HDMA3 = value;
+        break;
+    case 0x3:
+        HDMA4 = value;
+        break;
+    case 0x4: {
+        _HDMA5._value = value;
+        uint16_t source = (((uint16_t)HDMA1) << 8) | HDMA2;
+        source &= 0xFFF0;
+        uint16_t destination = (((uint16_t)HDMA3) << 8) | HDMA4;
+        destination &= 0x1FF0;
+        destination += 0x8000;
+        uint16_t length = (((uint16_t)_HDMA5.length) + 1) * 0x10;
+        executeHDMA(source, destination, length);
+        _HDMA5._value = 0xFF;
+        break;
+    }
+    default:
+        logger.logWarning("Unhandled HDMA register store at offset: %04x with value %02x", offset, value);
+        break;
+    }
+}
+
+void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
+    uint16_t sourceEnd = source + length;
+    while (source <= sourceEnd) {
+        uint8_t value = memoryController->load(source, true, true);
+        memoryController->store(destination, value, true, true);
+        source++;
+        destination++;
+    }
 }

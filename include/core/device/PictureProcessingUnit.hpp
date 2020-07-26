@@ -171,7 +171,6 @@ namespace Core {
 
             const Core::Memory::Range AddressRange = Core::Memory::Range(0xFF40, 0xC);
             const Core::Memory::Range VBKAddressRange = Core::Memory::Range(0xFF4F, 0x1);
-            const Core::Memory::Range HDMARange = Core::Memory::Range(0xFF51, 0x5);
             const Core::Memory::Range ColorPaletteRange = Core::Memory::Range(0xFF68, 0x4);
 
             enum LCDCSTATInterruptCondition : uint8_t {
@@ -214,16 +213,6 @@ namespace Core {
                 OBPI() : _value(0) {};
             };
 
-            union HDMA5 {
-                uint8_t _value;
-                struct {
-                    uint8_t length : 7;
-                    uint8_t mode : 1;
-                };
-
-                HDMA5() : _value(0) {};
-            };
-
             class Processor {
                 friend class Shinobu::Emulator;
 
@@ -263,12 +252,6 @@ namespace Core {
                 std::array<uint8_t, 0x40> objectPaletteData;
                 OBPI _OBPI;
 
-                uint8_t HDMA1;
-                uint8_t HDMA2;
-                uint8_t HDMA3;
-                uint8_t HDMA4;
-                HDMA5 _HDMA5;
-
                 uint16_t physicalAddressForAddress(uint16_t address) const;
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
@@ -307,8 +290,6 @@ namespace Core {
                 void VBKStore(uint16_t offset, uint8_t value);
                 uint8_t colorPaletteLoad(uint16_t offset) const;
                 void colorPaletteStore(uint16_t offset, uint8_t value);
-                uint8_t HDMALoad(uint16_t offset) const;
-                void HDMAStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels(uint8_t bank) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap(BackgroundType type) const;
