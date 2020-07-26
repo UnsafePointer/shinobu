@@ -378,9 +378,10 @@ void Processor::HDMAStore(uint16_t offset, uint8_t value) {
         uint16_t source = (((uint16_t)HDMA1) << 8) | HDMA2;
         source &= 0xFFF0;
         uint16_t destination = (((uint16_t)HDMA3) << 8) | HDMA4;
-        source &= 0x0FF0;
+        destination &= 0x1FF0;
         uint16_t length = (((uint16_t)_HDMA5.length) + 1) * 0x10;
         memoryController->executeHDMA(source, destination, length);
+        _HDMA5._value = 0xFF;
         break;
     }
     default:

@@ -122,7 +122,9 @@ void BankController::executeHDMA(uint16_t source, uint16_t destination, uint16_t
     uint16_t sourceEnd = source + length;
     while (source <= sourceEnd) {
         uint8_t value = load(source);
-        store(destination, value);
+        uint16_t mask = (PPU->VRAMBank() << 13);
+        uint16_t physicalAddress = mask | (destination & 0x1FFF);
+        PPU->VRAMStore(physicalAddress, value);
         source++;
         destination++;
     }
