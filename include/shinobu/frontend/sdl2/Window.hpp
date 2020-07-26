@@ -16,6 +16,7 @@ namespace Shinobu {
             class Window {
                 Common::Logs::Logger logger;
                 std::string title;
+                std::string ROMfilename;
                 uint32_t width;
                 uint32_t height;
                 SDL_GLContext SDLGLContext;
@@ -33,6 +34,7 @@ namespace Shinobu {
                 SDL_GLContext GLContext() const;
                 void handleSDLEvent(SDL_Event event) const;
                 void updateWindowTitleWithFramePerformance(Common::Performance::Frame frame) const;
+                void setROMFilename(std::string filename);
             };
         };
     };

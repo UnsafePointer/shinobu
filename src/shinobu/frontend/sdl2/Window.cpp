@@ -5,7 +5,7 @@
 
 using namespace Shinobu::Frontend::SDL2;
 
-Window::Window(std::string title, uint32_t width, uint32_t height, bool fullscreen) : logger(Common::Logs::Level::NoLog, ""), title(title), width(width), height(height) {
+Window::Window(std::string title, uint32_t width, uint32_t height, bool fullscreen) : logger(Common::Logs::Level::NoLog, ""), title(title), ROMfilename(""), width(width), height(height) {
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     if (fullscreen) {
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -78,6 +78,10 @@ void Window::handleSDLEvent(SDL_Event event) const {
 }
 
 void Window::updateWindowTitleWithFramePerformance(Common::Performance::Frame frame) const {
-    std::string updatedTitle = Common::Formatter::format("%s - %.2f ms - %.2f ms", title.c_str(), frame.averageFrameTime, frame.elapsedTime);
+    std::string updatedTitle = Common::Formatter::format("%s - %s - %.2f ms - %.2f ms", title.c_str(), ROMfilename.c_str(), frame.averageFrameTime, frame.elapsedTime);
     SDL_SetWindowTitle(window, updatedTitle.c_str());
+}
+
+void Window::setROMFilename(std::string filename) {
+    ROMfilename = filename;
 }
