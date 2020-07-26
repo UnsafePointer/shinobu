@@ -19,7 +19,10 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     trace(),
     frontend(Shinobu::Frontend::Kind::Unknown),
     mute(),
-    launchFullscreen()
+    launchFullscreen(),
+    scale(),
+    palette(),
+    overrideCGBFlag()
 {
 
 }
@@ -105,6 +108,10 @@ int Configuration::Manager::paletteIndex() const {
     return palette;
 }
 
+bool Configuration::Manager::shouldOverrideCGBFlag() const {
+    return overrideCGBFlag;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -122,6 +129,9 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node frontendConfiguration = Yaml::Node();
     Yaml::Node &frontendConfigurationRef = frontendConfiguration;
     frontendConfigurationRef["kind"] = "SDL";
+    Yaml::Node emulationConfiguration = Yaml::Node();
+    Yaml::Node &emulationConfigurationRef = emulationConfiguration;
+    emulationConfiguration["overrideCGB"] = "false";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -143,6 +153,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     configurationRef["frontend"] = frontendConfiguration;
     configurationRef["audio"] = audioConfiguration;
     configurationRef["video"] = videoConfiguration;
+    configurationRef["emulation"] = emulationConfigurationRef;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -167,6 +178,7 @@ void Configuration::Manager::loadConfiguration() {
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     scale = configuration["video"]["overlayScale"].As<int>();
     palette = configuration["video"]["palette"].As<int>();
+    overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

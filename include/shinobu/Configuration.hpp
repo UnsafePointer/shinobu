@@ -30,6 +30,7 @@ namespace Shinobu {
             bool launchFullscreen;
             int scale;
             int palette;
+            bool overrideCGBFlag;
 
             Manager();
         public:
@@ -53,6 +54,7 @@ namespace Shinobu {
             bool shouldLaunchFullscreen() const;
             int overlayScale() const;
             int paletteIndex() const;
+            bool shouldOverrideCGBFlag() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

@@ -53,7 +53,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootR
     sound->setSampleRate(SampleRate);
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
     joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt);
-    cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel());
+    cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel(), configurationManager->shouldOverrideCGBFlag());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, sound, interrupt, timer, joypad, DMA);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
     disassembler = std::make_unique<Core::CPU::Disassembler::Disassembler>(configurationManager->disassemblerLogLevel(), processor);

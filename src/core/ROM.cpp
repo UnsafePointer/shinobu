@@ -99,7 +99,7 @@ void BOOT::ROM::storeLockRegister(uint8_t value) {
     lockRegister.unused = 0x3F; // Read as 1
 }
 
-Cartridge::Cartridge(Common::Logs::Level logLevel) : logger(logLevel, "  [ROM]: "), filePath(), memory(), header() {
+Cartridge::Cartridge(Common::Logs::Level logLevel, bool shouldOverrideCGBFlag) : logger(logLevel, "  [ROM]: "), filePath(), memory(), header(), shouldOverrideCGBFlag(shouldOverrideCGBFlag) {
 
 }
 
@@ -183,5 +183,8 @@ Type Cartridge::type() const {
 }
 
 CGBFlag Cartridge::cgbFlag() const {
+    if (shouldOverrideCGBFlag) {
+        return CGBFlag::DMG;
+    }
     return header.title.cgbFlag();
 }

@@ -154,8 +154,9 @@ namespace Core {
             std::filesystem::path filePath;
             std::vector<uint8_t> memory;
             Header header;
+            bool shouldOverrideCGBFlag;
         public:
-            Cartridge(Common::Logs::Level logLevel);
+            Cartridge(Common::Logs::Level logLevel, bool shouldOverrideCGBFlag);
             ~Cartridge();
 
             void open(std::filesystem::path &filePath);
