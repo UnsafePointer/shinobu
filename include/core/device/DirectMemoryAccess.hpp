@@ -84,6 +84,7 @@ namespace Core {
                 bool isActive() const;
                 uint8_t HDMALoad(uint16_t offset) const;
                 void HDMAStore(uint16_t offset, uint8_t value);
+                void stepHBlank();
             };
         };
     };

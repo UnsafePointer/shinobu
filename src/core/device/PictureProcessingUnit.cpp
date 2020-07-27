@@ -177,6 +177,11 @@ void Processor::step(uint8_t cycles) {
             logger.logMessage("PPU in Transfering data (Mode 3)");
             status.setMode(TransferingData);
         } else {
+            // TODO: Fix this, it's awful!
+            if (status.mode() != HBlank) {
+                status.setMode(HBlank);
+                DMAController->stepHBlank();
+            }
             logger.logMessage("PPU in HBlank (Mode 0)");
             status.setMode(HBlank);
             if (status.mode0InterruptEnable) {

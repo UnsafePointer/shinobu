@@ -121,7 +121,7 @@ uint8_t Controller::HDMALoad(uint16_t offset) const {
         if (request.remainingTransfers == 0) {
             return 0xFF;
         }
-        uint8_t value = (request.remainingTransfers - 1) / 0x10;
+        uint8_t value = (request.remainingTransfers / 0x10) + 1;
         return value;
     }
     default:
@@ -173,6 +173,27 @@ void Controller::executeHDMA() {
         request.currentSourceAddress++;
         request.currentDestinationAddress++;
         request.remainingTransfers--;
+    }
+
+    currentHDMARequest = { request };
+}
+
+void Controller::stepHBlank() {
+    if (currentHDMARequest == std::nullopt) {
+        return;
+    }
+    HDMA::Request request = (*currentHDMARequest);
+    if (request.remainingTransfers <= 0) {
+        return;
+    }
+    uint8_t transferLength = 0x10;
+     while (transferLength > 0) {
+        uint8_t value = memoryController->load(request.currentSourceAddress, true, true);
+        memoryController->store(request.currentDestinationAddress, value, true, true);
+        request.currentSourceAddress++;
+        request.currentDestinationAddress++;
+        request.remainingTransfers--;
+        transferLength--;
     }
 
     currentHDMARequest = { request };
