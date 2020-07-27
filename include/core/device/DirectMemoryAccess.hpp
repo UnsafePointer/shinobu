@@ -4,6 +4,7 @@
 #include "common/Logger.hpp"
 #include <vector>
 #include "core/ROM.hpp"
+#include <optional>
 
 namespace Core {
     namespace Device {
@@ -67,6 +68,8 @@ namespace Core {
                 uint8_t HDMA3;
                 uint8_t HDMA4;
                 HDMA::HDMA5 _HDMA5;
+
+                std::optional<HDMA::Request> currentHDMARequest;
 
                 Core::ROM::CGBFlag cgbFlag;
 

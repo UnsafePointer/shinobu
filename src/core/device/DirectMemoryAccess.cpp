@@ -35,7 +35,7 @@ HDMA::Request::Request(uint8_t HDMA1, uint8_t HDMA2, uint8_t HDMA3, uint8_t HDMA
     mode = _HDMA5.mode();
 }
 
-Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests(), HDMA1(), HDMA2(), HDMA3(), HDMA4(), _HDMA5() {
+Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests(), HDMA1(), HDMA2(), HDMA3(), HDMA4(), _HDMA5(), currentHDMARequest(std::nullopt) {
 
 }
 
@@ -113,8 +113,17 @@ uint8_t Controller::HDMALoad(uint16_t offset) const {
         return HDMA3;
     case 0x3:
         return HDMA4;
-    case 0x4:
-        return _HDMA5._value;
+    case 0x4: {
+        if (currentHDMARequest == std::nullopt) {
+            return 0xFF;
+        }
+        HDMA::Request request = (*currentHDMARequest);
+        if (request.remainingTransfers == 0) {
+            return 0xFF;
+        }
+        uint8_t value = (request.remainingTransfers - 1) / 0x10;
+        return value;
+    }
     default:
         logger.logWarning("Unhandled HDMA register load at offset: %04x", offset);
         return 0xFF;
@@ -154,6 +163,7 @@ void Controller::executeHDMA() {
     HDMA::Request request = HDMA::Request(HDMA1, HDMA2, HDMA3, HDMA4, _HDMA5);
 
     if (request.mode != HDMA::Mode::GeneralPurpose) {
+        currentHDMARequest = { request };
         return;
     }
 
@@ -165,5 +175,5 @@ void Controller::executeHDMA() {
         request.remainingTransfers--;
     }
 
-    _HDMA5._value = HDMA::Done;
+    currentHDMARequest = { request };
 }
