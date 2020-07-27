@@ -19,6 +19,22 @@ DMA::Request::Request(uint8_t value) {
     canceling = false;
 }
 
+HDMA::Request::Request(uint8_t HDMA1, uint8_t HDMA2, uint8_t HDMA3, uint8_t HDMA4, HDMA::HDMA5 _HDMA5) {
+    uint16_t source = (((uint16_t)HDMA1) << 8) | HDMA2;
+    source &= 0xFFF0;
+    uint16_t destination = (((uint16_t)HDMA3) << 8) | HDMA4;
+    destination &= 0x1FF0;
+    destination += 0x8000;
+    uint16_t length = (((uint16_t)_HDMA5.length) + 1) * 0x10;
+
+    startSourceAddress = source;
+    startDestinationAddress = destination;
+    currentSourceAddress = source;
+    currentDestinationAddress = destination;
+    remainingTransfers = length;
+    mode = _HDMA5.mode();
+}
+
 Controller::Controller(Common::Logs::Level logLevel) : logger(logLevel, "  [DMA]: "), memoryController(nullptr), requests(), HDMA1(), HDMA2(), HDMA3(), HDMA4(), _HDMA5() {
 
 }
@@ -125,14 +141,7 @@ void Controller::HDMAStore(uint16_t offset, uint8_t value) {
         break;
     case 0x4: {
         _HDMA5._value = value;
-        uint16_t source = (((uint16_t)HDMA1) << 8) | HDMA2;
-        source &= 0xFFF0;
-        uint16_t destination = (((uint16_t)HDMA3) << 8) | HDMA4;
-        destination &= 0x1FF0;
-        destination += 0x8000;
-        uint16_t length = (((uint16_t)_HDMA5.length) + 1) * 0x10;
-        executeHDMA(source, destination, length);
-        _HDMA5._value = 0xFF;
+        executeHDMA();
         break;
     }
     default:
@@ -141,12 +150,20 @@ void Controller::HDMAStore(uint16_t offset, uint8_t value) {
     }
 }
 
-void Controller::executeHDMA(uint16_t source, uint16_t destination, uint16_t length) {
-    uint16_t sourceEnd = source + length;
-    while (source <= sourceEnd) {
-        uint8_t value = memoryController->load(source, true, true);
-        memoryController->store(destination, value, true, true);
-        source++;
-        destination++;
+void Controller::executeHDMA() {
+    HDMA::Request request = HDMA::Request(HDMA1, HDMA2, HDMA3, HDMA4, _HDMA5);
+
+    if (request.mode != HDMA::Mode::GeneralPurpose) {
+        return;
     }
+
+    while (request.remainingTransfers > 0) {
+        uint8_t value = memoryController->load(request.currentSourceAddress, true, true);
+        memoryController->store(request.currentDestinationAddress, value, true, true);
+        request.currentSourceAddress++;
+        request.currentDestinationAddress++;
+        request.remainingTransfers--;
+    }
+
+    _HDMA5._value = HDMA::Done;
 }
