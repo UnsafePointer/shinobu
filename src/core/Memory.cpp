@@ -177,7 +177,7 @@ uint8_t BankController::loadInternal(uint16_t address) const {
         if (offset) {
             return PPU->VBKLoad(*offset);
         }
-        offset = Device::DirectMemoryAccess::HDMARange.contains(address);
+        offset = Device::DirectMemoryAccess::HDMA::AddressRange.contains(address);
         if (offset) {
             return DMA->HDMALoad(*offset);
         }
@@ -281,7 +281,7 @@ void BankController::storeInternal(uint16_t address, uint8_t value) {
             PPU->VBKStore(*offset, value);
             return;
         }
-        offset = Device::DirectMemoryAccess::HDMARange.contains(address);
+        offset = Device::DirectMemoryAccess::HDMA::AddressRange.contains(address);
         if (offset) {
             DMA->HDMAStore(*offset, value);
             return;

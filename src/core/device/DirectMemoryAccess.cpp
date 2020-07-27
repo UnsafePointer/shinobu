@@ -3,7 +3,7 @@
 
 using namespace Core::Device::DirectMemoryAccess;
 
-Request::Request(uint8_t value) {
+DMA::Request::Request(uint8_t value) {
     uint16_t source = value;
     source <<= 8;
     if (source >= 0xFE00) {
@@ -35,7 +35,7 @@ void Controller::execute(uint8_t value) {
     for (auto& request : requests) {
         request.canceling = true;
     }
-    Request request = Request(value);
+    DMA::Request request = DMA::Request(value);
     requests.push_back(request);
 }
 
@@ -46,7 +46,7 @@ void Controller::step(uint8_t cycles) {
             break;
         }
 
-        requests.erase(std::remove_if(requests.begin(), requests.end(), [](Request request) {
+        requests.erase(std::remove_if(requests.begin(), requests.end(), [](DMA::Request request) {
             return request.remainingTransfers <= 0 || request.canceling;
         }), requests.end());
 
