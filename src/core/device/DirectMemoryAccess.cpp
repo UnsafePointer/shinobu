@@ -32,6 +32,7 @@ HDMA::Request::Request(uint8_t HDMA1, uint8_t HDMA2, uint8_t HDMA3, uint8_t HDMA
     currentSourceAddress = source;
     currentDestinationAddress = destination;
     remainingTransfers = length;
+    cancelled = false;
     mode = _HDMA5.mode();
 }
 
@@ -160,6 +161,15 @@ void Controller::HDMAStore(uint16_t offset, uint8_t value) {
 }
 
 void Controller::executeHDMA() {
+    if (currentHDMARequest != std::nullopt) {
+        HDMA::Request request = (*currentHDMARequest);
+        if (_HDMA5._mode == 0x0 && !request.cancelled && request.remainingTransfers != 0) {
+            request.cancelled = true;
+            currentHDMARequest = { request };
+            return;
+        }
+    }
+
     HDMA::Request request = HDMA::Request(HDMA1, HDMA2, HDMA3, HDMA4, _HDMA5);
 
     if (request.mode != HDMA::Mode::GeneralPurpose) {
@@ -183,11 +193,11 @@ void Controller::stepHBlank() {
         return;
     }
     HDMA::Request request = (*currentHDMARequest);
-    if (request.remainingTransfers <= 0) {
+    if (request.remainingTransfers <= 0 || request.cancelled) {
         return;
     }
     uint8_t transferLength = 0x10;
-     while (transferLength > 0) {
+    while (transferLength > 0) {
         uint8_t value = memoryController->load(request.currentSourceAddress, true, true);
         memoryController->store(request.currentDestinationAddress, value, true, true);
         request.currentSourceAddress++;

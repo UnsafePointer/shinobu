@@ -37,6 +37,7 @@ namespace Core {
                     uint16_t currentDestinationAddress;
                     uint16_t remainingTransfers;
                     Mode mode;
+                    bool cancelled;
 
                     Request(uint8_t HDMA1, uint8_t HDMA2, uint8_t HDMA3, uint8_t HDMA4, HDMA::HDMA5 _HDMA5);
                 };
