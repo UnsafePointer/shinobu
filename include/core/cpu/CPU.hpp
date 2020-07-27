@@ -100,7 +100,6 @@ namespace Core {
             std::unique_ptr<Device::Interrupt::Controller> &interrupt;
 
             bool shouldSetIME;
-            bool shouldClearIME;
             bool halted;
 
             void pushIntoStack(uint16_t value);

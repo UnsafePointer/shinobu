@@ -5,7 +5,7 @@
 
 using namespace Core::CPU;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt), shouldSetIME(false), shouldClearIME(false), halted(false) {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt), shouldSetIME(false), halted(false) {
 }
 
 Processor::~Processor() {
@@ -142,10 +142,6 @@ void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction
     if (shouldSetIME && lastInstruction.code._value != 0xFB) {
         interrupt->updateIME(true);
         shouldSetIME = false;
-    }
-    if (shouldClearIME && lastInstruction.code._value != 0xF3) {
-        interrupt->updateIME(false);
-        shouldClearIME = false;
     }
     interrupt->serveInterrupts();
 }
