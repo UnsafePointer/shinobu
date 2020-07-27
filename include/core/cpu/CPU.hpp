@@ -97,10 +97,11 @@ namespace Core {
 
             Registers registers;
             std::unique_ptr<Memory::Controller> &memory;
-            std::unique_ptr<Device::Interrupt::Controller> &interrupt;
+            std::unique_ptr<Device::Interrupt::Controller> &interruptController;
 
             bool shouldSetIME;
             bool halted;
+            void setIME(bool value);
 
             void pushIntoStack(uint16_t value);
             uint16_t popFromStack();
@@ -247,8 +248,6 @@ namespace Core {
             Instructions::Instruction fetchInstruction() const;
             void checkPendingInterrupts(Instructions::Instruction lastInstruction);
             void executeInterrupt(Device::Interrupt::Interrupt interrupt);
-            bool isHalted() const;
-            void unhalt();
 
             template<typename T>
             Instructions::InstructionHandler<T> decodeInstruction(Instructions::Instruction instruction) const;

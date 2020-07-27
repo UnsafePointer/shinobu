@@ -55,23 +55,20 @@ namespace Core {
             };
 
             class Controller {
+                friend class Core::CPU::Processor;
+
                 Common::Logs::Logger logger;
-                Core::CPU::Processor *processor;
 
                 bool IME;
                 Enable enable;
                 Flag flag;
-
-                void clearInterrupt(Interrupt interrupt);
-                void executeInterrupt(Interrupt interrupt);
             public:
                 Controller(Common::Logs::Level logLevel);
                 ~Controller();
 
-                void setProcessor(std::unique_ptr<Core::CPU::Processor> &processor);
-                void updateIME(bool value);
                 void requestInterrupt(Interrupt interrupt);
-                void serveInterrupts();
+                void clearInterrupt(Interrupt interrupt);
+                bool shouldExecute(Interrupt interrupt) const;
                 uint8_t loadEnable() const;
                 void storeEnable(uint8_t value);
                 uint8_t loadFlag() const;

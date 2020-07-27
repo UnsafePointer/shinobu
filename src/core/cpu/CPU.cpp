@@ -5,10 +5,14 @@
 
 using namespace Core::CPU;
 
-Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interrupt(interrupt), shouldSetIME(false), halted(false) {
+Processor::Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [CPU]: "), registers(), memory(memory), interruptController(interrupt), shouldSetIME(false), halted(false) {
 }
 
 Processor::~Processor() {
+}
+
+void Processor::setIME(bool value) {
+    interruptController->IME = value;
 }
 
 void Processor::pushIntoStack(uint16_t value) {
@@ -140,28 +144,36 @@ Instructions::Instruction Processor::fetchInstruction() const {
 
 void Processor::checkPendingInterrupts(Instructions::Instruction lastInstruction) {
     if (shouldSetIME && lastInstruction.code._value != 0xFB) {
-        interrupt->updateIME(true);
+        interruptController->IME = true;
         shouldSetIME = false;
     }
-    interrupt->serveInterrupts();
+
+    for (const auto& interrupt : Device::Interrupt::ALL) {
+        if (interruptController->shouldExecute(interrupt)) {
+            executeInterrupt(interrupt);
+        }
+    }
 }
 
 void Processor::executeInterrupt(Device::Interrupt::Interrupt interrupt) {
-    halted = false;
+    if (halted) {
+        halted = false;
+        if (!interruptController->IME) {
+            return;
+        }
+    } else {
+        if (!interruptController->IME) {
+            return;
+        }
+    }
     uint16_t address = Device::Interrupt::VECTOR[interrupt];
     memory->step(4);
     memory->step(4);
     pushIntoStack(registers.pc);
     memory->step(4);
     registers.pc = address;
-}
-
-bool Processor::isHalted() const {
-    return halted;
-}
-
-void Processor::unhalt() {
-    halted = false;
+    interruptController->IME = false;
+    interruptController->clearInterrupt(interrupt);
 }
 
 template<typename T>

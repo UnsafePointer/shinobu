@@ -20,7 +20,7 @@ void Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction ins
 
 template<>
 void Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction) {
-    processor->interrupt->updateIME(false);
+    processor->setIME(false);
     processor->advanceProgramCounter(instruction);
 }
 
@@ -784,7 +784,7 @@ void Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instr
     uint16_t address = processor->popFromStack();
     processor->memory->step(4);
     processor->registers.pc = address;
-    processor->interrupt->updateIME(true);
+    processor->setIME(true);
 }
 
 template<>
