@@ -739,11 +739,11 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordi
     return pixels;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const {
+std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position) const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     for (const auto& tilePixel : tile) {
         uint16_t x = tilePixel.position.x;
-        uint16_t y = tilePixel.position.y + ((39 - position) * VRAMTileDataSide);
+        uint16_t y = tilePixel.position.y + position;
         Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
         pixels.push_back(pixel);
     }
@@ -886,12 +886,27 @@ std::vector<Sprite> Processor::getSpriteData() const {
 }
 
 std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSpriteAtIndex(uint8_t index) const {
-    const palette colors = paletteSelector->currentSelection();
-
     uint16_t offset = index * 4;
     Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]), offset);
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, colors);
-    return { sprite, vertices };
+
+    const palette colors = paletteSelector->currentSelection();
+    const palette object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
+    const palette object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
+
+    SpriteSize spriteSize = control.spriteSize();
+    if (spriteSize == SpriteSize::_8x8) {
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        vertices = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(vertices, SpriteTilePositionInViewer::Middle);
+        return { sprite, vertices };
+    } else {
+        uint16_t tileIndex = sprite.tileNumber & 0xFE;
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> bottomTile = getTileByIndex(tileIndex + 1, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        bottomTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(bottomTile, SpriteTilePositionInViewer::Bottom);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> topTile = getTileByIndex(tileIndex, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        topTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(topTile, SpriteTilePositionInViewer::Top);
+        bottomTile.insert(bottomTile.end(), topTile.begin(), topTile.end());
+        return { sprite, bottomTile };
+    }
 }
 
 uint8_t Processor::VRAMBank() const {

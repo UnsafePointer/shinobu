@@ -213,6 +213,12 @@ namespace Core {
                 OBPI() : _value(0) {};
             };
 
+            enum SpriteTilePositionInViewer : uint16_t {
+                Top = 8,
+                Bottom = 0,
+                Middle = 4,
+            };
+
             class Processor {
                 friend class Shinobu::Emulator;
 
@@ -258,7 +264,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, uint8_t bank, Shinobu::Frontend::Palette::palette paletteColors) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t position) const;
+                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position) const;
 
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();

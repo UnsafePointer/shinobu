@@ -18,8 +18,8 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
                         backgroundMapTexture(Shinobu::Frontend::OpenGL::Texture(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale, VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale)),
                         tileDataTexture(Shinobu::Frontend::OpenGL::Texture(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale, VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale)),
                         LCDOutputTexture(Shinobu::Frontend::OpenGL::Texture(HorizontalResolution * PixelScale, VerticalResolution * PixelScale)),
-                        spriteTextures(Shinobu::Frontend::OpenGL::TextureArray(NumberOfSpritesInOAM, VRAMTileDataSide * PixelScale, VRAMTileDataSide * PixelScale))
- {
+                        spriteTextures(Shinobu::Frontend::OpenGL::TextureArray(NumberOfSpritesInOAM, VRAMTileDataSide * PixelScale, VRAMTileDataSide * 2 * PixelScale))
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO(); (void)io;
@@ -29,7 +29,7 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     tileDataRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, PixelScale);
     backgroundMapRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileBackgroundMapSide * VRAMTileDataSide, VRAMTileBackgroundMapSide * VRAMTileDataSide, PixelScale);
     LCDOutputRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(HorizontalResolution, VerticalResolution, PixelScale);
-    spriteRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataSide, VRAMTileDataSide, PixelScale);
+    spriteRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataSide, VRAMTileDataSide * 2, PixelScale);
 }
 
 Renderer::~Renderer() {
@@ -96,10 +96,11 @@ void Renderer::update() {
                     spriteRenderer->addPixels(vertices);
                     spriteRenderer->render();
                     ImGui::BeginGroup();
-                    ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataSide * PixelScale + 6), static_cast<float>(VRAMTileDataSide * PixelScale + 6));
+                    ImVec2 size = ImVec2(static_cast<float>(width + 6), static_cast<float>(height + 6));
                     ImGui::Image(reinterpret_cast<ImTextureID>(spriteTexture), size, ImVec2(0, 1), ImVec2(1, 0));
                     ImGui::SameLine(40);
                     ImGui::BeginGroup();
+                    ImGui::Dummy(ImVec2(0.0f, 8.0f));
                     ImGui::Text("X = %04d", (int16_t)sprite.x - 8);
                     ImGui::Text("Y = %04d", (int16_t)sprite.y - 16);
                     ImGui::EndGroup();
