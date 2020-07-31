@@ -892,17 +892,18 @@ std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::get
     const palette colors = paletteSelector->currentSelection();
     const palette object0PaletteColors = { colors[object0Palette.color0], colors[object0Palette.color1], colors[object0Palette.color2], colors[object0Palette.color3] };
     const palette object1PaletteColors = { colors[object1Palette.color0], colors[object1Palette.color1], colors[object1Palette.color2], colors[object1Palette.color3] };
+    const palette selectedPalette = cgbFlag == Core::ROM::CGBFlag::DMG ? sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors : cgbPaletteAtIndex(sprite.attributes.CGBPalette, false);
 
     SpriteSize spriteSize = control.spriteSize();
     if (spriteSize == SpriteSize::_8x8) {
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, selectedPalette);
         vertices = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(vertices, SpriteTilePositionInViewer::Middle);
         return { sprite, vertices };
     } else {
         uint16_t tileIndex = sprite.tileNumber & 0xFE;
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> bottomTile = getTileByIndex(tileIndex + 1, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> bottomTile = getTileByIndex(tileIndex + 1, 0, selectedPalette);
         bottomTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(bottomTile, SpriteTilePositionInViewer::Bottom);
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> topTile = getTileByIndex(tileIndex, 0, sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors);
+        std::vector<Shinobu::Frontend::OpenGL::Vertex> topTile = getTileByIndex(tileIndex, 0, selectedPalette);
         topTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(topTile, SpriteTilePositionInViewer::Top);
         bottomTile.insert(bottomTile.end(), topTile.begin(), topTile.end());
         return { sprite, bottomTile };
