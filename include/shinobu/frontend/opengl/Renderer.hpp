@@ -18,24 +18,21 @@ namespace Shinobu {
                 uint32_t width;
                 uint32_t height;
                 uint32_t scale;
-                bool renderToFramebuffer;
 
                 std::unique_ptr<Program> program;
                 std::unique_ptr<Buffer<Vertex>> buffer;
 
-                std::unique_ptr<Texture> framebufferTexture;
                 std::array<Vertex, 6> verticesForPixel(Vertex pixel) const;
 
                 void checkForceDraw(uint32_t verticesToRender, GLenum mode);
             public:
-                Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderToFramebuffer = true);
+                Renderer(uint32_t width, uint32_t height, uint32_t scale);
                 ~Renderer();
 
                 void clear() const;
                 void render();
                 void addPixels(std::vector<Vertex> pixels);
                 void addViewPort(std::vector<Vertex> vertices);
-                GLuint framebufferTextureObject() const;
             };
         };
     };

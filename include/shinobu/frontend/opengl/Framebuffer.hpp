@@ -10,7 +10,7 @@ namespace Shinobu {
             class Framebuffer {
                 GLuint object;
             public:
-                Framebuffer(std::unique_ptr<Texture> &texture);
+                Framebuffer(Texture &texture);
                 ~Framebuffer();
             };
         }

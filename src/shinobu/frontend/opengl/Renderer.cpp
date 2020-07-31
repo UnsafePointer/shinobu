@@ -4,7 +4,7 @@
 
 using namespace Shinobu::Frontend::OpenGL;
 
-Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderToFramebuffer) : mode(GL_TRIANGLES), width(width), height(height), scale(scale), renderToFramebuffer(renderToFramebuffer) {
+Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale) : mode(GL_TRIANGLES), width(width), height(height), scale(scale) {
     program = std::make_unique<Program>("glsl/vertex.glsl", "glsl/fragment.glsl");
     program->useProgram();
 
@@ -16,7 +16,6 @@ Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale, bool renderT
     uint32_t bufferCapacity =  width * 6;
 
     buffer = std::make_unique<Buffer<Vertex>>(program, bufferCapacity);
-    framebufferTexture = std::make_unique<Texture>(width * scale, height * scale);
 
     Debug::Debugger *debugger = Debug::Debugger::getInstance();
     debugger->checkForOpenGLErrors();
@@ -74,15 +73,6 @@ void Renderer::clear() const {
 }
 
 void Renderer::render() {
-    // TODO: Force the framebuffer stay alive outside the if scope
-    if (renderToFramebuffer) {
-        Framebuffer framebuffer = Framebuffer(framebufferTexture);
-        buffer->draw(mode);
-    } else {
-        buffer->draw(mode);
-    }
+    buffer->draw(mode);
 }
 
-GLuint Renderer::framebufferTextureObject() const {
-    return framebufferTexture->getObject();
-}

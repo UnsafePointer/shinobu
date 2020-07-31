@@ -19,6 +19,11 @@ namespace Shinobu {
                 std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> spriteRenderer;
                 ImGuiIO *io;
                 ImVec4 backgroundColor;
+
+                Shinobu::Frontend::OpenGL::Texture backgroundMapTexture;
+                Shinobu::Frontend::OpenGL::Texture tileDataTexture;
+                Shinobu::Frontend::OpenGL::Texture LCDOutputTexture;
+                Shinobu::Frontend::OpenGL::Texture spriteTexture;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();
