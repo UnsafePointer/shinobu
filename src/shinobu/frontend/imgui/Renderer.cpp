@@ -18,7 +18,7 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
                         backgroundMapTexture(Shinobu::Frontend::OpenGL::Texture(VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale, VRAMTileBackgroundMapSide * VRAMTileDataSide * PixelScale)),
                         tileDataTexture(Shinobu::Frontend::OpenGL::Texture(VRAMTileDataViewerWidth * VRAMTileDataSide * PixelScale, VRAMTileDataViewerHeight * VRAMTileDataSide * PixelScale)),
                         LCDOutputTexture(Shinobu::Frontend::OpenGL::Texture(HorizontalResolution * PixelScale, VerticalResolution * PixelScale)),
-                        spriteTexture(Shinobu::Frontend::OpenGL::Texture(VRAMTileDataSide * PixelScale, VRAMTileDataSide * NumberOfSpritesInOAM * PixelScale))
+                        spriteTextures(Shinobu::Frontend::OpenGL::TextureArray(NumberOfSpritesInOAM, VRAMTileDataSide * PixelScale, VRAMTileDataSide * PixelScale))
  {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -29,7 +29,7 @@ Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std
     tileDataRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataViewerWidth * VRAMTileDataSide, VRAMTileDataViewerHeight * VRAMTileDataSide, PixelScale);
     backgroundMapRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileBackgroundMapSide * VRAMTileDataSide, VRAMTileBackgroundMapSide * VRAMTileDataSide, PixelScale);
     LCDOutputRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(HorizontalResolution, VerticalResolution, PixelScale);
-    spriteRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataSide, VRAMTileDataSide * NumberOfSpritesInOAM, PixelScale);
+    spriteRenderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(VRAMTileDataSide, VRAMTileDataSide, PixelScale);
 }
 
 Renderer::~Renderer() {
@@ -85,23 +85,31 @@ void Renderer::update() {
         ImGui::End();
         if (ImGui::Begin("Sprites", NULL, ImGuiWindowFlags_NoResize)) {
             {
-                Shinobu::Frontend::OpenGL::Framebuffer framebuffer = Shinobu::Frontend::OpenGL::Framebuffer(spriteTexture);
-                std::vector<Core::Device::PictureProcessingUnit::Sprite> sprites;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices;
-                std::tie(sprites, vertices) = PPU->getSprites();
-                spriteRenderer->addPixels(vertices);
-                spriteRenderer->render();
-                ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataSide * PixelScale), static_cast<float>(VRAMTileDataSide * NumberOfSpritesInOAM * PixelScale));
-                ImGui::Image(reinterpret_cast<ImTextureID>(spriteTexture.getObject()), size, ImVec2(0, 1), ImVec2(1, 0));
-                ImGui::SameLine(40);
-                ImGui::BeginGroup();
-                for (int i = 0; i < 40; i++) {
-                    ImGui::Text("X = %04d", (int16_t)sprites[i].x - 8);
-                    ImGui::SameLine(70);
-                    ImGui::Text("Y = %04d", (int16_t)sprites[i].y - 16);
-                    ImGui::Dummy(ImVec2(0.0f, 3.5f));
+                for (int i = 0; i < NumberOfSpritesInOAM; i++) {
+                    Core::Device::PictureProcessingUnit::Sprite sprite;
+                    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices;
+                    std::tie(sprite, vertices) = PPU->getSpriteAtIndex(i);
+                    auto spriteTexture = spriteTextures.getTextureAtIndex(i);
+                    GLsizei width, height;
+                    std::tie(width, height) = spriteTextures.getDimensions();
+                    Shinobu::Frontend::OpenGL::Framebuffer framebuffer = Shinobu::Frontend::OpenGL::Framebuffer(spriteTexture, width, height);
+                    spriteRenderer->addPixels(vertices);
+                    spriteRenderer->render();
+                    ImGui::BeginGroup();
+                    ImVec2 size = ImVec2(static_cast<float>(VRAMTileDataSide * PixelScale + 6), static_cast<float>(VRAMTileDataSide * PixelScale + 6));
+                    ImGui::Image(reinterpret_cast<ImTextureID>(spriteTexture), size, ImVec2(0, 1), ImVec2(1, 0));
+                    ImGui::SameLine(40);
+                    ImGui::BeginGroup();
+                    ImGui::Text("X = %04d", (int16_t)sprite.x - 8);
+                    ImGui::Text("Y = %04d", (int16_t)sprite.y - 16);
+                    ImGui::EndGroup();
+                    ImGui::Dummy(ImVec2(0.0f, 5.0f));
+                    ImGui::EndGroup();
+
+                    if (i % 2 == 0) {
+                        ImGui::SameLine(120);
+                    }
                 }
-                ImGui::EndGroup();
             }
         }
         ImGui::End();

@@ -4,6 +4,7 @@
 #include "shinobu/frontend/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
 #include "shinobu/frontend/opengl/Renderer.hpp"
+#include "shinobu/frontend/opengl/TextureArray.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
     class Processor;
@@ -23,7 +24,7 @@ namespace Shinobu {
                 Shinobu::Frontend::OpenGL::Texture backgroundMapTexture;
                 Shinobu::Frontend::OpenGL::Texture tileDataTexture;
                 Shinobu::Frontend::OpenGL::Texture LCDOutputTexture;
-                Shinobu::Frontend::OpenGL::Texture spriteTexture;
+                Shinobu::Frontend::OpenGL::TextureArray spriteTextures;
             public:
                 Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU);
                 ~Renderer();

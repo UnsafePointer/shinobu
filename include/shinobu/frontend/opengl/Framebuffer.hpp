@@ -11,6 +11,7 @@ namespace Shinobu {
                 GLuint object;
             public:
                 Framebuffer(Texture &texture);
+                Framebuffer(GLuint texture, GLsizei width, GLsizei height);
                 ~Framebuffer();
             };
         }

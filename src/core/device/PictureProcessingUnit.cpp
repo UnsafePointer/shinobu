@@ -885,17 +885,13 @@ std::vector<Sprite> Processor::getSpriteData() const {
     return sprites;
 }
 
-std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSprites() const {
+std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSpriteAtIndex(uint8_t index) const {
     const palette colors = paletteSelector->currentSelection();
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = {};
-    std::vector<Sprite> sprites = getSpriteData();
-    for (int i = 0; i < NumberOfSpritesInOAM; i++) {
-        Sprite sprite = sprites[i];
-        std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(sprite.tileNumber, 0, colors);
-        tile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(tile, i);
-        vertices.insert(vertices.end(), tile.begin(), tile.end());
-    }
-    return {sprites, vertices};
+
+    uint16_t offset = index * 4;
+    Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]), offset);
+    std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, colors);
+    return { sprite, vertices };
 }
 
 uint8_t Processor::VRAMBank() const {

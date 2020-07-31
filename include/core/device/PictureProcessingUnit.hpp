@@ -295,7 +295,7 @@ namespace Core {
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap(BackgroundType type) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
                 std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();
-                std::pair<std::vector<Sprite>, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSprites() const;
+                std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSpriteAtIndex(uint8_t index) const;
                 uint8_t VRAMBank() const;
             };
         };
