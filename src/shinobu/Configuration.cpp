@@ -22,7 +22,8 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     launchFullscreen(),
     scale(),
     palette(),
-    overrideCGBFlag()
+    overrideCGBFlag(),
+    windowLineCounter(true)
 {
 
 }
@@ -112,6 +113,10 @@ bool Configuration::Manager::shouldOverrideCGBFlag() const {
     return overrideCGBFlag;
 }
 
+bool Configuration::Manager::shouldEmulateWindowLineCounter() const {
+    return windowLineCounter;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -132,6 +137,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node emulationConfiguration = Yaml::Node();
     Yaml::Node &emulationConfigurationRef = emulationConfiguration;
     emulationConfiguration["overrideCGB"] = "false";
+    emulationConfiguration["windowLineCounter"] = "true";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -179,6 +185,7 @@ void Configuration::Manager::loadConfiguration() {
     scale = configuration["video"]["overlayScale"].As<int>();
     palette = configuration["video"]["palette"].As<int>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
+    windowLineCounter = configuration["emulation"]["windowLineCounter"].As<bool>();
     if (trace) {
         std::filesystem::remove(Common::Logs::filePath);
     }

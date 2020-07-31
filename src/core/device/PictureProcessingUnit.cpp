@@ -11,6 +11,7 @@ using namespace Core::Device::PictureProcessingUnit;
 using namespace Shinobu::Frontend::Palette;
 
 Processor::Processor(Common::Logs::Level logLevel,
+                     bool emulateWindowLineCounter,
                      std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                      std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector,
                      std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController) : logger(logLevel, "  [PPU]: "),
@@ -43,7 +44,8 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      backgroundPaletteData(),
                                                                                                      _BGPI(),
                                                                                                      objectPaletteData(),
-                                                                                                     _OBPI() {
+                                                                                                     _OBPI(),
+                                                                                                     emulateWindowLineCounter(emulateWindowLineCounter) {
 
 }
 
@@ -392,10 +394,14 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     uint16_t screenPositionYWithScroll = (LY + scrollY) % TileMapResolution;
     uint16_t tileIndexInMap = (screenPositionXWithScroll / VRAMTileDataSide) + (screenPositionYWithScroll / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
     uint32_t addressStart = backgroundMapAddressStart;
+    uint8_t currentWindowY = windowLineCounter;
+    if (!emulateWindowLineCounter) {
+        currentWindowY = LY - windowYPosition;
+    }
     if (control.windowDisplayEnable) {
         if (LY >= windowYPosition && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
-            tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + (windowLineCounter / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
+            tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + (currentWindowY / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             drawWindow = true;
         }
     }
@@ -416,7 +422,7 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     uint16_t offset = (0x10 * tileIndex);
     uint16_t yInTile;
     if (drawWindow) {
-        yInTile = windowLineCounter % VRAMTileDataSide;
+        yInTile = currentWindowY % VRAMTileDataSide;
     } else {
         yInTile = screenPositionYWithScroll % VRAMTileDataSide;
     }

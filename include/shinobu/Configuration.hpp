@@ -31,6 +31,7 @@ namespace Shinobu {
             int scale;
             int palette;
             bool overrideCGBFlag;
+            bool windowLineCounter;
 
             Manager();
         public:
@@ -55,6 +56,7 @@ namespace Shinobu {
             int overlayScale() const;
             int paletteIndex() const;
             bool shouldOverrideCGBFlag() const;
+            bool shouldEmulateWindowLineCounter() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
