@@ -1,6 +1,7 @@
 #include "shinobu/Runner.hpp"
 #include <algorithm>
 #include <iostream>
+#include <unistd.h>
 
 using namespace Shinobu;
 
@@ -12,40 +13,31 @@ Runner::~Runner() {
 
 }
 
-bool Runner::checkOption(char** begin, char** end, const std::string &option) const {
-    return find(begin, end, option) != end;
-}
-
-char* Runner::getOptionValue(char** begin, char** end, const std::string &option) const {
-    char **iterator = find(begin, end, option);
-    if (iterator != end && iterator++ != end) {
-        return *iterator;
-    }
-    return NULL;
-}
-
 void Runner::configure(int argc, char* argv[]) {
-    if (argc <= 1) {
-        return;
-    }
-    bool argumentFound = false;
-    if (checkOption(argv, argv + argc, "--rom")) {
-        char *path = getOptionValue(argv, argv + argc, "--rom");
-        if (path == NULL) {
-            logger.logError("Incorrect arguments passed. See README.md for usage.");
+    int c;
+    while ((c = getopt(argc, argv, "s")) != -1) {
+        switch (c) {
+        case 's':
+            skipBootROM = true;
+            break;
+        case '?':
+            if (isprint(optopt)) {
+                logger.logError("Unknown option -%c", optopt);
+            } else {
+                logger.logError("Unknown option character %x", optopt);
+            }
+            break;
+        default:
+            logger.logError("Unexpected error while parsing options.");
         }
-        ROMFilePath = std::filesystem::current_path() / std::string(path);
-        if (!std::filesystem::exists(ROMFilePath)) {
-            logger.logError("The filepath provided with the --rom flag doesn't exist.");
-        }
-        argumentFound = true;
     }
-    if (checkOption(argv, argv + argc, "--skip-boot")) {
-        skipBootROM = true;
-        argumentFound = true;
+    if (optind >= argc) {
+        logger.logError("Missing argument: ROM filepath");
     }
-    if (!argumentFound) {
-        logger.logError("Incorrect arguments passed. See README.md for usage.");
+    char *path = argv[optind];
+    ROMFilePath = std::filesystem::current_path() / std::string(path);
+    if (!std::filesystem::exists(ROMFilePath)) {
+        logger.logError("The filepath provided as argument: %s doesn't exist.", ROMFilePath.c_str());
     }
 }
 
