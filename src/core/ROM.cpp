@@ -148,6 +148,10 @@ std::filesystem::path Cartridge::saveFilePath() const {
     return std::filesystem::path(filePath).replace_extension(".sav");
 }
 
+std::filesystem::path Cartridge::disassemblyFilePath() const {
+    return std::filesystem::path(filePath).replace_extension(".s");
+}
+
 uint8_t Cartridge::load(uint32_t address) const {
     if (address > memory.size()) {
         logger.logWarning("ROM load out of bounds with address: %04x", address);

@@ -187,9 +187,16 @@ void Emulator::saveExternalRAM() {
 }
 
 void Emulator::disassemble() {
+    std::stringstream stream = std::stringstream();
     while (disassembler->canDisassemble()) {
         Core::CPU::Instructions::Instruction instruction = processor->fetchInstruction();
-        std::string line = disassembler->disassemble(instruction);
-        logger.logDebug("%s", line.c_str());
+        stream << disassembler->disassemble(instruction);
+        stream << std::endl;
     }
+    std::filesystem::path disassemblyFilePath = cartridge->disassemblyFilePath();
+    std::ofstream logfile = std::ofstream();
+    logfile.open(disassemblyFilePath);
+    logfile << stream.str();
+    logfile.close();
+    logger.logDebug("Disassembled ROM at file: %s", disassemblyFilePath.c_str());
 }

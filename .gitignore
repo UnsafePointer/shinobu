@@ -104,3 +104,6 @@ callgrind.*
 # Shaders
 
 glsl/*.glsl
+
+# Disassembly
+*.s

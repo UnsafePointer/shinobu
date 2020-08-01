@@ -162,6 +162,7 @@ namespace Core {
             void open(std::filesystem::path &filePath);
             bool isOpen() const;
             std::filesystem::path saveFilePath() const;
+            std::filesystem::path disassemblyFilePath() const;
             uint8_t load(uint32_t address) const;
             uint32_t RAMSize() const;
             uint32_t ROMSize() const;
