@@ -44,8 +44,7 @@ void Runner::configure(int argc, char* argv[]) {
     }
 }
 
-void Runner::configureEmulator(Emulator &emulator) {
-    emulator.setROMFilePath(ROMFilePath);
-    emulator.setShouldSkipBootROM(skipBootROM);
-    emulator.setShouldDisassemble(disassemble);
+Shinobu::Program::Configuration Runner::configuration() {
+    Shinobu::Program::Configuration config = { ROMFilePath, skipBootROM, disassemble };
+    return config;
 }

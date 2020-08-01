@@ -16,6 +16,6 @@ namespace Shinobu {
         ~Runner();
 
         void configure(int argc, char* argv[]);
-        void configureEmulator(Emulator &emulator);
+        Shinobu::Program::Configuration configuration();
     };
 };

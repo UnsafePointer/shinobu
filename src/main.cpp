@@ -13,8 +13,8 @@ int main(int argc, char* argv[]) {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     configurationManager->setupConfigurationFile();
     configurationManager->loadConfiguration();
-    Emulator emulator = Emulator();
-    runner.configureEmulator(emulator);
+    Program::Emulator emulator = Program::Emulator();
+    emulator.configure(runner.configuration());
     emulator.powerUp();
     if (emulator.willDisassemble()) {
         return 0;

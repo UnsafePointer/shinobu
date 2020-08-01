@@ -10,10 +10,10 @@
 #include "shinobu/frontend/performance/Renderer.hpp"
 #include <stdexcept>
 
-using namespace Shinobu;
+using namespace Shinobu::Program;
 
 Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), shouldDisassemble(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
-    Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
+    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>(configurationManager->paletteIndex());
 
     setupSDL(configurationManager->openGLLogLevel() != Common::Logs::Level::NoLog);
@@ -109,18 +109,12 @@ void Emulator::updateCurrentFrameCycles(uint8_t cycles) {
     }
 }
 
-void Emulator::setROMFilePath(std::filesystem::path &filePath) {
-    cartridge->open(filePath);
+void Emulator::configure(Shinobu::Program::Configuration configuration) {
+    cartridge->open(configuration.ROMFilePath);
     PPU->setCGBFlag(cartridge->cgbFlag());
-    window->setROMFilename(filePath.filename().string());
-}
-
-void Emulator::setShouldSkipBootROM(bool skipBootROM) {
-    shouldSkipBootROM = skipBootROM;
-}
-
-void Emulator::setShouldDisassemble(bool disassemble) {
-    shouldDisassemble = disassemble;
+    window->setROMFilename(configuration.ROMFilePath.filename().string());
+    shouldSkipBootROM = configuration.skipBootROM;
+    shouldDisassemble = configuration.disassemble;
 }
 
 void Emulator::powerUp() {

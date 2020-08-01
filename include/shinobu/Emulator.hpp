@@ -18,53 +18,59 @@
 #include "core/device/DirectMemoryAccess.hpp"
 
 namespace Shinobu {
-    class Emulator {
-        Common::Logs::Logger logger;
+    namespace Program {
+        struct Configuration {
+            std::filesystem::path ROMFilePath;
+            bool skipBootROM;
+            bool disassemble;
+        };
 
-        std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
-        std::unique_ptr<Shinobu::Frontend::Renderer> renderer;
-        std::unique_ptr<Shinobu::Frontend::Palette::Selector> paletteSelector;
+        class Emulator {
+            Common::Logs::Logger logger;
 
-        std::unique_ptr<Core::CPU::Processor> processor;
-        std::unique_ptr<Core::ROM::Cartridge> cartridge;
-        std::unique_ptr<Core::Memory::Controller> memoryController;
-        std::unique_ptr<Core::Device::Sound::Controller> sound;
-        std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
-        std::unique_ptr<Core::Device::Interrupt::Controller> interrupt;
-        std::unique_ptr<Core::Device::Timer::Controller> timer;
-        std::unique_ptr<Core::Device::JoypadInput::Controller> joypad;
-        std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
-        std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> DMA;
+            std::unique_ptr<Shinobu::Frontend::SDL2::Window> window;
+            std::unique_ptr<Shinobu::Frontend::Renderer> renderer;
+            std::unique_ptr<Shinobu::Frontend::Palette::Selector> paletteSelector;
 
-        bool shouldSkipBootROM;
-        bool shouldDisassemble;
-        uint32_t currentFrameCycles;
-        uint32_t frameCounter;
-        uint32_t frameTime;
-        uint32_t frameTimes;
+            std::unique_ptr<Core::CPU::Processor> processor;
+            std::unique_ptr<Core::ROM::Cartridge> cartridge;
+            std::unique_ptr<Core::Memory::Controller> memoryController;
+            std::unique_ptr<Core::Device::Sound::Controller> sound;
+            std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> PPU;
+            std::unique_ptr<Core::Device::Interrupt::Controller> interrupt;
+            std::unique_ptr<Core::Device::Timer::Controller> timer;
+            std::unique_ptr<Core::Device::JoypadInput::Controller> joypad;
+            std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
+            std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> DMA;
 
-        Sound_Queue soundQueue;
-        bool isMuted;
+            bool shouldSkipBootROM;
+            bool shouldDisassemble;
+            uint32_t currentFrameCycles;
+            uint32_t frameCounter;
+            uint32_t frameTime;
+            uint32_t frameTimes;
 
-        bool stopEmulation;
+            Sound_Queue soundQueue;
+            bool isMuted;
 
-        void setupSDL(bool debug) const;
-        void setupOpenGL() const;
-        void enqueueSound();
-        void updateCurrentFrameCycles(uint8_t cycles);
-        void disassemble();
-    public:
-        Emulator();
-        ~Emulator();
+            bool stopEmulation;
 
-        void setROMFilePath(std::filesystem::path &filePath);
-        void setShouldSkipBootROM(bool skipBootROM);
-        void setShouldDisassemble(bool disassemble);
-        void powerUp();
-        void emulate();
-        void handleSDLEvent(SDL_Event event);
-        bool shouldExit() const;
-        void saveExternalRAM();
-        bool willDisassemble();
+            void setupSDL(bool debug) const;
+            void setupOpenGL() const;
+            void enqueueSound();
+            void updateCurrentFrameCycles(uint8_t cycles);
+            void disassemble();
+        public:
+            Emulator();
+            ~Emulator();
+
+            void configure(Shinobu::Program::Configuration configuration);
+            void powerUp();
+            void emulate();
+            void handleSDLEvent(SDL_Event event);
+            bool shouldExit() const;
+            void saveExternalRAM();
+            bool willDisassemble();
+        };
     };
 };
