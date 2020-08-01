@@ -12,7 +12,7 @@
 
 using namespace Shinobu::Program;
 
-Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), shouldDisassemble(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
+Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldDisassemble(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>(configurationManager->paletteIndex());
 
@@ -113,12 +113,8 @@ void Emulator::configure(Shinobu::Program::Configuration configuration) {
     cartridge->open(configuration.ROMFilePath);
     PPU->setCGBFlag(cartridge->cgbFlag());
     window->setROMFilename(configuration.ROMFilePath.filename().string());
-    shouldSkipBootROM = configuration.skipBootROM;
     shouldDisassemble = configuration.disassemble;
-}
-
-void Emulator::powerUp() {
-    memoryController->initialize(shouldSkipBootROM);
+    memoryController->initialize(configuration.skipBootROM);
     processor->initialize();
 }
 

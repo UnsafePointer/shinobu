@@ -14,7 +14,6 @@ int main(int argc, char* argv[]) {
     Program::Emulator emulator = Program::Emulator();
     Program::ArgumentParser argvParser = Program::ArgumentParser();
     emulator.configure(argvParser.parse(argc, argv));
-    emulator.powerUp();
     if (emulator.willDisassemble()) {
         return 0;
     }

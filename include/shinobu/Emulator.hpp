@@ -43,7 +43,6 @@ namespace Shinobu {
             std::unique_ptr<Core::CPU::Disassembler::Disassembler> disassembler;
             std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> DMA;
 
-            bool shouldSkipBootROM;
             bool shouldDisassemble;
             uint32_t currentFrameCycles;
             uint32_t frameCounter;
@@ -65,7 +64,6 @@ namespace Shinobu {
             ~Emulator();
 
             void configure(Shinobu::Program::Configuration configuration);
-            void powerUp();
             void emulate();
             void handleSDLEvent(SDL_Event event);
             bool shouldExit() const;
