@@ -24,11 +24,6 @@ Level Common::Logs::levelWithValue(std::string value) {
 }
 
 Logger::Logger(Level level, std::string prefix) : level(level), prefix(prefix) {
-    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
-    shouldTrace = configurationManager->shouldTraceLogs();
-}
-
-Logger::Logger(Level level, std::string prefix, bool shouldTrace) : level(level), prefix(prefix), shouldTrace(shouldTrace) {
 
 }
 
@@ -46,9 +41,6 @@ void Logger::flush() const {
 }
 
 void Logger::traceMessage(std::string message) const {
-    if (!shouldTrace) {
-        return;
-    }
     stream << message << std::endl;
     bufferSize += message.length();
     if (bufferSize < BUFFER_SIZE_LIMIT) {
@@ -65,7 +57,6 @@ void Logger::logDebug(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
-    traceMessage(formatted);
 }
 
 void Logger::logMessage(const char *fmt, ...) const {

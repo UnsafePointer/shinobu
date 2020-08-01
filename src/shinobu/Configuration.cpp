@@ -3,7 +3,7 @@
 
 using namespace Shinobu;
 
-Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "", false)),
+Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Level::Message, "")),
     CPU(Common::Logs::Level::NoLog),
     memory(Common::Logs::Level::NoLog),
     ROM(Common::Logs::Level::NoLog),
@@ -16,7 +16,6 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     joypad(Common::Logs::Level::NoLog),
     sound(Common::Logs::Level::NoLog),
     DMA(Common::Logs::Level::NoLog),
-    trace(),
     frontend(Shinobu::Frontend::Kind::Unknown),
     mute(),
     launchFullscreen(),
@@ -85,10 +84,6 @@ Common::Logs::Level Configuration::Manager::DMALogLevel() const {
     return DMA;
 }
 
-bool Configuration::Manager::shouldTraceLogs() const {
-    return trace;
-}
-
 Shinobu::Frontend::Kind Configuration::Manager::frontendKind() const {
     return frontend;
 }
@@ -146,7 +141,6 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["PPU"] = "NOLOG";
     logConfigurationRef["serial"] = "NOLOG";
     logConfigurationRef["disassembler"] = "NOLOG";
-    logConfigurationRef["trace"] = "false";
     logConfigurationRef["interrupt"] = "NOLOG";
     logConfigurationRef["timer"] = "NOLOG";
     logConfigurationRef["openGL"] = "NOLOG";
@@ -178,7 +172,6 @@ void Configuration::Manager::loadConfiguration() {
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["DMA"].As<std::string>());
-    trace = configuration["log"]["trace"].As<bool>();
     frontend = Shinobu::Frontend::kindWithValue(configuration["frontend"]["kind"].As<std::string>());
     mute = configuration["audio"]["mute"].As<bool>();
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
@@ -186,7 +179,5 @@ void Configuration::Manager::loadConfiguration() {
     palette = configuration["video"]["palette"].As<int>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
     windowLineCounter = configuration["emulation"]["windowLineCounter"].As<bool>();
-    if (trace) {
-        std::filesystem::remove(Common::Logs::filePath);
-    }
+    std::filesystem::remove(Common::Logs::filePath);
 }

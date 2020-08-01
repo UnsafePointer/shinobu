@@ -20,13 +20,11 @@ namespace Common {
         class Logger {
             Level level;
             std::string prefix;
-            bool shouldTrace;
 
             void traceMessage(std::string message) const;
             void flush() const;
         public:
             Logger(Level level, std::string prefix);
-            Logger(Level level, std::string prefix, bool shouldTrace);
             Level logLevel();
             void logDebug(const char *fmt, ...) const;
             void logMessage(const char *fmt, ...) const;

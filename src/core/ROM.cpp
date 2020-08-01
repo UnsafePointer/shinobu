@@ -149,7 +149,7 @@ std::filesystem::path Cartridge::saveFilePath() const {
 }
 
 std::filesystem::path Cartridge::disassemblyFilePath() const {
-    return std::filesystem::path(filePath).replace_extension(".s");
+    return std::filesystem::path(filePath).replace_extension(".asm");
 }
 
 uint8_t Cartridge::load(uint32_t address) const {
