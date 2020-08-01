@@ -1,20 +1,23 @@
-#include "shinobu/Runner.hpp"
+#include "shinobu/ArgumentParser.hpp"
 #include <algorithm>
 #include <iostream>
 #include <unistd.h>
 
-using namespace Shinobu;
+using namespace Shinobu::Program;
 
-Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath(), skipBootROM(false), disassemble(false) {
-
-}
-
-Runner::~Runner() {
+ArgumentParser::ArgumentParser() : logger(Common::Logs::Level::Message, "") {
 
 }
 
-void Runner::configure(int argc, char* argv[]) {
+ArgumentParser::~ArgumentParser() {
+
+}
+
+Shinobu::Program::Configuration ArgumentParser::parse(int argc, char* argv[]) const {
     int c;
+    bool skipBootROM = false;
+    bool disassemble = false;
+    std::filesystem::path ROMFilePath;
     while ((c = getopt(argc, argv, "sd")) != -1) {
         switch (c) {
         case 's':
@@ -42,9 +45,5 @@ void Runner::configure(int argc, char* argv[]) {
     if (!std::filesystem::exists(ROMFilePath)) {
         logger.logError("The filepath provided as argument: %s doesn't exist.", ROMFilePath.c_str());
     }
-}
-
-Shinobu::Program::Configuration Runner::configuration() {
-    Shinobu::Program::Configuration config = { ROMFilePath, skipBootROM, disassemble };
-    return config;
+    return { ROMFilePath, skipBootROM, disassemble };
 }
