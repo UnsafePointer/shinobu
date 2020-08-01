@@ -5,9 +5,9 @@ file(GLOB_RECURSE SHINOBU_SOURCES src/*.cpp)
 
 include_directories(include)
 
-add_subdirectory(imgui)
-add_subdirectory(mini-yaml)
-add_subdirectory(Gb_Snd_Emu)
+add_subdirectory(third_party/imgui)
+add_subdirectory(third_party/mini-yaml)
+add_subdirectory(third_party/Gb_Snd_Emu)
 
 add_executable(shinobu ${SHINOBU_SOURCES})
 target_link_libraries(shinobu imgui)

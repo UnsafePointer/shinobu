@@ -1,9 +1,9 @@
 [submodule "mini-yaml"]
-	path = mini-yaml
+	path = third_party/mini-yaml
 	url = git@github.com:UnsafePointer/mini-yaml.git
 [submodule "imgui"]
-	path = imgui
+	path = third_party/imgui
 	url = git@github.com:UnsafePointer/imgui.git
 [submodule "Gb_Snd_Emu"]
-	path = Gb_Snd_Emu
+	path = third_party/Gb_Snd_Emu
 	url = git@github.com:UnsafePointer/Gb_Snd_Emu.git
