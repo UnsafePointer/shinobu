@@ -13,8 +13,10 @@ int main(int argc, char* argv[]) {
     configurationManager->loadConfiguration();
     Program::Emulator emulator = Program::Emulator();
     Program::ArgumentParser argvParser = Program::ArgumentParser();
-    emulator.configure(argvParser.parse(argc, argv));
-    if (emulator.willDisassemble()) {
+    Program::Configuration configuration = argvParser.parse(argc, argv);
+    emulator.configure(configuration);
+    if (configuration.disassemble) {
+        emulator.disassemble();
         return 0;
     }
     while (!emulator.shouldExit()) {
