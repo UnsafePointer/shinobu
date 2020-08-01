@@ -26,6 +26,10 @@ BOOT::ROM::~ROM() {
 
 void BOOT::ROM::initialize(bool skip, Core::ROM::CGBFlag cgbFlag) {
     if (skip) {
+        if (cgbFlag != CGBFlag::DMG) {
+            logger.logError("Skipping boot ROM is not supported for CGB emulation. See README.md.");
+            return;
+        }
         logger.logWarning("Skipping boot ROM");
         return;
     }
