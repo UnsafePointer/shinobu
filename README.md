@@ -10,3 +10,13 @@ shinobu (しのぶ) is a cycle accurate [Game Boy](https://en.wikipedia.org/wiki
 |---------------------------------------------|----------------------------------------------|
 |![gold.gif](/images/gold.gif)                |![metroid.gif](/images/metroid.gif)           |
 
+## Usage
+
+```Shell
+$ shinobu -h
+Usage: shinobu [-s] [-d] [-h] filepath
+
+  -s   skip BOOT ROM, only supported by DMG emulation
+  -d   disassemble, a `filepath.s` file will be created
+  -h   print this message
+```

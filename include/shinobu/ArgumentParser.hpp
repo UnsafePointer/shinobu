@@ -8,6 +8,8 @@ namespace Shinobu {
     namespace Program {
         class ArgumentParser {
             Common::Logs::Logger logger;
+
+            void printUsage() const;
         public:
             ArgumentParser();
             ~ArgumentParser();
