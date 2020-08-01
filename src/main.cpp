@@ -16,6 +16,9 @@ int main(int argc, char* argv[]) {
     Emulator emulator = Emulator();
     runner.configureEmulator(emulator);
     emulator.powerUp();
+    if (emulator.willDisassemble()) {
+        return 0;
+    }
     while (!emulator.shouldExit()) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {

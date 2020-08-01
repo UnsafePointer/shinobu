@@ -1,5 +1,6 @@
 #include "core/cpu/Disassembler.hpp"
 #include "core/cpu/CPU.hpp"
+#include "common/Formatter.hpp"
 
 using namespace Core::CPU::Disassembler;
 
@@ -11,7 +12,7 @@ Disassembler::~Disassembler() {
 
 }
 
-void Disassembler::disassemble(Instructions::Instruction instruction) const {
+void Disassembler::disassembleWhileExecuting(Instructions::Instruction instruction) const {
     if (!enabled) {
         return;
     }
@@ -32,6 +33,21 @@ void Disassembler::disassemble(Instructions::Instruction instruction) const {
         disassembledInstruction.c_str());
 }
 
+std::string Disassembler::disassemble(Instructions::Instruction instruction) {
+    Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler = processor->decodeInstruction<std::string>(instruction);
+    if (disassemblerHandler == nullptr) {
+        processor->advanceProgramCounter(Instructions::Instruction(0x0, false));
+        return Common::Formatter::format("00:%04X | Malformed instruction with opcode: %02x", processor->registers.pc, instruction.code._value);
+    }
+    std::string disassembledInstruction = disassemblerHandler(processor, instruction);
+    processor->advanceProgramCounter(instruction);
+    return Common::Formatter::format("00:%04X | %s", processor->registers.pc, disassembledInstruction.c_str());
+}
+
 void Disassembler::toggleEnabled() {
     enabled = !enabled;
+}
+
+bool Disassembler::canDisassemble() const {
+    return processor->registers.pc <= 0x4000;
 }

@@ -37,6 +37,7 @@ namespace Shinobu {
         std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> DMA;
 
         bool shouldSkipBootROM;
+        bool shouldDisassemble;
         uint32_t currentFrameCycles;
         uint32_t frameCounter;
         uint32_t frameTime;
@@ -51,16 +52,19 @@ namespace Shinobu {
         void setupOpenGL() const;
         void enqueueSound();
         void updateCurrentFrameCycles(uint8_t cycles);
+        void disassemble();
     public:
         Emulator();
         ~Emulator();
 
         void setROMFilePath(std::filesystem::path &filePath);
         void setShouldSkipBootROM(bool skipBootROM);
+        void setShouldDisassemble(bool disassemble);
         void powerUp();
         void emulate();
         void handleSDLEvent(SDL_Event event);
         bool shouldExit() const;
         void saveExternalRAM();
+        bool willDisassemble();
     };
 };

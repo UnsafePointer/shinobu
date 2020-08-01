@@ -12,7 +12,7 @@
 
 using namespace Shinobu;
 
-Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
+Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), shouldSkipBootROM(false), shouldDisassemble(false), currentFrameCycles(), frameCounter(), frameTime(SDL_GetTicks()), frameTimes(), soundQueue(), isMuted(), stopEmulation() {
     Configuration::Manager *configurationManager = Configuration::Manager::getInstance();
     paletteSelector = std::make_unique<Shinobu::Frontend::Palette::Selector>(configurationManager->paletteIndex());
 
@@ -119,6 +119,10 @@ void Emulator::setShouldSkipBootROM(bool skipBootROM) {
     shouldSkipBootROM = skipBootROM;
 }
 
+void Emulator::setShouldDisassemble(bool disassemble) {
+    shouldDisassemble = disassemble;
+}
+
 void Emulator::powerUp() {
     memoryController->initialize(shouldSkipBootROM);
     processor->initialize();
@@ -128,7 +132,7 @@ void Emulator::emulate() {
     try {
         while (sound->availableSamples() <= AudioBufferSize) {
             Core::CPU::Instructions::Instruction instruction = processor->fetchInstruction();
-            disassembler->disassemble(instruction);
+            disassembler->disassembleWhileExecuting(instruction);
             Core::CPU::Instructions::InstructionHandler<void> handler = processor->decodeInstruction<void>(instruction);
             handler(processor, instruction);
             joypad->updateJoypad();
@@ -188,4 +192,20 @@ bool Emulator::shouldExit() const {
 
 void Emulator::saveExternalRAM() {
     memoryController->saveExternalRAM();
+}
+
+bool Emulator::willDisassemble() {
+    if (!shouldDisassemble) {
+        return false;
+    }
+    disassemble();
+    return true;
+}
+
+void Emulator::disassemble() {
+    while (disassembler->canDisassemble()) {
+        Core::CPU::Instructions::Instruction instruction = processor->fetchInstruction();
+        std::string line = disassembler->disassemble(instruction);
+        logger.logDebug("%s", line.c_str());
+    }
 }

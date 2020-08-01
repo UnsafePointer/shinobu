@@ -17,8 +17,10 @@ namespace Core {
                 Disassembler(Common::Logs::Level logLevel, std::unique_ptr<Processor> &processor);
                 ~Disassembler();
 
-                void disassemble(Instructions::Instruction instruction) const;
+                void disassembleWhileExecuting(Instructions::Instruction instruction) const;
+                std::string disassemble(Instructions::Instruction instruction);
                 void toggleEnabled();
+                bool canDisassemble() const;
             };
         };
     };

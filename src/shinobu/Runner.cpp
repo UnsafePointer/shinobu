@@ -5,7 +5,7 @@
 
 using namespace Shinobu;
 
-Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath(), skipBootROM(false) {
+Runner::Runner() : logger(Common::Logs::Level::Message, ""), ROMFilePath(), skipBootROM(false), disassemble(false) {
 
 }
 
@@ -15,10 +15,13 @@ Runner::~Runner() {
 
 void Runner::configure(int argc, char* argv[]) {
     int c;
-    while ((c = getopt(argc, argv, "s")) != -1) {
+    while ((c = getopt(argc, argv, "sd")) != -1) {
         switch (c) {
         case 's':
             skipBootROM = true;
+            break;
+        case 'd':
+            disassemble = true;
             break;
         case '?':
             if (isprint(optopt)) {
@@ -44,4 +47,5 @@ void Runner::configure(int argc, char* argv[]) {
 void Runner::configureEmulator(Emulator &emulator) {
     emulator.setROMFilePath(ROMFilePath);
     emulator.setShouldSkipBootROM(skipBootROM);
+    emulator.setShouldDisassemble(disassemble);
 }

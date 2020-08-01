@@ -9,6 +9,7 @@ namespace Shinobu {
         Common::Logs::Logger logger;
         std::filesystem::path ROMFilePath;
         bool skipBootROM;
+        bool disassemble;
 
     public:
         Runner();
