@@ -21,6 +21,7 @@ namespace Core {
                 std::string disassemble(Instructions::Instruction instruction);
                 void toggleEnabled();
                 bool canDisassemble() const;
+                void configure() const;
             };
         };
     };

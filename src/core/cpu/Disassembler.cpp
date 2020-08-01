@@ -34,14 +34,17 @@ void Disassembler::disassembleWhileExecuting(Instructions::Instruction instructi
 }
 
 std::string Disassembler::disassemble(Instructions::Instruction instruction) {
+    std::string disassembledInstruction;
     Core::CPU::Instructions::InstructionHandler<std::string> disassemblerHandler = processor->decodeInstruction<std::string>(instruction);
     if (disassemblerHandler == nullptr) {
-        processor->advanceProgramCounter(Instructions::Instruction(0x0, false));
-        return Common::Formatter::format("00:%04X | Malformed instruction with opcode: %02x", processor->registers.pc, instruction.code._value);
+        instruction = Instructions::Instruction(0x0, false);
+        disassembledInstruction = Common::Formatter::format("00:%04X | Malformed instruction with opcode: %02x", processor->registers.pc, instruction.code._value);
+    } else {
+        disassembledInstruction = disassemblerHandler(processor, instruction);
     }
-    std::string disassembledInstruction = disassemblerHandler(processor, instruction);
+    disassembledInstruction = Common::Formatter::format("00:%04X | %s", processor->registers.pc, disassembledInstruction.c_str());
     processor->advanceProgramCounter(instruction);
-    return Common::Formatter::format("00:%04X | %s", processor->registers.pc, disassembledInstruction.c_str());
+    return disassembledInstruction;
 }
 
 void Disassembler::toggleEnabled() {
@@ -49,5 +52,9 @@ void Disassembler::toggleEnabled() {
 }
 
 bool Disassembler::canDisassemble() const {
-    return processor->registers.pc <= 0x4000;
+    return processor->registers.pc <= 0x3FFF;
+}
+
+void Disassembler::configure() const {
+    processor->registers.pc = 0x0150;
 }

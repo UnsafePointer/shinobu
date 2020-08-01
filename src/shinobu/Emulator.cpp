@@ -115,6 +115,9 @@ void Emulator::configure(Shinobu::Program::Configuration configuration) {
     window->setROMFilename(configuration.ROMFilePath.filename().string());
     memoryController->initialize(configuration.skipBootROM);
     processor->initialize();
+    if (configuration.disassemble) {
+        disassembler->configure();
+    }
 }
 
 void Emulator::emulate() {
