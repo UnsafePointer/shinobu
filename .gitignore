@@ -100,3 +100,7 @@ callgrind.*
 # Game Boy Color
 
 *.gbc
+
+# Shaders
+
+glsl/*.glsl
