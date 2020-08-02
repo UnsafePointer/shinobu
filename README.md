@@ -32,6 +32,11 @@ Usage: shinobu [-s] [-d] [-h] filepath
   -h   print this message
 ```
 
+A bootstrap ROM can be optionally (**required** for CGB emulation) placed in the current path:
+
+* `DMG_ROM.BIN` (SHA1: 4ed31ec6b0b175bb109c0eb5fd3d193da823339f)
+* `CGB_ROM.BIN` (SHA1: 1293d68bf9643bc4f36954c1e80e38f39864528d)
+
 A `shinobu.yaml` file will be generated to further configure the emulator options:
 
 ```Yaml
