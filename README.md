@@ -67,6 +67,10 @@ video:
 
 Gamepad support is implemented by [`SDL_GameController` API](https://wiki.libsdl.org/CategoryGameController) (Xbox-type controllers). Only the Game Boy buttons and DMG palette selection are mapped.
 
+### PPU visualizer
+
+![ppu.gif](/images/ppu.gif)
+
 ## Known issues
 
 * Scanline rendering: the PPU emulation is driven by a scanline renderer, LCD timing effects are not working and games like Prehistorik Man won't run correctly.
