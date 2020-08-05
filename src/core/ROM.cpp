@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include "shinobu/Configuration.hpp"
+#include "common/Formatter.hpp"
 
 using namespace Core::ROM;
 
@@ -48,7 +49,12 @@ void BOOT::ROM::initialize(bool skip, Core::ROM::CGBFlag cgbFlag) {
         break;
     }
     if (!std::filesystem::exists(bootROMFilePath)) {
-        logger.logWarning("Couldn't find BOOT_ROM at path: %s", bootROMFilePath.string().c_str());
+        std::string message = Common::Formatter::format("Couldn't find BOOT_ROM at path: %s", bootROMFilePath.string().c_str());
+        if (cgbFlag == Core::ROM::CGBFlag::DMG) {
+            logger.logWarning(message.c_str());
+        } else {
+            logger.logError(message.c_str());
+        }
         return;
     }
     std::ifstream bootROMFile = std::ifstream();
