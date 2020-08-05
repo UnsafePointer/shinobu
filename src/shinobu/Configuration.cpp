@@ -171,7 +171,7 @@ void Configuration::Manager::loadConfiguration() {
     openGL = Common::Logs::levelWithValue(configuration["log"]["openGL"].As<std::string>());
     joypad = Common::Logs::levelWithValue(configuration["log"]["joypad"].As<std::string>());
     sound = Common::Logs::levelWithValue(configuration["log"]["sound"].As<std::string>());
-    sound = Common::Logs::levelWithValue(configuration["log"]["DMA"].As<std::string>());
+    DMA = Common::Logs::levelWithValue(configuration["log"]["DMA"].As<std::string>());
     frontend = Shinobu::Frontend::kindWithValue(configuration["frontend"]["kind"].As<std::string>());
     mute = configuration["audio"]["mute"].As<bool>();
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
