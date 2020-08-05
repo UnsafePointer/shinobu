@@ -30,9 +30,6 @@ namespace Core {
 
             const Core::Memory::Range BootROMRegisterRange = Core::Memory::Range(0xFF50, 0x1);
 
-            const std::filesystem::path DEFAULT_DMG_BOOT_ROM_FILE_PATH = "DMG_ROM.BIN";
-            const std::filesystem::path DEFAULT_CGB_BOOT_ROM_FILE_PATH = "CGB_ROM.BIN";
-
             class ROM {
                 Common::Logs::Logger logger;
 

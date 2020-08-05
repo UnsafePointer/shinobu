@@ -31,6 +31,8 @@ namespace Shinobu {
             int palette;
             bool overrideCGBFlag;
             bool windowLineCounter;
+            std::string dmgBootstrapROM;
+            std::string cgbBootstrapROM;
 
             Manager();
         public:
@@ -55,6 +57,8 @@ namespace Shinobu {
             int paletteIndex() const;
             bool shouldOverrideCGBFlag() const;
             bool shouldEmulateWindowLineCounter() const;
+            std::string DMGBootstrapROM() const;
+            std::string CGBBootstrapROM() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

@@ -22,7 +22,9 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     scale(),
     palette(),
     overrideCGBFlag(),
-    windowLineCounter(true)
+    windowLineCounter(true),
+    dmgBootstrapROM(),
+    cgbBootstrapROM()
 {
 
 }
@@ -112,6 +114,14 @@ bool Configuration::Manager::shouldEmulateWindowLineCounter() const {
     return windowLineCounter;
 }
 
+std::string Configuration::Manager::DMGBootstrapROM() const {
+    return dmgBootstrapROM;
+}
+
+std::string Configuration::Manager::CGBBootstrapROM() const {
+    return cgbBootstrapROM;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -133,6 +143,8 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node &emulationConfigurationRef = emulationConfiguration;
     emulationConfiguration["overrideCGB"] = "false";
     emulationConfiguration["windowLineCounter"] = "true";
+    emulationConfiguration["CGBBootstrapROM"] = "CGB_ROM.BIN";
+    emulationConfiguration["DMGBootstrapROM"] = "DMG_ROM.BIN";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -179,5 +191,7 @@ void Configuration::Manager::loadConfiguration() {
     palette = configuration["video"]["palette"].As<int>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
     windowLineCounter = configuration["emulation"]["windowLineCounter"].As<bool>();
+    dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
+    cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();
     std::filesystem::remove(Common::Logs::filePath);
 }

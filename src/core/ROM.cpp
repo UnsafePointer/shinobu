@@ -1,6 +1,7 @@
 #include "core/ROM.hpp"
 #include <iostream>
 #include <cstring>
+#include "shinobu/Configuration.hpp"
 
 using namespace Core::ROM;
 
@@ -25,6 +26,7 @@ BOOT::ROM::~ROM() {
 }
 
 void BOOT::ROM::initialize(bool skip, Core::ROM::CGBFlag cgbFlag) {
+    Shinobu::Configuration::Manager *configurationManager = Shinobu::Configuration::Manager::getInstance();
     if (skip) {
         if (cgbFlag != CGBFlag::DMG) {
             logger.logError("Skipping boot ROM is not supported for CGB emulation. See README.md.");
@@ -36,13 +38,13 @@ void BOOT::ROM::initialize(bool skip, Core::ROM::CGBFlag cgbFlag) {
     std::filesystem::path bootROMFilePath;
     switch (cgbFlag) {
     case Core::ROM::CGBFlag::DMG :
-        bootROMFilePath = DEFAULT_DMG_BOOT_ROM_FILE_PATH;
+        bootROMFilePath = configurationManager->DMGBootstrapROM();
         break;
     case Core::ROM::CGBFlag::DMG_CGB:
-        bootROMFilePath = DEFAULT_CGB_BOOT_ROM_FILE_PATH;
+        bootROMFilePath = configurationManager->CGBBootstrapROM();
         break;
     case Core::ROM::CGBFlag::CGB:
-        bootROMFilePath = DEFAULT_CGB_BOOT_ROM_FILE_PATH;
+        bootROMFilePath = configurationManager->CGBBootstrapROM();
         break;
     }
     if (!std::filesystem::exists(bootROMFilePath)) {

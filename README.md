@@ -43,6 +43,8 @@ A `shinobu.yaml` file will be generated to further configure the emulator option
 audio:
   mute: false
 emulation:
+  CGBBootstrapROM: CGB_ROM.BIN # Relative path to CGB bootstrap ROM file, required
+  DMGBootstrapROM: DMG_ROM.BIN # Relative path to DMG bootstrap ROM file, optional
   overrideCGB: false # Use DMG emulation whenever possible
   windowLineCounter: true # See know issues section for a detailed explanation of this
 frontend:
