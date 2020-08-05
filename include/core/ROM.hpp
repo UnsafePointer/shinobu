@@ -121,7 +121,17 @@ namespace Core {
 
             Title() : _value() {}
 
-            CGBFlag cgbFlag() const { return CGBFlag(_cgbFlag); }
+            CGBFlag cgbFlag() const {
+                switch (_cgbFlag) {
+                case CGBFlag::DMG:
+                    return CGBFlag::DMG;
+                case CGBFlag::DMG_CGB:
+                    return CGBFlag::DMG_CGB;
+                case CGBFlag::CGB:
+                    return CGBFlag::CGB;
+                }
+                return CGBFlag::DMG;
+            }
         };
 
         enum DestinationCode : uint8_t {
