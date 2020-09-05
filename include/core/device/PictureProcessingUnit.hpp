@@ -259,6 +259,7 @@ namespace Core {
                 OBPI _OBPI;
 
                 bool emulateWindowLineCounter;
+                bool correctColors;
 
                 uint16_t physicalAddressForAddress(uint16_t address) const;
 
@@ -281,7 +282,7 @@ namespace Core {
 
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundTileByIndex(uint16_t index, BackgroundMapAttributes attributes) const;
             public:
-                Processor(Common::Logs::Level logLevel, bool emulateWindowLineCounter, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector, std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController);
+                Processor(Common::Logs::Level logLevel, bool emulateWindowLineCounter, bool correctColors, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector, std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController);
                 ~Processor();
 
                 void setRenderer(Shinobu::Frontend::Renderer *renderer);

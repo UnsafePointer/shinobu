@@ -122,6 +122,10 @@ std::string Configuration::Manager::CGBBootstrapROM() const {
     return cgbBootstrapROM;
 }
 
+bool Configuration::Manager::shouldCorrectColors() const {
+    return colorCorrection;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -145,6 +149,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     emulationConfiguration["windowLineCounter"] = "true";
     emulationConfiguration["CGBBootstrapROM"] = "CGB_ROM.BIN";
     emulationConfiguration["DMGBootstrapROM"] = "DMG_ROM.BIN";
+    emulationConfiguration["colorCorrection"] = "true";
     Yaml::Node logConfiguration = Yaml::Node();
     Yaml::Node &logConfigurationRef = logConfiguration;
     logConfigurationRef["CPU"] = "NOLOG";
@@ -193,5 +198,6 @@ void Configuration::Manager::loadConfiguration() {
     windowLineCounter = configuration["emulation"]["windowLineCounter"].As<bool>();
     dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();
+    colorCorrection = configuration["emulation"]["colorCorrection"].As<bool>();
     std::filesystem::remove(Common::Logs::filePath);
 }

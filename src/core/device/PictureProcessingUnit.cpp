@@ -12,6 +12,7 @@ using namespace Shinobu::Frontend::Palette;
 
 Processor::Processor(Common::Logs::Level logLevel,
                      bool emulateWindowLineCounter,
+                     bool correctColors,
                      std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                      std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector,
                      std::unique_ptr<Core::Device::DirectMemoryAccess::Controller> &DMAController) : logger(logLevel, "  [PPU]: "),
@@ -45,7 +46,8 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      _BGPI(),
                                                                                                      objectPaletteData(),
                                                                                                      _OBPI(),
-                                                                                                     emulateWindowLineCounter(emulateWindowLineCounter) {
+                                                                                                     emulateWindowLineCounter(emulateWindowLineCounter),
+                                                                                                     correctColors(correctColors) {
 
 }
 
@@ -476,7 +478,19 @@ Shinobu::Frontend::Palette::palette Processor::cgbPaletteAtIndex(uint8_t index, 
         uint8_t low = paletteDataSource[offset + (i * 2)];
         uint8_t high = paletteDataSource[offset + (i * 2) + 1];
         PaletteData paletteData = PaletteData(low, high);
-        Shinobu::Frontend::OpenGL::Color color = { paletteData.red / 32.0f, paletteData.green / 32.0f, paletteData.blue / 32.0f };
+        Shinobu::Frontend::OpenGL::Color color;
+        if (correctColors) {
+            // Taken from: https://byuu.net/video/color-emulation/
+            int r = (paletteData.red * 26 + paletteData.green *  4 + paletteData.blue *  2);
+            int g = (                       paletteData.green * 24 + paletteData.blue *  8);
+            int b = (paletteData.red *  6 + paletteData.green *  4 + paletteData.blue * 22);
+            r = std::min(960, r) >> 2;
+            g = std::min(960, g) >> 2;
+            b = std::min(960, b) >> 2;
+            color = { (float)r / 256.0f, (float)g / 256.0f, (float)b / 256.0f };
+        } else {
+            color = { paletteData.red / 32.0f, paletteData.green / 32.0f, paletteData.blue / 32.0f };
+        }
         palette[i] = color;
     }
     return palette;
