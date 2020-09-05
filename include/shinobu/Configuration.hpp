@@ -33,6 +33,7 @@ namespace Shinobu {
             bool windowLineCounter;
             std::string dmgBootstrapROM;
             std::string cgbBootstrapROM;
+            bool colorCorrection;
 
             Manager();
         public:
@@ -59,6 +60,7 @@ namespace Shinobu {
             bool shouldEmulateWindowLineCounter() const;
             std::string DMGBootstrapROM() const;
             std::string CGBBootstrapROM() const;
+            bool shouldCorrectColors() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
