@@ -33,6 +33,7 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      windowYPosition(),
                                                                                                      windowXPosition(),
                                                                                                      windowLineCounter(),
+                                                                                                     windowYPositionTrigger(),
                                                                                                      steps(),
                                                                                                      interruptConditions(),
                                                                                                      renderer(nullptr),
@@ -222,6 +223,7 @@ void Processor::step(uint8_t cycles) {
             renderer->update();
             scanlines.clear();
             windowLineCounter = 0;
+            windowYPositionTrigger = false;
         }
         if (LY >= TotalScanlines) {
             LY = 0;
@@ -401,7 +403,7 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
         currentWindowY = LY - windowYPosition;
     }
     if (control.windowDisplayEnable) {
-        if (LY >= windowYPosition && screenPositionX >= windowXPosition.position()) {
+        if (windowYPositionTrigger && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
             tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + (currentWindowY / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             drawWindow = true;
@@ -662,6 +664,9 @@ void Processor::CGB_renderScanline() {
 }
 
 void Processor::renderScanline() {
+    if (LY == windowYPosition) {
+        windowYPositionTrigger = true;
+    }
     if (cgbFlag != Core::ROM::CGBFlag::DMG) {
         CGB_renderScanline();
     } else {

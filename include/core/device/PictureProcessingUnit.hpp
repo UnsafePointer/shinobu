@@ -240,6 +240,7 @@ namespace Core {
                 uint8_t windowYPosition;
                 WindowXPosition windowXPosition;
                 uint8_t windowLineCounter;
+                bool windowYPositionTrigger;
                 uint32_t steps;
                 uint8_t interruptConditions;
 
