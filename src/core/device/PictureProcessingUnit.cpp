@@ -11,7 +11,6 @@ using namespace Core::Device::PictureProcessingUnit;
 using namespace Shinobu::Frontend::Palette;
 
 Processor::Processor(Common::Logs::Level logLevel,
-                     bool emulateWindowLineCounter,
                      bool correctColors,
                      std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                      std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector,
@@ -33,6 +32,7 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      windowYPosition(),
                                                                                                      windowXPosition(),
                                                                                                      windowLineCounter(),
+                                                                                                     windowYPositionTrigger(),
                                                                                                      steps(),
                                                                                                      interruptConditions(),
                                                                                                      renderer(nullptr),
@@ -46,7 +46,6 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      _BGPI(),
                                                                                                      objectPaletteData(),
                                                                                                      _OBPI(),
-                                                                                                     emulateWindowLineCounter(emulateWindowLineCounter),
                                                                                                      correctColors(correctColors) {
 
 }
@@ -222,6 +221,7 @@ void Processor::step(uint8_t cycles) {
             renderer->update();
             scanlines.clear();
             windowLineCounter = 0;
+            windowYPositionTrigger = false;
         }
         if (LY >= TotalScanlines) {
             LY = 0;
@@ -397,11 +397,8 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     uint16_t tileIndexInMap = (screenPositionXWithScroll / VRAMTileDataSide) + (screenPositionYWithScroll / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
     uint32_t addressStart = backgroundMapAddressStart;
     uint8_t currentWindowY = windowLineCounter;
-    if (!emulateWindowLineCounter) {
-        currentWindowY = LY - windowYPosition;
-    }
     if (control.windowDisplayEnable) {
-        if (LY >= windowYPosition && screenPositionX >= windowXPosition.position()) {
+        if (windowYPositionTrigger && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
             tileIndexInMap = ((screenPositionX - windowXPosition.position()) / VRAMTileDataSide) + (currentWindowY / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
             drawWindow = true;
@@ -662,6 +659,9 @@ void Processor::CGB_renderScanline() {
 }
 
 void Processor::renderScanline() {
+    if (LY == windowYPosition) {
+        windowYPositionTrigger = true;
+    }
     if (cgbFlag != Core::ROM::CGBFlag::DMG) {
         CGB_renderScanline();
     } else {

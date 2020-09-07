@@ -30,7 +30,6 @@ namespace Shinobu {
             int scale;
             int palette;
             bool overrideCGBFlag;
-            bool windowLineCounter;
             std::string dmgBootstrapROM;
             std::string cgbBootstrapROM;
             bool colorCorrection;
@@ -57,7 +56,6 @@ namespace Shinobu {
             int overlayScale() const;
             int paletteIndex() const;
             bool shouldOverrideCGBFlag() const;
-            bool shouldEmulateWindowLineCounter() const;
             std::string DMGBootstrapROM() const;
             std::string CGBBootstrapROM() const;
             bool shouldCorrectColors() const;

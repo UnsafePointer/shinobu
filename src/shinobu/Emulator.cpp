@@ -31,7 +31,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), currentFrameCyc
 
     interrupt = std::make_unique<Core::Device::Interrupt::Controller>(configurationManager->interruptLogLevel());
     DMA = std::make_unique<Core::Device::DirectMemoryAccess::Controller>(configurationManager->DMALogLevel());
-    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), configurationManager->shouldEmulateWindowLineCounter(), configurationManager->shouldCorrectColors(), interrupt, paletteSelector, DMA);
+    PPU = std::make_unique<Core::Device::PictureProcessingUnit::Processor>(configurationManager->PPULogLevel(), configurationManager->shouldCorrectColors(), interrupt, paletteSelector, DMA);
 
     switch (frontend) {
     case Shinobu::Frontend::Kind::PPU:
