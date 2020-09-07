@@ -22,9 +22,9 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     scale(),
     palette(),
     overrideCGBFlag(),
-    windowLineCounter(true),
     dmgBootstrapROM(),
-    cgbBootstrapROM()
+    cgbBootstrapROM(),
+    colorCorrection(true)
 {
 
 }
@@ -110,10 +110,6 @@ bool Configuration::Manager::shouldOverrideCGBFlag() const {
     return overrideCGBFlag;
 }
 
-bool Configuration::Manager::shouldEmulateWindowLineCounter() const {
-    return windowLineCounter;
-}
-
 std::string Configuration::Manager::DMGBootstrapROM() const {
     return dmgBootstrapROM;
 }
@@ -146,7 +142,6 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node emulationConfiguration = Yaml::Node();
     Yaml::Node &emulationConfigurationRef = emulationConfiguration;
     emulationConfiguration["overrideCGB"] = "false";
-    emulationConfiguration["windowLineCounter"] = "true";
     emulationConfiguration["CGBBootstrapROM"] = "CGB_ROM.BIN";
     emulationConfiguration["DMGBootstrapROM"] = "DMG_ROM.BIN";
     emulationConfiguration["colorCorrection"] = "true";
@@ -195,7 +190,6 @@ void Configuration::Manager::loadConfiguration() {
     scale = configuration["video"]["overlayScale"].As<int>();
     palette = configuration["video"]["palette"].As<int>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
-    windowLineCounter = configuration["emulation"]["windowLineCounter"].As<bool>();
     dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();
     colorCorrection = configuration["emulation"]["colorCorrection"].As<bool>();

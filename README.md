@@ -45,8 +45,8 @@ audio:
 emulation:
   CGBBootstrapROM: CGB_ROM.BIN # Relative path to CGB bootstrap ROM file, required
   DMGBootstrapROM: DMG_ROM.BIN # Relative path to DMG bootstrap ROM file, optional
+  colorCorrection: true # Enable color correction
   overrideCGB: false # Use DMG emulation whenever possible
-  windowLineCounter: true # See know issues section for a detailed explanation of this
 frontend:
   kind: SDL # Default: SDL, Available: Perf (shows performance metrics), PPU (show VRAM state)
 log: # Logging configuration (log levels: NOLOG, MSG, WAR)
@@ -83,7 +83,6 @@ Gamepad support is implemented by [`SDL_GameController` API](https://wiki.libsdl
 * Scanline rendering: the PPU emulation is driven by a scanline renderer, LCD timing effects are not working and games like Prehistorik Man won't run correctly.
 * Cartridge supported: MBC1 (RAM+BATTERY), MBC3 (RAM+BATTERY+TIMER), MBC5 (RAM+BATTERY), everything else won't run at all.
 * Game Boy Color emulation **requires** a bootstrap ROM.
-* The OpenGL renderer can be slow in some integrated graphic cards.
 
 ## Acknowledgments
 

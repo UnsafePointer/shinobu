@@ -11,7 +11,6 @@ using namespace Core::Device::PictureProcessingUnit;
 using namespace Shinobu::Frontend::Palette;
 
 Processor::Processor(Common::Logs::Level logLevel,
-                     bool emulateWindowLineCounter,
                      bool correctColors,
                      std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt,
                      std::unique_ptr<Shinobu::Frontend::Palette::Selector> &paletteSelector,
@@ -47,7 +46,6 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      _BGPI(),
                                                                                                      objectPaletteData(),
                                                                                                      _OBPI(),
-                                                                                                     emulateWindowLineCounter(emulateWindowLineCounter),
                                                                                                      correctColors(correctColors) {
 
 }
@@ -399,9 +397,6 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     uint16_t tileIndexInMap = (screenPositionXWithScroll / VRAMTileDataSide) + (screenPositionYWithScroll / VRAMTileDataSide) * VRAMTileBackgroundMapSide;
     uint32_t addressStart = backgroundMapAddressStart;
     uint8_t currentWindowY = windowLineCounter;
-    if (!emulateWindowLineCounter) {
-        currentWindowY = LY - windowYPosition;
-    }
     if (control.windowDisplayEnable) {
         if (windowYPositionTrigger && screenPositionX >= windowXPosition.position()) {
             addressStart = windowMapAddressStart;
