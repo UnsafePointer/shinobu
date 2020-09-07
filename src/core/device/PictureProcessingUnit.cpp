@@ -184,6 +184,13 @@ void Processor::step(uint8_t cycles) {
             if (status.mode() != HBlank) {
                 status.setMode(HBlank);
                 DMAController->stepHBlank();
+                // We render the scanline as soon as we are out of TransferingData
+                // this is awful but until we have a pixel FIFO this is fixing
+                // the Oracle games windows so YOLO
+                if (LY <= 143) {
+                    logger.logMessage("Rendering scanline: %d", LY);
+                    renderScanline();
+                }
             }
             logger.logMessage("PPU in HBlank (Mode 0)");
             status.setMode(HBlank);
@@ -211,10 +218,6 @@ void Processor::step(uint8_t cycles) {
     }
 
     if (steps >= CyclesPerScanline) {
-        if (LY <= 143) {
-            logger.logMessage("Rendering scanline: %d", LY);
-            renderScanline();
-        }
         LY++;
         if (LY == 144) {
             interrupt->requestInterrupt(Interrupt::VBLANK);
