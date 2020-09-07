@@ -168,6 +168,9 @@ namespace Core {
 
             void open(std::filesystem::path &filePath);
             bool isOpen() const;
+            bool hasBattery() const;
+            bool hasRTC() const;
+            bool hasRAM() const;
             std::filesystem::path saveFilePath() const;
             std::filesystem::path disassemblyFilePath() const;
             uint8_t load(uint32_t address) const;

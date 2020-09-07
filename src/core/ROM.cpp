@@ -6,18 +6,6 @@
 
 using namespace Core::ROM;
 
-bool Core::ROM::cartridgeTypeHasRAM(Type type) {
-    if (type == MBC1_RAM         || type == MBC1_RAM_BATTERY  || type == MBC2_RAM ||
-        type == MBC2_RAM_BATTERY || type == ROM_RAM           || type == ROM_RAM_BATTERY ||
-        type == MMM01_RAM        || type == MMM01_RAM_BATTERY || type == MBC3_TIMER_RAM_BATTERY ||
-        type == MBC3_RAM         || type == MBC3_RAM_BATTERY  || type == MBC5_RAM ||
-        type == MBC5_RAM_BATTERY || type == MBC5_RUMBLE_RAM   || type == MBC5_RUMBLE_RAM_BATTERY ||
-        type == MBC7_SENSOR_RUMBLE_RAM_BATTERY || type == HUC1_RAM_BATTERY) {
-        return true;
-    }
-    return false;
-}
-
 BOOT::ROM::ROM(Common::Logs::Level logLevel) : logger(logLevel, "  [BOOTROM]: "), lockRegister(), data(), initialized(false) {
 
 }
@@ -152,6 +140,45 @@ bool Cartridge::isOpen() const {
     return !memory.empty();
 }
 
+bool Cartridge::hasBattery() const {
+    return header.cartridgeType == Core::ROM::Type::MBC1_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC2_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::ROM_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MMM01_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC3_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC3_TIMER_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC5_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC5_RUMBLE_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC7_SENSOR_RUMBLE_RAM_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::HUC1_RAM_BATTERY;
+}
+
+bool Cartridge::hasRTC() const {
+    return header.cartridgeType == Core::ROM::Type::MBC3_TIMER_BATTERY ||
+        header.cartridgeType == Core::ROM::Type::MBC3_TIMER_RAM_BATTERY;
+}
+
+bool Cartridge::hasRAM() const {
+    return header.cartridgeType == MBC1_RAM ||
+        header.cartridgeType == MBC1_RAM_BATTERY ||
+        header.cartridgeType == MBC2_RAM ||
+        header.cartridgeType == MBC2_RAM_BATTERY ||
+        header.cartridgeType == ROM_RAM ||
+        header.cartridgeType == ROM_RAM_BATTERY ||
+        header.cartridgeType == MMM01_RAM ||
+        header.cartridgeType == MMM01_RAM_BATTERY ||
+        header.cartridgeType == MBC3_TIMER_RAM_BATTERY ||
+        header.cartridgeType == MBC3_RAM ||
+        header.cartridgeType == MBC3_RAM_BATTERY ||
+        header.cartridgeType == MBC5_RAM ||
+        header.cartridgeType == MBC5_RAM_BATTERY ||
+        header.cartridgeType == MBC5_RUMBLE_RAM  ||
+        header.cartridgeType == MBC5_RUMBLE_RAM_BATTERY ||
+        header.cartridgeType == MBC7_SENSOR_RUMBLE_RAM_BATTERY ||
+        header.cartridgeType == HUC1_RAM_BATTERY;
+}
+
 std::filesystem::path Cartridge::saveFilePath() const {
     return std::filesystem::path(filePath).replace_extension(".sav");
 }
@@ -171,7 +198,7 @@ uint8_t Cartridge::load(uint32_t address) const {
 uint32_t Cartridge::RAMSize() const {
     switch (header._RAMSize) {
     case RAMSize::Size::_0KB:
-        if (ROM::cartridgeTypeHasRAM(header.cartridgeType)) {
+        if (hasRAM()) {
             return 1024 * 8;
         }
         return 0;
