@@ -30,7 +30,14 @@ void Renderer::update() {
     }
 
     std::tie(width, height) = window->dimensions();
-    glViewport(0, 0, width, height);
+    auto viewport = window->fullscreenViewport();
+    if (viewport) {
+        GLint x, y;
+        std::tie(x, y, width, height) = *viewport;
+        glViewport(x, y, width, height);
+    } else {
+        glViewport(0, 0, width, height);
+    }
     texture->bind(GL_TEXTURE0);
     program->useProgram();
     std::vector<Shinobu::Frontend::OpenGL::Texel> data = {
