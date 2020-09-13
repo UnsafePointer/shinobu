@@ -13,6 +13,7 @@ namespace Shinobu {
             PPU = 1,
             SDL = 2,
             Perf = 3,
+            LCD = 4,
         };
         Kind kindWithValue(std::string value);
 

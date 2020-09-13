@@ -8,6 +8,7 @@
 #include "shinobu/frontend/sdl2/Error.hpp"
 #include "common/Performance.hpp"
 #include "shinobu/frontend/performance/Renderer.hpp"
+#include "shinobu/frontend/screen/Renderer.hpp"
 #include <stdexcept>
 
 using namespace Shinobu::Program;
@@ -42,6 +43,9 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), currentFrameCyc
         break;
     case Shinobu::Frontend::Kind::Perf:
         renderer = std::make_unique<Shinobu::Frontend::Performance::Renderer>(window, PPU);
+        break;
+    case Shinobu::Frontend::Kind::LCD:
+        renderer = std::make_unique<Shinobu::Frontend::Screen::Renderer>(window, PPU);
         break;
     case Shinobu::Frontend::Kind::Unknown:
         logger.logError("Unknown frontend configuration");
