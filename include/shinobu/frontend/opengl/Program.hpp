@@ -10,11 +10,12 @@ namespace Shinobu {
             class Program {
                 GLuint program;
 
-                std::string openShaderSource(std::filesystem::path filePath, GLenum shaderType) const;
-                GLuint compileShader(std::filesystem::path, GLenum shaderType) const;
+                std::string openShaderSource(std::filesystem::path filePath) const;
+                GLuint compileShader(std::string source, GLenum shaderType) const;
                 GLuint linkProgram(std::vector<GLuint> shaders) const;
             public:
                 Program(std::filesystem::path vertexShaderSrcPath, std::filesystem::path fragmentShaderSrcPath);
+                Program(std::string vertexShaderSrc, std::string fragmentShaderSrc);
                 ~Program();
 
                 void useProgram() const;

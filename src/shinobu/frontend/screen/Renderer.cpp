@@ -2,12 +2,13 @@
 #include "common/System.hpp"
 #include "core/device/PictureProcessingUnit.hpp"
 #include "shinobu/frontend/opengl/Framebuffer.hpp"
+#include "shinobu/frontend/opengl/Shaders.hpp"
 
 using namespace Shinobu::Frontend::Screen;
 
 Shinobu::Frontend::Screen::Renderer::Renderer(std::unique_ptr<Shinobu::Frontend::SDL2::Window> &window, std::unique_ptr<Core::Device::PictureProcessingUnit::Processor> &PPU) : Shinobu::Frontend::Renderer(window, PPU) {
     renderer = std::make_unique<Shinobu::Frontend::OpenGL::Renderer>(HorizontalResolution, VerticalResolution, 1);
-    program = std::make_unique<Shinobu::Frontend::OpenGL::Program>("glsl/screen_vertex.glsl", "glsl/screen_fragment.glsl");
+    program = std::make_unique<Shinobu::Frontend::OpenGL::Program>(Shinobu::Frontend::OpenGL::Shaders::screenVertex, Shinobu::Frontend::OpenGL::Shaders::screenFragment);
     texture = std::make_unique<Shinobu::Frontend::OpenGL::Texture>(HorizontalResolution, VerticalResolution);
     buffer = std::make_unique<Shinobu::Frontend::OpenGL::Buffer<Shinobu::Frontend::OpenGL::Texel>>(program, 4);
 }
