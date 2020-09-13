@@ -649,6 +649,11 @@ void MBC5::Controller::store(uint16_t address, uint8_t value) {
         _RAMB._value = value;
         return;
     }
+    offset = Unmapped.contains(address);
+    if (offset) {
+        logger.logWarning("Unhandled store at unmapped address: %04x with value: %02x", address, value);
+        return;
+    }
     offset = ExternalRAM.contains(address);
     if (offset) {
         if (RAMG == 0b00001010) {

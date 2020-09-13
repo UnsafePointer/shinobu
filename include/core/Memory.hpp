@@ -307,6 +307,7 @@ namespace Core {
             const Range ROMB0Range = Range(0x2000, 0x1000);
             const Range ROMB1Range = Range(0x3000, 0x1000);
             const Range RAMBRange = Range(0x4000, 0x2000);
+            const Range Unmapped = Range(0x6000, 0x2000);
 
             union ROMB1 {
                 uint8_t _value;
