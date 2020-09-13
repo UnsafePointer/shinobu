@@ -81,4 +81,16 @@ void Buffer<Vertex>::enableAttributes() const {
     glEnableVertexAttribArray(colorIdx);
 }
 
+template <>
+void Buffer<Texel>::enableAttributes() const {
+    GLuint positionIdx = program->findProgramAttribute("position");
+    glVertexAttribPointer(positionIdx, 2, GL_FLOAT, GL_FALSE, sizeof(Texel), (void*)offsetof(struct Texel, position));
+    glEnableVertexAttribArray(positionIdx);
+
+    GLuint texturePositionIdx = program->findProgramAttribute("texturePosition");
+    glVertexAttribPointer(texturePositionIdx, 2, GL_FLOAT, GL_FALSE, sizeof(Texel), (void*)offsetof(struct Texel, texturePosition));
+    glEnableVertexAttribArray(texturePositionIdx);
+}
+
 template class Buffer<Vertex>;
+template class Buffer<Texel>;
