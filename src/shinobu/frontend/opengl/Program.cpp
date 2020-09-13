@@ -1,13 +1,20 @@
 #include "shinobu/frontend/opengl/Program.hpp"
 #include <fstream>
 #include "shinobu/frontend/opengl/debug/Debugger.hpp"
-#include "shinobu/frontend/opengl/Shaders.hpp"
 
 using namespace Shinobu::Frontend::OpenGL;
 
 Program::Program(std::filesystem::path vertexShaderSrcPath, std::filesystem::path fragmentShaderSrcPath) {
-    GLuint vertexShader = compileShader(vertexShaderSrcPath, GL_VERTEX_SHADER);
-    GLuint fragmentShader = compileShader(fragmentShaderSrcPath, GL_FRAGMENT_SHADER);
+    GLuint vertexShader = compileShader(openShaderSource(vertexShaderSrcPath), GL_VERTEX_SHADER);
+    GLuint fragmentShader = compileShader(openShaderSource(fragmentShaderSrcPath), GL_FRAGMENT_SHADER);
+    program = linkProgram({vertexShader, fragmentShader});
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+}
+
+Program::Program(std::string vertexShaderSrc, std::string fragmentShaderSrc) {
+    GLuint vertexShader = compileShader(vertexShaderSrc, GL_VERTEX_SHADER);
+    GLuint fragmentShader = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
     program = linkProgram({vertexShader, fragmentShader});
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -21,14 +28,7 @@ void Program::useProgram() const {
     glUseProgram(program);
 }
 
-std::string Program::openShaderSource(std::filesystem::path filePath, GLenum shaderType) const {
-    if (!std::filesystem::exists(filePath)) {
-        if (shaderType == GL_VERTEX_SHADER) {
-            return Shinobu::Frontend::OpenGL::Shaders::vertex;
-        } else if (shaderType == GL_FRAGMENT_SHADER) {
-            return Shinobu::Frontend::OpenGL::Shaders::fragment;
-        }
-    }
+std::string Program::openShaderSource(std::filesystem::path filePath) const {
     std::ifstream file(filePath);
     std::string source;
 
@@ -40,8 +40,7 @@ std::string Program::openShaderSource(std::filesystem::path filePath, GLenum sha
     return source;
 }
 
-GLuint Program::compileShader(std::filesystem::path filePath, GLenum shaderType) const {
-    std::string source = openShaderSource(filePath, shaderType);
+GLuint Program::compileShader(std::string source, GLenum shaderType) const {
     GLuint shader = glCreateShader(shaderType);
     const GLchar *src = source.c_str();
     glShaderSource(shader, 1, &src, NULL);

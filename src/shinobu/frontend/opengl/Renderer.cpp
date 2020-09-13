@@ -1,11 +1,12 @@
 #include "shinobu/frontend/opengl/Renderer.hpp"
 #include "shinobu/frontend/opengl/debug/Debugger.hpp"
 #include "shinobu/frontend/opengl/Framebuffer.hpp"
+#include "shinobu/frontend/opengl/Shaders.hpp"
 
 using namespace Shinobu::Frontend::OpenGL;
 
 Renderer::Renderer(uint32_t width, uint32_t height, uint32_t scale) : mode(GL_TRIANGLES), width(width), height(height), scale(scale) {
-    program = std::make_unique<Program>("glsl/vertex.glsl", "glsl/fragment.glsl");
+    program = std::make_unique<Program>(Shaders::vertex, Shaders::fragment);
     program->useProgram();
 
     GLuint widthUniform = program->findProgramUniform("width");

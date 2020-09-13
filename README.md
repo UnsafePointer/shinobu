@@ -48,7 +48,7 @@ emulation:
   colorCorrection: true # Enable color correction
   overrideCGB: false # Use DMG emulation whenever possible
 frontend:
-  kind: SDL # Default: SDL, Available: Perf (shows performance metrics), PPU (show VRAM state)
+  kind: SDL # Default: SDL, Available: Perf (shows performance metrics), PPU (show VRAM state), LCD (emulate LCD "screen door" effect)
 log: # Logging configuration (log levels: NOLOG, MSG, WAR)
   CPU: NOLOG
   DMA: NOLOG

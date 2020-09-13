@@ -16,6 +16,11 @@ namespace Shinobu {
                 Point position;
                 Color color;
             };
+
+            struct Texel {
+                Point position;
+                Point texturePosition;
+            };
         };
     };
 };
