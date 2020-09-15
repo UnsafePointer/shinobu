@@ -10,29 +10,23 @@
 namespace Shinobu {
     namespace Frontend {
         namespace OpenGL {
-            class Renderer {
-                SDL_GLContext glContext;
-                SDL_Window *window;
-                GLenum mode;
-
+            class VertexRenderer {
                 uint32_t width;
                 uint32_t height;
-                uint32_t scale;
+                GLenum currentDrawMode;
 
                 std::unique_ptr<Program> program;
                 std::unique_ptr<Buffer<Vertex>> buffer;
 
-                std::array<Vertex, 6> verticesForPixel(Vertex pixel) const;
-
-                void checkForceDraw(uint32_t verticesToRender, GLenum mode);
+                void checkForceDraw(uint32_t verticesToRender, GLenum drawMode);
             public:
-                Renderer(uint32_t width, uint32_t height, uint32_t scale);
-                ~Renderer();
+                VertexRenderer(uint32_t width, uint32_t height);
+                ~VertexRenderer();
 
                 void clear() const;
-                void render();
-                void addPixels(std::vector<Vertex> pixels);
-                void addViewPort(std::vector<Vertex> vertices);
+                void render() const;
+                void addLines(std::vector<Vertex> vertices);
+                void toggleApplyScale();
             };
         };
     };

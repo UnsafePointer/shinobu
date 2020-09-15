@@ -7,6 +7,10 @@ TextureArray::TextureArray(unsigned int capacity, GLsizei width, GLsizei height)
         GLuint object;
         glGenTextures(1, &object);
         glBindTexture(GL_TEXTURE_2D, object);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB5_A1, width, height);
         textures.push_back(object);
     }

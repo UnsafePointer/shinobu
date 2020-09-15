@@ -48,7 +48,7 @@ emulation:
   colorCorrection: true # Enable color correction
   overrideCGB: false # Use DMG emulation whenever possible
 frontend:
-  kind: SDL # Default: SDL, Available: Perf (shows performance metrics), PPU (show VRAM state), LCD (emulate LCD "screen door" effect)
+  kind: SDL # Default: SDL, Available: PPU (show VRAM state)
 log: # Logging configuration (log levels: NOLOG, MSG, WAR)
   CPU: NOLOG
   DMA: NOLOG
@@ -64,8 +64,9 @@ log: # Logging configuration (log levels: NOLOG, MSG, WAR)
   timer: NOLOG
 video:
   fullscreen: false # Desktop fullscreen startup
-  overlayScale: 1 # Increase this if the frontend overlay is too small
+  overlayScale: 0 # Enable overlay with 1 and increase this if it's is too small
   palette: 0 # Select a custom palette for DMG emulation (10 available)
+  screenDoorEffect: false # Emulate Game Boy LCD screen door effect
 ```
 
 ### Keybindings

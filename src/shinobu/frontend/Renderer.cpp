@@ -7,10 +7,6 @@ Kind Shinobu::Frontend::kindWithValue(std::string value) {
         return Kind::PPU;
     } else if (value.compare("SDL") == 0) {
         return Kind::SDL;
-    } else if (value.compare("Perf") == 0) {
-        return Kind::Perf;
-    } else if (value.compare("LCD") == 0) {
-        return Kind::LCD;
     }
     return Kind::Unknown;
 }

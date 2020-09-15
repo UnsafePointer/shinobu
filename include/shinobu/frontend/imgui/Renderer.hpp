@@ -3,7 +3,8 @@
 #include <imgui/imgui.h>
 #include "shinobu/frontend/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Window.hpp"
-#include "shinobu/frontend/opengl/Renderer.hpp"
+#include "shinobu/frontend/opengl/VertexRenderer.hpp"
+#include "shinobu/frontend/opengl/Texture.hpp"
 #include "shinobu/frontend/opengl/TextureArray.hpp"
 
 namespace Core::Device::PictureProcessingUnit {
@@ -14,13 +15,10 @@ namespace Shinobu {
     namespace Frontend {
         namespace Imgui {
             class Renderer : public Shinobu::Frontend::Renderer {
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> tileDataRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> backgroundMapRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> LCDOutputRenderer;
-                std::unique_ptr<Shinobu::Frontend::OpenGL::Renderer> spriteRenderer;
                 ImGuiIO *io;
                 ImVec4 backgroundColor;
 
+                Shinobu::Frontend::OpenGL::VertexRenderer backgroundViewportRenderer;
                 Shinobu::Frontend::OpenGL::Texture backgroundMapTexture;
                 Shinobu::Frontend::OpenGL::Texture tileDataTexture;
                 Shinobu::Frontend::OpenGL::Texture LCDOutputTexture;

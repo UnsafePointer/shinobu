@@ -33,13 +33,15 @@ namespace Shinobu {
                 "}\n"
                 "\n";
 
-                const std::string screenFragment = "\n"
+                const std::string textureFragment = "\n"
                 "#version 330 core\n"
                 "out vec4 FragColor;\n"
                 "\n"
                 "in vec2 fragmentTexturePosition;\n"
                 "\n"
-                "uniform sampler2D screenTexture;\n"
+                "uniform sampler2D textureToSample;\n"
+                "\n"
+                "uniform int applyScale;"
                 "\n"
                 "#define COLOR_LOW 0.8\n"
                 "#define COLOR_HIGH 1.0\n"
@@ -111,12 +113,16 @@ namespace Shinobu {
                 "}\n"
                 "\n"
                 "void main() {\n"
-                "    vec2 input_resolution = textureSize(screenTexture, 0);\n"
-                "    FragColor = scale(screenTexture, fragmentTexturePosition, input_resolution);\n"
+                "    if (applyScale == 1) {\n"
+                "        vec2 input_resolution = textureSize(textureToSample, 0);\n"
+                "        FragColor = scale(textureToSample, fragmentTexturePosition, input_resolution);\n"
+                "    } else {\n"
+                "        FragColor = texture(textureToSample, fragmentTexturePosition);\n"
+                "    }\n"
                 "}\n"
                 "\n";
 
-                const std::string screenVertex = "\n"
+                const std::string textureVertex = "\n"
                 "#version 330 core\n"
                 "in vec2 position;\n"
                 "in vec2 texturePosition;\n"
@@ -125,7 +131,7 @@ namespace Shinobu {
                 "\n"
                 "void main() {\n"
                 "    gl_Position = vec4(position.x, position.y, 0.0, 1.0);\n"
-                "    fragmentTexturePosition = vec2(texturePosition.x, 1.0 - texturePosition.y);\n"
+                "    fragmentTexturePosition = texturePosition;\n"
                 "}\n"
                 "\n";
             };

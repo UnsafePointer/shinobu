@@ -7,8 +7,7 @@
 #include "shinobu/frontend/sdl2/Renderer.hpp"
 #include "shinobu/frontend/sdl2/Error.hpp"
 #include "common/Performance.hpp"
-#include "shinobu/frontend/performance/Renderer.hpp"
-#include "shinobu/frontend/screen/Renderer.hpp"
+#include "shinobu/frontend/sdl2/Renderer.hpp"
 #include <stdexcept>
 
 using namespace Shinobu::Program;
@@ -40,12 +39,6 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), currentFrameCyc
         break;
     case Shinobu::Frontend::Kind::SDL:
         renderer = std::make_unique<Shinobu::Frontend::SDL2::Renderer>(window, PPU);
-        break;
-    case Shinobu::Frontend::Kind::Perf:
-        renderer = std::make_unique<Shinobu::Frontend::Performance::Renderer>(window, PPU);
-        break;
-    case Shinobu::Frontend::Kind::LCD:
-        renderer = std::make_unique<Shinobu::Frontend::Screen::Renderer>(window, PPU);
         break;
     case Shinobu::Frontend::Kind::Unknown:
         logger.logError("Unknown frontend configuration");
@@ -106,8 +99,8 @@ void Emulator::updateCurrentFrameCycles(uint8_t cycles) {
         float averageFrameTime = (float)frameTimes / 60.0f;
         Common::Performance::Frame frame = { averageFrameTime, (float)frameTimes };
         window->updateWindowTitleWithFramePerformance(frame);
-        if (renderer->frontendKind() == Shinobu::Frontend::Kind::Perf) {
-            dynamic_cast<Shinobu::Frontend::Performance::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
+        if (renderer->frontendKind() == Shinobu::Frontend::Kind::SDL) {
+            dynamic_cast<Shinobu::Frontend::SDL2::Renderer*>(renderer.get())->setLastPerformanceFrame(frame);
         }
         frameTimes = 0;
     }
