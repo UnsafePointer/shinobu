@@ -8,6 +8,7 @@
 #include "shinobu/frontend/Palette.hpp"
 #include "core/ROM.hpp"
 #include "core/device/DirectMemoryAccess.hpp"
+#include "common/System.hpp"
 
 namespace Shinobu {
     class Emulator;
@@ -245,7 +246,7 @@ namespace Core {
                 uint8_t interruptConditions;
 
                 Shinobu::Frontend::Renderer *renderer;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> scanlines;
+                std::vector<GLfloat> lcdData;
 
                 Core::Memory::Controller *memoryController;
                 uint8_t DMA;
@@ -265,9 +266,9 @@ namespace Core {
 
                 std::array<uint8_t, 8> getTileRowPixelsColorIndicesWithData(uint8_t lower, uint8_t upper) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileByIndex(uint16_t index, uint8_t bank, Shinobu::Frontend::Palette::palette paletteColors) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position) const;
+                void translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY, std::vector<GLfloat>& data) const;
+                void translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY, std::vector<GLfloat>& data) const;
+                void translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position, std::vector<GLfloat>& data) const;
 
                 std::vector<Sprite> getSpriteData() const;
                 void renderScanline();
@@ -276,7 +277,7 @@ namespace Core {
                 void CGB_renderScanline();
                 uint8_t getColorIndexForSpriteAtScreenHorizontalPosition(Sprite sprite, uint16_t screenPositionX) const;
                 std::pair<uint8_t, BackgroundMapAttributes> getColorIndexForBackgroundAtScreenHorizontalPosition(uint16_t screenPositionX) const;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines() const;
+                std::vector<GLfloat> blankLCDData() const;
 
                 Shinobu::Frontend::Palette::palette cgbPaletteAtIndex(uint8_t index, bool isBackground) const;
 
@@ -300,11 +301,11 @@ namespace Core {
                 uint8_t colorPaletteLoad(uint16_t offset) const;
                 void colorPaletteStore(uint16_t offset, uint8_t value);
                 void step(uint8_t cycles);
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getTileDataPixels(uint8_t bank) const;
-                std::vector<Shinobu::Frontend::OpenGL::Vertex> getBackgroundMap(BackgroundType type) const;
+                std::vector<GLfloat> getTileData(uint8_t bank) const;
+                std::vector<GLfloat> getBackgroundMapData(BackgroundType type) const;
                 std::vector<Shinobu::Frontend::OpenGL::Vertex> getScrollingViewPort() const;
-                std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> getLCDOutput();
-                std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> getSpriteAtIndex(uint8_t index) const;
+                std::vector<GLfloat> getLCDData();
+                std::pair<Sprite, std::vector<GLfloat>> getSpriteAtIndex(uint8_t index) const;
                 uint8_t VRAMBank() const;
             };
         };

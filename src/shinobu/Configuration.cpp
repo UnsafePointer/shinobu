@@ -122,6 +122,10 @@ bool Configuration::Manager::shouldCorrectColors() const {
     return colorCorrection;
 }
 
+bool Configuration::Manager::shouldEmulateScreenDoorEffect() const {
+    return screenDoorEffect;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -131,8 +135,9 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node videoConfiguration = Yaml::Node();
     Yaml::Node &videoConfigurationRef = videoConfiguration;
     videoConfigurationRef["fullscreen"] = "false";
-    videoConfigurationRef["overlayScale"] = "1";
+    videoConfigurationRef["overlayScale"] = "0";
     videoConfigurationRef["palette"] = "0";
+    videoConfigurationRef["screenDoorEffect"] = "false";
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
@@ -189,6 +194,7 @@ void Configuration::Manager::loadConfiguration() {
     launchFullscreen = configuration["video"]["fullscreen"].As<bool>();
     scale = configuration["video"]["overlayScale"].As<int>();
     palette = configuration["video"]["palette"].As<int>();
+    screenDoorEffect = configuration["video"]["screenDoorEffect"].As<bool>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
     dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();

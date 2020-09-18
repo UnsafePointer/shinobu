@@ -33,6 +33,7 @@ namespace Shinobu {
             std::string dmgBootstrapROM;
             std::string cgbBootstrapROM;
             bool colorCorrection;
+            bool screenDoorEffect;
 
             Manager();
         public:
@@ -59,6 +60,7 @@ namespace Shinobu {
             std::string DMGBootstrapROM() const;
             std::string CGBBootstrapROM() const;
             bool shouldCorrectColors() const;
+            bool shouldEmulateScreenDoorEffect() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

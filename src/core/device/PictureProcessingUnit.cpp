@@ -36,7 +36,7 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      steps(),
                                                                                                      interruptConditions(),
                                                                                                      renderer(nullptr),
-                                                                                                     scanlines(),
+                                                                                                     lcdData(),
                                                                                                      memoryController(nullptr),
                                                                                                      DMA(),
                                                                                                      shouldNextFrameBeBlank(),
@@ -47,7 +47,7 @@ Processor::Processor(Common::Logs::Level logLevel,
                                                                                                      objectPaletteData(),
                                                                                                      _OBPI(),
                                                                                                      correctColors(correctColors) {
-
+                                                                                                         lcdData.resize(HorizontalResolution * VerticalResolution * 3);
 }
 
 Processor::~Processor() {
@@ -222,7 +222,7 @@ void Processor::step(uint8_t cycles) {
         if (LY == 144) {
             interrupt->requestInterrupt(Interrupt::VBLANK);
             renderer->update();
-            scanlines.clear();
+            std::fill_n(lcdData.begin(), HorizontalResolution * VerticalResolution * 3, 0.0f);
             windowLineCounter = 0;
             windowYPositionTrigger = false;
         }
@@ -452,19 +452,20 @@ std::pair<uint8_t, BackgroundMapAttributes> Processor::getColorIndexForBackgroun
     return {colorData[colorDataIndex], attributes};
 }
 
-std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::blankScanlines() const {
-    std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> blankScanlines = {};
+std::vector<GLfloat> Processor::blankLCDData() const {
+    std::vector<GLfloat> blankLCDData = {};
+    blankLCDData.resize(HorizontalResolution * VerticalResolution * 3);
     Shinobu::Frontend::OpenGL::Color blankColor = paletteSelector->currentSelection()[0];
     for (int j = 0; j < 144; j++) {
         std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
         for (int i = 0; i < HorizontalResolution; i++) {
             Shinobu::Frontend::OpenGL::Color color = blankColor;
-            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)j }, color};
-            scanline.push_back(vertex);
+            blankLCDData[i * 3 + 0 + j * HorizontalResolution * 3] = color.r;
+            blankLCDData[i * 3 + 1 + j * HorizontalResolution * 3] = color.g;
+            blankLCDData[i * 3 + 2 + j * HorizontalResolution * 3] = color.b;
         }
-        blankScanlines.push_back(scanline);
     }
-    return blankScanlines;
+    return blankLCDData;
 }
 
 Shinobu::Frontend::Palette::palette Processor::cgbPaletteAtIndex(uint8_t index, bool isBackground) const {
@@ -526,7 +527,6 @@ std::vector<Sprite> Processor::getVisibleSprites() const {
 }
 
 void Processor::DMG_renderScanline() {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     const std::vector<Sprite> visibleSprites = getVisibleSprites();
     const palette colors = paletteSelector->currentSelection();
     const palette backgroundPaletteColors = { colors[backgroundPalette.color0], colors[backgroundPalette.color1], colors[backgroundPalette.color2], colors[backgroundPalette.color3] };
@@ -541,8 +541,10 @@ void Processor::DMG_renderScanline() {
         }
         std::sort(spritesToDraw.begin(), spritesToDraw.end(), DMG_compareSpritesByPriority);
         if (!control.background_WindowDisplayEnable && spritesToDraw.empty()) {
-            Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, colors[0]};
-            scanline.push_back(vertex);
+            Shinobu::Frontend::OpenGL::Color blankColor = colors[0];
+            lcdData[i * 3 + 0 + LY * HorizontalResolution * 3] = blankColor.r;
+            lcdData[i * 3 + 1 + LY * HorizontalResolution * 3] = blankColor.g;
+            lcdData[i * 3 + 2 + LY * HorizontalResolution * 3] = blankColor.b;
             continue;
         }
         Shinobu::Frontend::OpenGL::Color color;
@@ -585,17 +587,16 @@ void Processor::DMG_renderScanline() {
                 }
             }
         }
-        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
-        scanline.push_back(vertex);
+        lcdData[i * 3 + 0 + LY * HorizontalResolution * 3] = color.r;
+        lcdData[i * 3 + 1 + LY * HorizontalResolution * 3] = color.g;
+        lcdData[i * 3 + 2 + LY * HorizontalResolution * 3] = color.b;
     }
     if (control.windowDisplayEnable && LY >= windowYPosition && windowXPosition.position() <= 160) {
         windowLineCounter++;
     }
-    scanlines.push_back(scanline);
 }
 
 void Processor::CGB_renderScanline() {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> scanline = {};
     const std::vector<Sprite> visibleSprites = getVisibleSprites();
     for (int i = 0; i < HorizontalResolution; i++) {
         std::vector<Sprite> spritesToDraw = {};
@@ -652,13 +653,13 @@ void Processor::CGB_renderScanline() {
                 }
             }
         }
-        Shinobu::Frontend::OpenGL::Vertex vertex = { { (GLfloat)i, (GLfloat)(VerticalResolution - 1 - LY) }, color};
-        scanline.push_back(vertex);
+        lcdData[i * 3 + 0 + LY * HorizontalResolution * 3] = color.r;
+        lcdData[i * 3 + 1 + LY * HorizontalResolution * 3] = color.g;
+        lcdData[i * 3 + 2 + LY * HorizontalResolution * 3] = color.b;
     }
     if (control.windowDisplayEnable && LY >= windowYPosition && windowXPosition.position() <= 160) {
         windowLineCounter++;
     }
-    scanlines.push_back(scanline);
 }
 
 void Processor::renderScanline() {
@@ -740,55 +741,53 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileByIndex(uint16_
     return tile;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const {
+void Processor::translateTileOwnCoordinatesToTileDataViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY, std::vector<GLfloat>& data) const {
+    for (const auto& tilePixel : tile) {
+        uint16_t x = tilePixel.position.x + (tileX * VRAMTileDataSide);
+        uint16_t y = tilePixel.position.y + (tileY * VRAMTileDataSide);
+        data[x * 3 + 0 + y * VRAMTileDataSide * VRAMTileDataViewerWidth * 3] = tilePixel.color.r;
+        data[x * 3 + 1 + y * VRAMTileDataSide * VRAMTileDataViewerWidth * 3] = tilePixel.color.g;
+        data[x * 3 + 2 + y * VRAMTileDataSide * VRAMTileDataViewerWidth * 3] = tilePixel.color.b;
+    }
+}
+
+void Processor::translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY, std::vector<GLfloat>& data) const {
     std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
     for (const auto& tilePixel : tile) {
         uint16_t x = tilePixel.position.x + (tileX * VRAMTileDataSide);
         uint16_t y = tilePixel.position.y + (tileY * VRAMTileDataSide);
-        Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
-        pixels.push_back(pixel);
+        data[x * 3 + 0 + y * VRAMTileDataSide * VRAMTileBackgroundMapSide * 3] = tilePixel.color.r;
+        data[x * 3 + 1 + y * VRAMTileDataSide * VRAMTileBackgroundMapSide * 3] = tilePixel.color.g;
+        data[x * 3 + 2 + y * VRAMTileDataSide * VRAMTileBackgroundMapSide * 3] = tilePixel.color.b;
     }
-    return pixels;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, uint16_t tileX, uint16_t tileY) const {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
-    for (const auto& tilePixel : tile) {
-        uint16_t x = tilePixel.position.x + (tileX * VRAMTileDataSide);
-        uint16_t y = tilePixel.position.y + (tileY * VRAMTileDataSide);
-        Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
-        pixels.push_back(pixel);
-    }
-    return pixels;
-}
-
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position) const {
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+void Processor::translateSpriteOwnCoordinatesToSpriteViewerCoordinates(std::vector<Shinobu::Frontend::OpenGL::Vertex> tile, SpriteTilePositionInViewer position, std::vector<GLfloat>& data) const {
     for (const auto& tilePixel : tile) {
         uint16_t x = tilePixel.position.x;
         uint16_t y = tilePixel.position.y + position;
-        Shinobu::Frontend::OpenGL::Vertex pixel = { { (GLfloat)x, (GLfloat)y }, tilePixel.color };
-        pixels.push_back(pixel);
+        data[x * 3 + 0 + y * VRAMTileDataSide * 3] = tilePixel.color.r;
+        data[x * 3 + 1 + y * VRAMTileDataSide * 3] = tilePixel.color.g;
+        data[x * 3 + 2 + y * VRAMTileDataSide * 3] = tilePixel.color.b;
     }
-    return pixels;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getTileDataPixels(uint8_t bank) const {
+std::vector<GLfloat> Processor::getTileData(uint8_t bank) const {
     const palette colors = paletteSelector->currentSelection();
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    std::vector<GLfloat> data = {};
+    data.resize(VRAMTileDataSide * VRAMTileDataSide * VRAMTileDataViewerHeight * VRAMTileDataViewerWidth * 3);
     uint16_t index = 0;
     for (int y = (VRAMTileDataViewerHeight - 1); y >= 0; y--) {
         for (int x = 0; x < VRAMTileDataViewerWidth; x++) {
             std::vector<Shinobu::Frontend::OpenGL::Vertex> tile = getTileByIndex(index, bank, colors);
-            tile = translateTileOwnCoordinatesToTileDataViewerCoordinates(tile, x, y);
-            pixels.insert(pixels.end(), tile.begin(), tile.end());
+            translateTileOwnCoordinatesToTileDataViewerCoordinates(tile, x, y, data);
             index++;
         }
     }
-    return pixels;
+    return data;
 }
 
-std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap(BackgroundType type) const {
+std::vector<GLfloat> Processor::getBackgroundMapData(BackgroundType type) const {
     Background_WindowTileMapLocation location;
     if (type == BackgroundType::Normal) {
         location = control.backgroundTileMapDisplaySelect();
@@ -804,7 +803,8 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap(Backg
         backgroundMapAddressStart = 0x9C00 - 0x8000;
         break;
     }
-    std::vector<Shinobu::Frontend::OpenGL::Vertex> pixels = {};
+    std::vector<GLfloat> data = {};
+    data.resize(VRAMTileDataSide * VRAMTileDataSide * VRAMTileBackgroundMapSide * VRAMTileBackgroundMapSide * 3);
     Background_WindowTileDataLocation tileDataLocation = control.background_WindowTileDataSelect();
     uint16_t index = 0;
     for (int y = (VRAMTileBackgroundMapSide - 1); y >= 0; y--) {
@@ -823,12 +823,11 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getBackgroundMap(Backg
                 int8_t tileIndex = memory[backgroundMapAddressStart + index];
                 tile = getBackgroundTileByIndex(256 + tileIndex, attributes);
             }
-            tile = translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(tile, x, y);
-            pixels.insert(pixels.end(), tile.begin(), tile.end());
+            translateTileOwnCoordinatesToBackgroundMapViewerCoordinates(tile, x, y, data);
             index++;
         }
     }
-    return pixels;
+    return data;
 }
 
 std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort() const {
@@ -889,13 +888,13 @@ std::vector<Shinobu::Frontend::OpenGL::Vertex> Processor::getScrollingViewPort()
     return viewPort;
 }
 
-std::vector<std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getLCDOutput() {
+std::vector<GLfloat> Processor::getLCDData() {
     if (shouldNextFrameBeBlank) {
         shouldNextFrameBeBlank = false;
         logger.logWarning("Rendering blank frame");
-        return blankScanlines();
+        return blankLCDData();
     }
-    return scanlines;
+    return lcdData;
 }
 
 std::vector<Sprite> Processor::getSpriteData() const {
@@ -908,7 +907,7 @@ std::vector<Sprite> Processor::getSpriteData() const {
     return sprites;
 }
 
-std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::getSpriteAtIndex(uint8_t index) const {
+std::pair<Sprite, std::vector<GLfloat>> Processor::getSpriteAtIndex(uint8_t index) const {
     uint16_t offset = index * 4;
     Sprite sprite = Sprite(spriteAttributeTable[offset], spriteAttributeTable[offset + 1], spriteAttributeTable[offset + 2], SpriteAttributes(spriteAttributeTable[offset + 3]), offset);
 
@@ -918,18 +917,21 @@ std::pair<Sprite, std::vector<Shinobu::Frontend::OpenGL::Vertex>> Processor::get
     const palette selectedPalette = cgbFlag == Core::ROM::CGBFlag::DMG ? sprite.attributes.DMGPalette == 0 ? object0PaletteColors : object1PaletteColors : cgbPaletteAtIndex(sprite.attributes.CGBPalette, false);
 
     SpriteSize spriteSize = control.spriteSize();
+    std::vector<GLfloat> spriteData = {};
+    spriteData.resize(VRAMTileDataSide * 2 * VRAMTileDataSide * 3);
+    std::fill_n(spriteData.begin(), VRAMTileDataSide * 2 * VRAMTileDataSide * 3, 0xFF);
     if (spriteSize == SpriteSize::_8x8) {
         std::vector<Shinobu::Frontend::OpenGL::Vertex> vertices = getTileByIndex(sprite.tileNumber, 0, selectedPalette);
-        vertices = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(vertices, SpriteTilePositionInViewer::Middle);
-        return { sprite, vertices };
+        translateSpriteOwnCoordinatesToSpriteViewerCoordinates(vertices, SpriteTilePositionInViewer::Middle, spriteData);
+        return { sprite, spriteData };
     } else {
         uint16_t tileIndex = sprite.tileNumber & 0xFE;
         std::vector<Shinobu::Frontend::OpenGL::Vertex> bottomTile = getTileByIndex(tileIndex + 1, 0, selectedPalette);
-        bottomTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(bottomTile, SpriteTilePositionInViewer::Bottom);
+        translateSpriteOwnCoordinatesToSpriteViewerCoordinates(bottomTile, SpriteTilePositionInViewer::Bottom, spriteData);
         std::vector<Shinobu::Frontend::OpenGL::Vertex> topTile = getTileByIndex(tileIndex, 0, selectedPalette);
-        topTile = translateSpriteOwnCoordinatesToSpriteViewerCoordinates(topTile, SpriteTilePositionInViewer::Top);
+        translateSpriteOwnCoordinatesToSpriteViewerCoordinates(topTile, SpriteTilePositionInViewer::Top, spriteData);
         bottomTile.insert(bottomTile.end(), topTile.begin(), topTile.end());
-        return { sprite, bottomTile };
+        return { sprite, spriteData };
     }
 }
 
