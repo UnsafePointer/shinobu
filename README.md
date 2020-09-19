@@ -64,6 +64,7 @@ log: # Logging configuration (log levels: NOLOG, MSG, WAR)
   timer: NOLOG
 video:
   fullscreen: false # Desktop fullscreen startup
+  integerScale: false # Enable to force integer scaling, helps with shaders on high density displays
   overlayScale: 0 # Enable overlay with 1 and increase this if it's is too small
   palette: 0 # Select a custom palette for DMG emulation (10 available)
   screenDoorEffect: false # Emulate Game Boy LCD screen door effect

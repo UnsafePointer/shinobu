@@ -24,7 +24,9 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     overrideCGBFlag(),
     dmgBootstrapROM(),
     cgbBootstrapROM(),
-    colorCorrection(true)
+    colorCorrection(true),
+    screenDoorEffect(false),
+    forceIntegerScale(false)
 {
 
 }
@@ -126,6 +128,10 @@ bool Configuration::Manager::shouldEmulateScreenDoorEffect() const {
     return screenDoorEffect;
 }
 
+bool Configuration::Manager::shouldForceIntegerScale() const {
+    return forceIntegerScale;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -138,6 +144,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     videoConfigurationRef["overlayScale"] = "0";
     videoConfigurationRef["palette"] = "0";
     videoConfigurationRef["screenDoorEffect"] = "false";
+    videoConfigurationRef["integerScale"] = "false";
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
@@ -195,6 +202,7 @@ void Configuration::Manager::loadConfiguration() {
     scale = configuration["video"]["overlayScale"].As<int>();
     palette = configuration["video"]["palette"].As<int>();
     screenDoorEffect = configuration["video"]["screenDoorEffect"].As<bool>();
+    forceIntegerScale = configuration["video"]["integerScale"].As<bool>();
     overrideCGBFlag = configuration["emulation"]["overrideCGB"].As<bool>();
     dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();

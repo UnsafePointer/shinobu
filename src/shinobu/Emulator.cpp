@@ -24,8 +24,18 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), currentFrameCyc
     SDL_DisplayMode displayMode;
     Frontend::SDL2::handleSDL2Error(SDL_GetDesktopDisplayMode(0, &displayMode), logger);
 
-    int heigth = displayMode.h / 2;
-    int width = (float)heigth * 1.11;
+    int width, heigth;
+    if (configurationManager->shouldForceIntegerScale()) {
+        int maxVerticalRatio = (displayMode.h / 2) / VerticalResolution;
+        int maxHorizontalRatio = (displayMode.w / 2) / HorizontalResolution;
+        int ratio = maxVerticalRatio > maxHorizontalRatio ? maxVerticalRatio : maxHorizontalRatio;
+        heigth = VerticalResolution * ratio;
+        width = HorizontalResolution * ratio;
+    } else {
+        heigth = displayMode.h / 2;
+        width = (float)heigth * 1.11;
+    }
+
     window = std::make_unique<Shinobu::Frontend::SDL2::Window>("しのぶ", width, heigth, configurationManager->shouldLaunchFullscreen());
     setupOpenGL();
 
