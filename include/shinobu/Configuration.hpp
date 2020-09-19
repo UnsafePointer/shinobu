@@ -34,6 +34,7 @@ namespace Shinobu {
             std::string cgbBootstrapROM;
             bool colorCorrection;
             bool screenDoorEffect;
+            bool forceIntegerScale;
 
             Manager();
         public:
@@ -61,6 +62,7 @@ namespace Shinobu {
             std::string CGBBootstrapROM() const;
             bool shouldCorrectColors() const;
             bool shouldEmulateScreenDoorEffect() const;
+            bool shouldForceIntegerScale() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };
