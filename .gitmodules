@@ -7,3 +7,6 @@
 [submodule "Gb_Snd_Emu"]
 	path = third_party/Gb_Snd_Emu
 	url = https://github.com/UnsafePointer/Gb_Snd_Emu.git
+[submodule "third_party/sentry-native"]
+	path = third_party/sentry-native
+	url = https://github.com/getsentry/sentry-native.git
