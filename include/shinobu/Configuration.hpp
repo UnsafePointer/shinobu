@@ -35,6 +35,7 @@ namespace Shinobu {
             bool colorCorrection;
             bool screenDoorEffect;
             bool forceIntegerScale;
+            std::string sentryDSN;
 
             Manager();
         public:
@@ -63,6 +64,7 @@ namespace Shinobu {
             bool shouldCorrectColors() const;
             bool shouldEmulateScreenDoorEffect() const;
             bool shouldForceIntegerScale() const;
+            std::string getSentryDSN() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

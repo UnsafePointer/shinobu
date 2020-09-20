@@ -26,7 +26,8 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     cgbBootstrapROM(),
     colorCorrection(true),
     screenDoorEffect(false),
-    forceIntegerScale(false)
+    forceIntegerScale(false),
+    sentryDSN("")
 {
 
 }
@@ -132,6 +133,10 @@ bool Configuration::Manager::shouldForceIntegerScale() const {
     return forceIntegerScale;
 }
 
+std::string Configuration::Manager::getSentryDSN() const {
+    return sentryDSN;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -171,6 +176,9 @@ void Configuration::Manager::setupConfigurationFile() const {
     logConfigurationRef["joypad"] = "NOLOG";
     logConfigurationRef["sound"] = "NOLOG";
     logConfigurationRef["DMA"] = "NOLOG";
+    Yaml::Node sentryConfiguration = Yaml::Node();
+    Yaml::Node &sentryConfigurationRef = sentryConfiguration;
+    sentryConfigurationRef["dsn"] = "";
     Yaml::Node configuration = Yaml::Node();
     Yaml::Node &configurationRef = configuration;
     configurationRef["log"] = logConfiguration;
@@ -178,6 +186,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     configurationRef["audio"] = audioConfiguration;
     configurationRef["video"] = videoConfiguration;
     configurationRef["emulation"] = emulationConfigurationRef;
+    configurationRef["sentry"] = sentryConfigurationRef;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -207,5 +216,6 @@ void Configuration::Manager::loadConfiguration() {
     dmgBootstrapROM = configuration["emulation"]["DMGBootstrapROM"].As<std::string>();
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();
     colorCorrection = configuration["emulation"]["colorCorrection"].As<bool>();
+    sentryDSN = configuration["sentry"]["dsn"].As<std::string>();
     std::filesystem::remove(Common::Logs::filePath);
 }

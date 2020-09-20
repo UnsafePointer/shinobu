@@ -116,6 +116,11 @@ void Emulator::updateCurrentFrameCycles(uint8_t cycles) {
     }
 }
 
+static void *invalid_mem = (void *)1;
+void Emulator::crash() const {
+    memset((char *)invalid_mem, 1, 100);
+}
+
 void Emulator::configure(Shinobu::Program::Configuration configuration) {
     cartridge->open(configuration.ROMFilePath);
     PPU->setCGBFlag(cartridge->cgbFlag());
@@ -155,6 +160,10 @@ void Emulator::handleSDLEvent(SDL_Event event) {
     }
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_d) {
         disassembler->toggleEnabled();
+        return;
+    }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_DELETE) {
+        crash();
         return;
     }
     if (joypad->hasGameController()) {

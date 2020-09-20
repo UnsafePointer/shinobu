@@ -107,3 +107,7 @@ glsl/*.glsl
 
 # Disassembly
 *.s
+
+# Sentry
+.sentry-native
+*.debug
