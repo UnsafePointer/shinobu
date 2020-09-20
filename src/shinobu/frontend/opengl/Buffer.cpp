@@ -92,5 +92,5 @@ void Buffer<Texel>::enableAttributes() const {
     glEnableVertexAttribArray(texturePositionIdx);
 }
 
-template class Buffer<Vertex>;
-template class Buffer<Texel>;
+template class Shinobu::Frontend::OpenGL::Buffer<Vertex>;
+template class Shinobu::Frontend::OpenGL::Buffer<Texel>;

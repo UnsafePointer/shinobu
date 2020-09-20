@@ -111,135 +111,135 @@ namespace Core {
             uint8_t executeArithmetic(Instructions::Instruction instruction, std::function<std::tuple<uint8_t, Flag>(uint8_t,uint8_t)> operation, bool useAccumulator = true);
 
             template<typename T>
-            friend T CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::NOP(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::JP_U16(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::DI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::DI(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_RR_NN(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RST_N(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RST_N(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::INC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::INC_R(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RET(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RET(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_NN_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_U8(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LDH_N_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::DEC_RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::CALL_NN(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_R_R(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::JR_I8(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_INDIRECT(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::PUSH_RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::POP_RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::INC_RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::EI(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::OR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::JR_CC_I8(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::STOP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::STOP(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::CALL_CC_NN(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::ADD(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::ADD(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_NN_SP(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RLCA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RLCA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_A_NN(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SBC_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::DEC_R(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::XOR_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::ADC_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::JP_HL(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RRA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RRA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RET_CC(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RLC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RLC(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::CP_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LDH_A_N(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::BIT(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::BIT(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LDH_C_A(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LDH_A_C(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RL(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RLA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RLA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SUB(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SUB(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::AND(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::AND(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SET(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SET(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::ADD_HL_RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RES(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RES(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SRA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SRA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SWAP(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SWAP(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::JP_CC_NN(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_HL_SP_I8(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SLA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SLA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RR(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RR(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RRC(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RRC(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::LD_SP_HL(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::ADD_SP_I8(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RETI(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RETI(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::DAA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::DAA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::CPL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::CPL(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SCF(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SCF(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::CCF(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::CCF(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::RRCA(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::RRCA(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::SRL(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::SRL(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::HALT(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::HALT(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
             template<typename T>
-            friend T CPU::Instructions::HALTED(std::unique_ptr<Processor> &processor, Instruction instruction);
+            friend T CPU::Instructions::HALTED(std::unique_ptr<Processor> &processor, Instructions::Instruction instruction);
         public:
             Processor(Common::Logs::Level logLevel, std::unique_ptr<Memory::Controller> &memory, std::unique_ptr<Device::Interrupt::Controller> &interrupt);
             ~Processor();
