@@ -57,6 +57,7 @@ namespace Shinobu {
             void setupOpenGL() const;
             void enqueueSound();
             void updateCurrentFrameCycles(uint8_t cycles);
+            void crash() const;
         public:
             Emulator();
             ~Emulator();
