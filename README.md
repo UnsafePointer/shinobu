@@ -12,13 +12,11 @@ shinobu (しのぶ) is a cycle accurate [Game Boy](https://en.wikipedia.org/wiki
 
 ## Building
 
-This project can be built in Linux or Windows (with MSYS2) using GCC 9.3.0 (C++17) and SDL2.
+This project can be built in Linux or Windows (with MSYS2) with SLD2 using either GCC 9.3.0 and Make or Clang 10.0.1 and Ninja.
 
 ```Shell
-$ mkdir build
-$ cd build
-$ cmake .. # On Windows with MSYS2: cmake -G 'MSYS Makefiles' ..
-$ make -j8
+$ cmake -Bbuild # On Windows with MSYS2: `-G 'MSYS Makefiles'` or `-GNinja`
+$ cmake --build build --parallel # Or `ninja -C build`
 ```
 
 ## Usage
