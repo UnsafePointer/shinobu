@@ -66,7 +66,8 @@ namespace Shinobu {
             void emulate();
             void handleSDLEvent(SDL_Event event);
             bool shouldExit() const;
-            void saveExternalRAM();
+            void saveExternalRAM() const;
+            void flushLogs() const;
             void disassemble();
         };
     };

@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
         emulator.emulate();
     }
     emulator.saveExternalRAM();
+    emulator.flushLogs();
     sentryManager->shutdown();
     return 0;
 }

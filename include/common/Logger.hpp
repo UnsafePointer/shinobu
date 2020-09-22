@@ -22,7 +22,6 @@ namespace Common {
             std::string prefix;
 
             void traceMessage(std::string message) const;
-            void flush() const;
         public:
             Logger(Level level, std::string prefix);
             Level logLevel();
@@ -30,6 +29,7 @@ namespace Common {
             void logMessage(const char *fmt, ...) const;
             void logWarning(const char *fmt, ...) const;
             void logError(const char *fmt, ...) const;
+            void flush() const;
         };
     };
 };

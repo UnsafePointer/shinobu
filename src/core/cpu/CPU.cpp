@@ -188,12 +188,11 @@ Instructions::InstructionHandler<T> Processor::decodeInstruction(Instructions::I
         table = Instructions::InstructionHandlerTable<T>;
     }
     if (instruction.code._value > table.size()) {
-        logger.logWarning("Unhandled instruction with code: %02x", instruction.code._value);
-        return nullptr;
+        logger.logError("Unhandled instruction with code: %02x, at PC: %04x", instruction.code._value, registers.pc);
     }
     Instructions::InstructionHandler<T> handler = table[instruction.code._value];
-    if (handler == nullptr) {
-        logger.logWarning("Unhandled instruction with code: %02x", instruction.code._value);
+    if (handler == NULL) {
+        logger.logError("Unhandled instruction with code: %02x, at PC: %04x", instruction.code._value, registers.pc);
     }
     return handler;
 }

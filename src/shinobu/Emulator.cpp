@@ -198,8 +198,12 @@ bool Emulator::shouldExit() const {
     return stopEmulation;
 }
 
-void Emulator::saveExternalRAM() {
+void Emulator::saveExternalRAM() const {
     memoryController->saveExternalRAM();
+}
+
+void Emulator::flushLogs() const {
+    logger.flush();
 }
 
 void Emulator::disassemble() {

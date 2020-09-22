@@ -57,6 +57,7 @@ void Logger::logDebug(const char *fmt, ...) const {
 
     formatted.insert(0, prefix);
     std::cout << formatted << std::endl;
+    traceMessage(formatted);
 }
 
 void Logger::logMessage(const char *fmt, ...) const {
