@@ -47,6 +47,8 @@ emulation:
   overrideCGB: false # Use DMG emulation whenever possible
 frontend:
   kind: SDL # Default: SDL, Available: PPU (show VRAM state)
+input:
+  controllerName: Bluetooth # For non-Xbox-like controllers only
 log: # Logging configuration (log levels: NOLOG, MSG, WAR)
   CPU: NOLOG
   DMA: NOLOG
@@ -72,7 +74,7 @@ video:
 
 ![keyboard.png](/images/keyboard.png)
 
-Gamepad support is implemented by [`SDL_GameController` API](https://wiki.libsdl.org/CategoryGameController) (Xbox-type controllers). Only the Game Boy buttons and DMG palette selection are mapped.
+Gamepad support is implemented by [`SDL_GameController` API](https://wiki.libsdl.org/CategoryGameController) (Xbox-type controllers) and [`SDL_Joystick` API](https://wiki.libsdl.org/CategoryJoystick) (other type of controllers) with static bindings. Only the Game Boy buttons and DMG palette selection are mapped.
 
 ### PPU visualizer
 
