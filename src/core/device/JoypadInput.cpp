@@ -5,7 +5,7 @@
 using namespace Core::Device::JoypadInput;
 using namespace Shinobu::Frontend::SDL2;
 
-Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt) : logger(logLevel, "  [Joypad]: "), interrupt(interrupt), joypad(), gameController(Common::Logs::Level::Warning) {}
+Controller::Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::string controllerName) : logger(logLevel, "  [Joypad]: "), interrupt(interrupt), joypad(), gameController(Common::Logs::Level::Warning, controllerName) {}
 
 Controller::~Controller() {}
 

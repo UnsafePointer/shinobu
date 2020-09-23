@@ -36,6 +36,7 @@ namespace Shinobu {
             bool screenDoorEffect;
             bool forceIntegerScale;
             std::string sentryDSN;
+            std::string controllerName;
 
             Manager();
         public:
@@ -65,6 +66,7 @@ namespace Shinobu {
             bool shouldEmulateScreenDoorEffect() const;
             bool shouldForceIntegerScale() const;
             std::string getSentryDSN() const;
+            std::string gameControllerName() const;
             void setupConfigurationFile() const;
             void loadConfiguration();
         };

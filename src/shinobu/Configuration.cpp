@@ -27,7 +27,8 @@ Configuration::Manager::Manager() : logger(Common::Logs::Logger(Common::Logs::Le
     colorCorrection(true),
     screenDoorEffect(false),
     forceIntegerScale(false),
-    sentryDSN("")
+    sentryDSN(""),
+    controllerName("")
 {
 
 }
@@ -137,6 +138,10 @@ std::string Configuration::Manager::getSentryDSN() const {
     return sentryDSN;
 }
 
+std::string Configuration::Manager::gameControllerName() const {
+    return controllerName;
+}
+
 void Configuration::Manager::setupConfigurationFile() const {
     std::ifstream file = std::ifstream(filePath);
     if (file.good()) {
@@ -153,6 +158,9 @@ void Configuration::Manager::setupConfigurationFile() const {
     Yaml::Node audioConfiguration = Yaml::Node();
     Yaml::Node &audioConfigurationRef = audioConfiguration;
     audioConfigurationRef["mute"] = "false";
+    Yaml::Node inputConfiguration = Yaml::Node();
+    Yaml::Node &inputConfigurationRef = inputConfiguration;
+    inputConfigurationRef["controllerName"] = "";
     Yaml::Node frontendConfiguration = Yaml::Node();
     Yaml::Node &frontendConfigurationRef = frontendConfiguration;
     frontendConfigurationRef["kind"] = "SDL";
@@ -187,6 +195,7 @@ void Configuration::Manager::setupConfigurationFile() const {
     configurationRef["video"] = videoConfiguration;
     configurationRef["emulation"] = emulationConfigurationRef;
     configurationRef["sentry"] = sentryConfigurationRef;
+    configurationRef["input"] = inputConfigurationRef;
     Yaml::Serialize(configuration, filePath.string().c_str());
 }
 
@@ -217,5 +226,6 @@ void Configuration::Manager::loadConfiguration() {
     cgbBootstrapROM = configuration["emulation"]["CGBBootstrapROM"].As<std::string>();
     colorCorrection = configuration["emulation"]["colorCorrection"].As<bool>();
     sentryDSN = configuration["sentry"]["dsn"].As<std::string>();
+    controllerName = configuration["input"]["controllerName"].As<std::string>();
     std::filesystem::remove(Common::Logs::filePath);
 }
