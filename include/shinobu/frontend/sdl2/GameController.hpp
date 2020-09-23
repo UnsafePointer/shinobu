@@ -19,14 +19,16 @@ namespace Shinobu {
             class GameController {
                 Common::Logs::Logger logger;
                 SDL_GameController *controller;
+                SDL_Joystick *joystick;
 
-                bool isGameControllerButtonPressed(Button button);
-                bool isKeyboardBindingForButtonPressed(Button button);
+                bool isGameControllerButtonPressed(Button button) const;
+                bool isKeyboardBindingForButtonPressed(Button button) const;
+                bool isJoystickButtonPressed(Button button) const;
             public:
-                GameController(Common::Logs::Level logLevel);
+                GameController(Common::Logs::Level logLevel, std::string controllerName);
                 ~GameController();
 
-                bool isButtonPressed(Button button);
+                bool isButtonPressed(Button button) const;
                 bool hasGameController() const;
             };
         };

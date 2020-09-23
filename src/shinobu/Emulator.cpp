@@ -59,7 +59,7 @@ Emulator::Emulator() : logger(Common::Logs::Level::Message, ""), currentFrameCyc
     sound = std::make_unique<Core::Device::Sound::Controller>(configurationManager->soundLogLevel(), isMuted);
     sound->setSampleRate(SampleRate);
     timer = std::make_unique<Core::Device::Timer::Controller>(configurationManager->timerLogLevel(), interrupt);
-    joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt);
+    joypad = std::make_unique<Core::Device::JoypadInput::Controller>(configurationManager->joypadLogLevel(), interrupt, configurationManager->gameControllerName());
     cartridge = std::make_unique<Core::ROM::Cartridge>(configurationManager->ROMLogLevel(), configurationManager->shouldOverrideCGBFlag());
     memoryController = std::make_unique<Core::Memory::Controller>(configurationManager->memoryLogLevel(), cartridge, PPU, sound, interrupt, timer, joypad, DMA);
     processor = std::make_unique<Core::CPU::Processor>(configurationManager->CPULogLevel(), memoryController, interrupt);
@@ -168,11 +168,11 @@ void Emulator::handleSDLEvent(SDL_Event event) {
     }
     if (joypad->hasGameController()) {
         // TODO: Use Controller events API instead of Joypad
-        if (event.type == SDL_JOYBUTTONDOWN && event.button.which == 260) {
+        if (event.type == SDL_JOYBUTTONDOWN && (event.button.which == 260 || event.button.which == 262)) {
             paletteSelector->backwardSelector();
             return;
         }
-        if (event.type == SDL_JOYBUTTONDOWN && event.button.which == 261) {
+        if (event.type == SDL_JOYBUTTONDOWN && (event.button.which == 261 || event.button.which == 263)) {
             paletteSelector->forwardSelector();
             return;
         }

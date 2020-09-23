@@ -34,7 +34,7 @@ namespace Core {
                 Joypad joypad;
                 Shinobu::Frontend::SDL2::GameController gameController;
             public:
-                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt);
+                Controller(Common::Logs::Level logLevel, std::unique_ptr<Core::Device::Interrupt::Controller> &interrupt, std::string controllerName);
                 ~Controller();
 
                 uint8_t load() const;

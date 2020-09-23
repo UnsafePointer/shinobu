@@ -2,7 +2,7 @@
 
 using namespace Shinobu::Frontend::SDL2;
 
-GameController::GameController(Common::Logs::Level logLevel) : logger(logLevel, " [GameController]: "), controller(nullptr) {
+GameController::GameController(Common::Logs::Level logLevel, std::string controllerName) : logger(logLevel, " [GameController]: "), controller(nullptr), joystick(nullptr) {
     int numberOfJoysticks = SDL_NumJoysticks();
     if (numberOfJoysticks < 0) {
         logger.logError("Error getting number of joysticks: %s", SDL_GetError());
@@ -15,13 +15,22 @@ GameController::GameController(Common::Logs::Level logLevel) : logger(logLevel, 
             } else {
                 logger.logError("Could not open gamecontroller %i: %s", i, SDL_GetError());
             }
+        } else {
+            SDL_Joystick *currentJoystick = SDL_JoystickOpen(i);
+            if (currentJoystick != NULL) {
+                const char* joystickName = SDL_JoystickName(currentJoystick);
+                if (joystickName != NULL && std::string(joystickName).find(controllerName) != std::string::npos) {
+                    logger.logMessage("Using joystick with name: %s", joystickName);
+                    joystick = currentJoystick;
+                }
+            }
         }
     }
 }
 
 GameController::~GameController() { }
 
-bool GameController::isGameControllerButtonPressed(Button button) {
+bool GameController::isGameControllerButtonPressed(Button button) const {
     switch (button) {
     case Button::Up:
         return SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP);
@@ -43,7 +52,29 @@ bool GameController::isGameControllerButtonPressed(Button button) {
     return false;
 }
 
-bool GameController::isKeyboardBindingForButtonPressed(Button button) {
+bool GameController::isJoystickButtonPressed(Button button) const {
+    switch (button) {
+    case Button::Up:
+        return SDL_JoystickGetAxis(joystick, 1) == std::numeric_limits<int16_t>::min();
+    case Button::Down:
+        return SDL_JoystickGetAxis(joystick, 1) == std::numeric_limits<int16_t>::max();
+    case Button::Left:
+        return SDL_JoystickGetAxis(joystick, 0) == std::numeric_limits<int16_t>::min();
+    case Button::Right:
+        return SDL_JoystickGetAxis(joystick, 0) == std::numeric_limits<int16_t>::max();
+    case Button::A:
+        return SDL_JoystickGetButton(joystick, 0);
+    case Button::B:
+        return SDL_JoystickGetButton(joystick, 1);
+    case Button::Start:
+        return SDL_JoystickGetButton(joystick, 11);
+    case Button::Select:
+        return SDL_JoystickGetButton(joystick, 10);
+    }
+    return false;
+}
+
+bool GameController::isKeyboardBindingForButtonPressed(Button button) const {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     switch (button) {
     case Button::Up:
@@ -66,14 +97,16 @@ bool GameController::isKeyboardBindingForButtonPressed(Button button) {
     return false;
 }
 
-bool GameController::isButtonPressed(Button button) {
+bool GameController::isButtonPressed(Button button) const {
     if (controller != nullptr) {
         return isGameControllerButtonPressed(button);
+    } else if (joystick != nullptr) {
+        return isJoystickButtonPressed(button);
     } else {
         return isKeyboardBindingForButtonPressed(button);
     }
 }
 
 bool GameController::hasGameController() const {
-    return controller != nullptr;
+    return controller != nullptr || joystick != nullptr;
 }
